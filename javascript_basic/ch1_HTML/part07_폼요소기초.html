@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 7: 폼 요소 기초</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #f0f4f8;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #3498db;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        form {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px 0;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        input, textarea, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .code {
+            background: #2c3e50;
+            color: #1abc9c;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .info {
+            background: #d1ecf1;
+            border-left: 5px solid #0c5460;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>📝 26.8: 폼 요소 기초</h1>
+
+    <div class="section">
+        <h2>1. &lt;form&gt; 태그</h2>
+        <p>사용자 입력을 받아서 서버로 전송하는 컨테이너</p>
+
+        <div class="code">
+&lt;form action="/submit" method="POST"&gt;<br>
+&nbsp;&nbsp;폼 요소들...<br>
+&lt;/form&gt;
+        </div>
+
+        <div class="info">
+            <strong>주요 속성:</strong>
+            <ul>
+                <li><strong>action</strong>: 데이터를 전송할 URL</li>
+                <li><strong>method</strong>: 전송 방식 (GET, POST)</li>
+                <li><strong>name</strong>: 폼의 이름</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. &lt;input&gt; 태그</h2>
+        <p>다양한 타입의 입력을 받을 수 있는 태그</p>
+
+        <form>
+            <label>텍스트 입력 (type="text")</label>
+            <input type="text" placeholder="이름을 입력하세요">
+
+            <label>비밀번호 입력 (type="password")</label>
+            <input type="password" placeholder="비밀번호를 입력하세요">
+
+            <label>이메일 입력 (type="email")</label>
+            <input type="email" placeholder="example@email.com">
+
+            <label>숫자 입력 (type="number")</label>
+            <input type="number" min="0" max="100" placeholder="0~100">
+
+            <label>날짜 선택 (type="date")</label>
+            <input type="date">
+
+            <label>시간 선택 (type="time")</label>
+            <input type="time">
+
+            <label>색상 선택 (type="color")</label>
+            <input type="color" value="#3498db">
+
+            <label>파일 선택 (type="file")</label>
+            <input type="file">
+
+            <label>범위 선택 (type="range")</label>
+            <input type="range" min="0" max="100" value="50">
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>3. &lt;button&gt; 태그</h2>
+        <p>클릭 가능한 버튼</p>
+
+        <form>
+            <button type="submit">제출 버튼 (type="submit")</button>
+            <button type="reset">초기화 버튼 (type="reset")</button>
+            <button type="button" onclick="alert('클릭!')">일반 버튼 (type="button")</button>
+        </form>
+
+        <div class="info">
+            <strong>button vs input type="button"</strong>
+            <ul>
+                <li>&lt;button&gt;: 내부에 HTML 요소 포함 가능 (이미지, 아이콘 등)</li>
+                <li>&lt;input type="button"&gt;: 텍스트만 가능</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>4. &lt;textarea&gt; 태그</h2>
+        <p>여러 줄의 텍스트 입력</p>
+
+        <form>
+            <label>자기소개</label>
+            <textarea rows="5" placeholder="자기소개를 입력하세요..."></textarea>
+        </form>
+
+        <div class="code">
+&lt;textarea rows="5" cols="30"&gt;기본 텍스트&lt;/textarea&gt;
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>5. &lt;select&gt; 태그 (드롭다운)</h2>
+        <p>여러 옵션 중 하나를 선택</p>
+
+        <form>
+            <label>좋아하는 과일</label>
+            <select>
+                <option value="">선택하세요</option>
+                <option value="apple">사과</option>
+                <option value="banana">바나나</option>
+                <option value="orange">오렌지</option>
+                <option value="grape">포도</option>
+            </select>
+
+            <label>출생 연도</label>
+            <select>
+                <option value="">선택하세요</option>
+                <option value="2000">2000년</option>
+                <option value="2001">2001년</option>
+                <option value="2002">2002년</option>
+                <option value="2003">2003년</option>
+                <option value="2004">2004년</option>
+            </select>
+
+            <label>다중 선택 (multiple)</label>
+            <select multiple size="5">
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="js">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+            </select>
+            <small>Ctrl/Cmd를 누르고 클릭하면 여러 개 선택 가능</small>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>6. 종합 예제: 회원가입 폼</h2>
+
+        <form onsubmit="alert('폼 제출!'); return false;">
+            <h3>회원가입</h3>
+
+            <label for="username">아이디 *</label>
+            <input type="text" id="username" name="username" required placeholder="4~12자 영문, 숫자">
+
+            <label for="password">비밀번호 *</label>
+            <input type="password" id="password" name="password" required minlength="8" placeholder="8자 이상">
+
+            <label for="email">이메일 *</label>
+            <input type="email" id="email" name="email" required placeholder="example@email.com">
+
+            <label for="phone">전화번호</label>
+            <input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}" placeholder="010-1234-5678">
+
+            <label for="birth">생년월일</label>
+            <input type="date" id="birth" name="birth">
+
+            <label for="gender">성별</label>
+            <select id="gender" name="gender">
+                <option value="">선택하세요</option>
+                <option value="male">남성</option>
+                <option value="female">여성</option>
+                <option value="other">기타</option>
+            </select>
+
+            <label for="bio">자기소개</label>
+            <textarea id="bio" name="bio" rows="4" placeholder="자신을 소개해주세요"></textarea>
+
+            <button type="submit">회원가입</button>
+            <button type="reset">초기화</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>7. 주요 input 속성</h2>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="background: #3498db; color: white;">
+                <th style="padding: 10px; border: 1px solid #ddd;">속성</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">설명</th>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>placeholder</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">입력 힌트 표시</td>
+            </tr>
+            <tr style="background: #ecf0f1;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>required</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">필수 입력 필드</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>disabled</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">입력 비활성화</td>
+            </tr>
+            <tr style="background: #ecf0f1;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>readonly</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">읽기 전용</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>maxlength</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">최대 글자 수</td>
+            </tr>
+            <tr style="background: #ecf0f1;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>minlength</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">최소 글자 수</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>pattern</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">정규식 패턴 검증</td>
+            </tr>
+            <tr style="background: #ecf0f1;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>value</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">기본값 설정</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>✅ 실습 과제</h2>
+        <ol>
+            <li>설문조사 폼을 만들어보세요 (이름, 연령대, 만족도 등)</li>
+            <li>상품 주문 폼을 만들어보세요 (상품 선택, 수량, 배송지 등)</li>
+            <li>문의하기 폼을 만들어보세요 (이름, 이메일, 제목, 내용)</li>
+        </ol>
+    </div>
+</body>
+</html>
+

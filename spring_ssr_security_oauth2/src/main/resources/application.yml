@@ -1,0 +1,120 @@
+# ==========================================
+# Spring Boot 설정 파일
+# ==========================================
+# application.yml: Spring Boot의 모든 설정을 관리하는 파일
+# application.properties와 같은 역할이지만, 계층 구조(yml)로 가독성이 좋음
+# profiles(dev/prod), 환경변수 등으로 환경별 설정 분리 가능
+
+spring:
+  # ─── 파일 업로드 설정 ───
+  # MultipartFile 처리 시 허용할 최대 파일 크기
+  servlet:
+    multipart:
+      max-file-size: 10MB       # 단일 파일 최대 크기 (이 이상이면 MaxUploadSizeExceededException)
+      max-request-size: 50MB    # 전체 요청 최대 크기 (여러 파일 합산)
+
+  # ─── 데이터베이스 연결 설정 (HikariCP 커넥션 풀) ───
+  datasource:
+    url: jdbc:mariadb://localhost:3406/test   # DB 접속 URL (JDBC URL)
+                                               # jdbc:mariadb://호스트:포트/DB명
+    driver-class-name: org.mariadb.jdbc.Driver # JDBC 드라이버 (MariaDB)
+    username: test                              # DB 접속 계정
+    password: test                              # DB 접속 비밀번호
+    hikari:
+      # HikariCP: Spring Boot 기본 커넥션 풀 (DB 연결을 미리 만들어두고 재사용)
+      connection-init-sql: SET FOREIGN_KEY_CHECKS = 0  # 커넥션 생성 시 실행할 SQL
+                                                        # ddl-auto: create 시 테이블 drop 순서 문제 방지 (개발용)
+                                                        # ※ 운영 환경에서는 절대 사용 금지
+
+  # ─── JPA/Hibernate 설정 ───
+  jpa:
+    hibernate:
+      ddl-auto: create   # 서버 시작 시 기존 테이블 DROP 후 재생성
+                          # create: 매번 새로 생성 (개발용, 데이터 초기화됨)
+                          # create-drop: 종료 시 DROP
+                          # update: 변경분만 반영 (컬럼 추가 등)
+                          # validate: 검증만 (운영용)
+                          # none: 아무것도 안 함
+
+    defer-datasource-initialization: true  # JPA 테이블 생성 후 data-*.sql 실행
+                                            # false면 data.sql이 먼저 실행되어 테이블 없는 오류 발생
+
+    properties:
+      hibernate:
+        show_sql: true              # Hibernate가 실행하는 SQL을 콘솔에 출력 (개발 시 디버깅용)
+        format_sql: true            # SQL 출력 시 포맷팅 (줄바꿈, 들여쓰기) → 가독성 향상
+        default_batch_fetch_size: 100  # N+1 문제 완화 — IN 쿼리로 한번에 최대 100건 조회
+                                        # 예: WHERE id IN (1,2,3,...100)
+
+    open-in-view: false  # OSIV (Open Session In View) 비활성화
+                          # true(기본값): Controller/View까지 영속성 컨텍스트 유지 → 지연 로딩 가능하지만 DB 커넥션 오래 잡음
+                          # false(권장): Service 계층에서만 영속성 컨텍스트 유지 → 성능 향상, 명시적 관리
+
+  # ─── 초기 데이터 로딩 (data-*.sql) ───
+  # 서버 시작 시 자동으로 SQL 파일을 실행하여 테스트 데이터 삽입
+  # ddl-auto: create와 함께 사용하면 매번 깨끗한 초기 데이터로 시작 가능
+  sql:
+    init:
+      mode: always         # always: 항상 실행 / embedded: 내장 DB만 / never: 실행 안 함
+      data-locations:      # 실행할 SQL 파일 경로 (classpath = src/main/resources)
+        - classpath:data-users.sql       # 1) 사용자 초기 데이터
+
+  # ─── DevTools 설정 (개발 편의) ───
+  # spring-boot-devtools 의존성 추가 시 사용 가능
+  devtools:
+    livereload:
+      enabled: true    # 브라우저 자동 새로고침 (HTML/CSS 변경 감지)
+    restart:
+      enabled: true    # 클래스 변경 시 서버 자동 재시작 (전체 재시작보다 빠름)
+
+  # ─── Thymeleaf 설정 ───
+  thymeleaf:
+    cache: false   # 템플릿 캐싱 비활성화 (개발 시: HTML 수정 즉시 반영)
+                    # ※ 운영 환경에서는 true로 설정 (성능 향상)
+
+  # ─── OAuth2 로그인 설정 ───
+  # 카카오, 구글 OAuth2 로그인을 위한 Client 등록 및 Provider 정보
+  # ${KAKAO_CLIENT_ID} 등은 .env 파일에서 spring-dotenv로 자동 로딩
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}  # 카카오 REST API 키
+            #client-secret: ${KAKAO_CLIENT_SECRET}  # 선택 (일반적으로 필요 없음)
+            client-authentication-method: none  # ★ 카카오는 client_secret 불필요 → none으로 설정
+                                                 # 기본값 client_secret_basic은 Authorization 헤더로 전송 → 카카오 401 에러
+                                                 # none: client_id를 POST body로 전송 → 카카오 정상 동작
+                                                 # Spring Boot 3.4+ 에서는 secret 없으면 자동 none이지만 명시적으로 설정 권장
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao # 카카오 로그인 후 리디렉트될 주소
+            authorization-grant-type: authorization_code  # OAuth2 인증 방식 (코드 방식)
+            scope:
+              - profile_nickname
+              - account_email  # 요청할 사용자 정보 (이메일, 닉네임)
+
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}  # 구글은 인가코드→access_token 과정에서 secret 필요
+            scope:
+              - profile
+              - email
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
+
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize  # 카카오 로그인 URL (인증서버)
+            token-uri: https://kauth.kakao.com/oauth/token              # 액세스 토큰 요청 URL (인증서버)
+            user-info-uri: https://kapi.kakao.com/v2/user/me            # 사용자 정보 요청 URL (리소스서버)
+            user-name-attribute: id  # OAuth2User 식별값. 카카오는 id, 구글은 sub
+          # google은 Security가 기본 제공하므로 provider 설정 불필요
+
+
+# ─── 커스텀 설정 ───
+# Spring Boot 기본 설정이 아닌, 프로젝트에서 직접 정의한 설정
+# @Value("${file.upload-dir}") 로 Java 코드에서 주입받아 사용
+file:
+  upload-dir: ./uploads   # 파일 업로드 저장 경로 (프로젝트 루트 기준 상대경로)
+
+
+

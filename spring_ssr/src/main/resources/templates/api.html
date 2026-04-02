@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공공데이터 API 테스트</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background-color: #fafafa; min-height: 100vh; }
+
+        /* ── 헤더 (index.html과 동일) ── */
+        .app-header { background-color: #6200ea; color: white; padding: 0 16px; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 500; text-decoration: none; color: white; }
+        .header-logo .material-icons { font-size: 28px; }
+        .nav-item { padding: 8px 16px; border-radius: 4px; text-decoration: none; color: white; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); }
+        .nav-item.active { background-color: rgba(255,255,255,0.2); }
+
+        /* ── 페이지 본문 ── */
+        .page-container { max-width: 1200px; margin: 0 auto; padding: 32px 20px; }
+        .page-title { font-size: 28px; font-weight: 500; color: #333; margin-bottom: 8px; }
+        .page-desc { font-size: 14px; color: #666; margin-bottom: 32px; line-height: 1.6; }
+
+        /* ── API 카드 ── */
+        .api-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; }
+        .api-card { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+        .card-header { background: linear-gradient(135deg, #6200ea 0%, #3700b3 100%); color: white; padding: 20px 24px; }
+        .card-header h2 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+        .card-header p { font-size: 12px; opacity: 0.85; font-family: monospace; }
+        .card-body { padding: 24px; }
+
+        /* ── 폼 ── */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 12px; font-weight: 500; color: #666; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select {
+            padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px;
+            font-size: 14px; font-family: 'Roboto', sans-serif; transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #6200ea; box-shadow: 0 0 0 3px rgba(98,0,234,0.1);
+        }
+        .form-hint { font-size: 11px; color: #999; margin-top: 4px; }
+
+        .btn-request {
+            margin-top: 20px; width: 100%; padding: 12px; background-color: #6200ea; color: white;
+            border: none; border-radius: 6px; font-size: 15px; font-weight: 500; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;
+        }
+        .btn-request:hover { background-color: #5000c9; }
+        .btn-request:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn-request .material-icons { font-size: 20px; }
+
+        /* ── 결과 영역 ── */
+        .result-area { margin-top: 20px; }
+        .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .result-header span { font-size: 13px; font-weight: 500; color: #666; }
+        .result-status { font-size: 12px; padding: 3px 10px; border-radius: 12px; font-weight: 500; }
+        .result-status.success { background: #e8f5e9; color: #2e7d32; }
+        .result-status.error { background: #ffebee; color: #c62828; }
+        .result-status.loading { background: #fff3e0; color: #e65100; }
+        .result-box {
+            background: #1e1e1e; color: #d4d4d4; border-radius: 8px; padding: 16px;
+            font-family: 'Consolas', 'Courier New', monospace; font-size: 13px;
+            max-height: 400px; overflow: auto; white-space: pre-wrap; word-break: break-all;
+            line-height: 1.5;
+        }
+        .result-box:empty::before { content: '여기에 API 응답 결과가 표시됩니다.'; color: #666; }
+    </style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<header class="app-header">
+    <div class="header-container">
+        <div class="header-left">
+            <a href="/" class="header-logo">
+                <span class="material-icons">code</span>
+                <span>Boilerplate</span>
+            </a>
+            <a href="/community" class="nav-item">
+                <span class="material-icons">forum</span>
+                커뮤니티
+            </a>
+            <a href="/api/test" class="nav-item active">
+                <span class="material-icons">cloud</span>
+                API 테스트
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- ── 본문 ── -->
+<div class="page-container">
+    <h1 class="page-title">공공데이터 API 프록시 테스트</h1>
+    <p class="page-desc">
+        브라우저(JS)에서 직접 공공데이터 API를 호출하면 <strong>CORS 에러</strong>가 발생합니다.<br>
+        우리 Spring 서버가 <strong>프록시(대리 호출)</strong> 역할을 하여 CORS 문제 없이 데이터를 가져옵니다.<br>
+        <code>브라우저 JS → 우리 서버(/api/proxy/*) → 공공데이터 API → 응답 → JS</code>
+    </p>
+
+    <div class="api-cards">
+
+        <!-- ══════════ API 1: 시군구별 관광기후지수 조회 ══════════ -->
+        <div class="api-card">
+            <div class="card-header">
+                <h2>API 1 — 시군구별 관광기후지수 조회</h2>
+                <p>getCityTourClmIdx1</p>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>CURRENT_DATE</label>
+                        <input type="text" id="api1-date" value="2018123110" placeholder="yyyyMMddHH">
+                        <span class="form-hint">예: 2018123110 (2018-12-31 10시)</span>
+                    </div>
+                    <div class="form-group">
+                        <label>DAY</label>
+                        <input type="number" id="api1-day" value="3" min="1" max="7">
+                        <span class="form-hint">CURRENT_DATE부터 N일 후까지</span>
+                    </div>
+                    <div class="form-group">
+                        <label>CITY_AREA_ID</label>
+                        <input type="text" id="api1-city" value="5013000000">
+                        <span class="form-hint">시군구 아이디</span>
+                    </div>
+                    <div class="form-group">
+                        <label>dataType</label>
+                        <select id="api1-dataType">
+                            <option value="JSON" selected>JSON</option>
+                            <option value="XML">XML</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>pageNo</label>
+                        <input type="number" id="api1-page" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>numOfRows</label>
+                        <input type="number" id="api1-rows" value="10" min="1">
+                    </div>
+                </div>
+                <button class="btn-request" onclick="callApi1()">
+                    <span class="material-icons">send</span>
+                    요청 보내기
+                </button>
+                <div class="result-area">
+                    <div class="result-header">
+                        <span>응답 결과</span>
+                        <span id="api1-status"></span>
+                    </div>
+                    <pre class="result-box" id="api1-result"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ API 2: 동네예보 조회 ══════════ -->
+        <div class="api-card">
+            <div class="card-header">
+                <h2>API 2 — 동네예보 조회</h2>
+                <p>getTourStnVilageFcst1</p>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>CURRENT_DATE</label>
+                        <input type="text" id="api2-date" value="2019122010" placeholder="yyyyMMddHH">
+                        <span class="form-hint">예: 2019122010 (2019-12-20 10시)</span>
+                    </div>
+                    <div class="form-group">
+                        <label>HOUR</label>
+                        <input type="number" id="api2-hour" value="24" min="1">
+                        <span class="form-hint">CURRENT_DATE부터 N시간 후까지</span>
+                    </div>
+                    <div class="form-group">
+                        <label>COURSE_ID</label>
+                        <input type="text" id="api2-course" value="1">
+                        <span class="form-hint">관광 코스 ID</span>
+                    </div>
+                    <div class="form-group">
+                        <label>dataType</label>
+                        <select id="api2-dataType">
+                            <option value="JSON" selected>JSON</option>
+                            <option value="XML">XML</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>pageNo</label>
+                        <input type="number" id="api2-page" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>numOfRows</label>
+                        <input type="number" id="api2-rows" value="10" min="1">
+                    </div>
+                </div>
+                <button class="btn-request" onclick="callApi2()">
+                    <span class="material-icons">send</span>
+                    요청 보내기
+                </button>
+                <div class="result-area">
+                    <div class="result-header">
+                        <span>응답 결과</span>
+                        <span id="api2-status"></span>
+                    </div>
+                    <pre class="result-box" id="api2-result"></pre>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /api-cards -->
+</div><!-- /page-container -->
+
+<script>
+    /**
+     * API 1 호출 — 시군구별 관광기후지수 (getCityTourClmIdx1)
+     * fetch()로 우리 Spring 서버의 프록시 엔드포인트를 호출
+     * (직접 공공데이터 API를 호출하지 않으므로 CORS 문제 없음)
+     */
+    async function callApi1() {
+        const resultEl  = document.getElementById('api1-result');
+        const statusEl  = document.getElementById('api1-status');
+
+        // 상태 표시: 로딩 중
+        statusEl.className = 'result-status loading';
+        statusEl.textContent = '요청 중...';
+        resultEl.textContent = '';
+
+        // 입력값 수집
+        const params = new URLSearchParams({
+            CURRENT_DATE : document.getElementById('api1-date').value,
+            DAY          : document.getElementById('api1-day').value,
+            CITY_AREA_ID : document.getElementById('api1-city').value,
+            dataType     : document.getElementById('api1-dataType').value,
+            pageNo       : document.getElementById('api1-page').value,
+            numOfRows    : document.getElementById('api1-rows').value,
+        });
+
+        try {
+            // 우리 서버 프록시 엔드포인트 호출
+            const res  = await fetch('/api/proxy/city-climate?' + params);
+            const text = await res.text();
+
+            if (res.ok) {
+                statusEl.className = 'result-status success';
+                statusEl.textContent = '성공 (' + res.status + ')';
+                // JSON이면 예쁘게 포맷, 아니면 그대로 출력
+                try {
+                    resultEl.textContent = JSON.stringify(JSON.parse(text), null, 2);
+                } catch (e) {
+                    resultEl.textContent = text;
+                }
+            } else {
+                statusEl.className = 'result-status error';
+                statusEl.textContent = '에러 (' + res.status + ')';
+                resultEl.textContent = text;
+            }
+        } catch (err) {
+            statusEl.className = 'result-status error';
+            statusEl.textContent = '네트워크 에러';
+            resultEl.textContent = err.message;
+        }
+    }
+
+    /**
+     * API 2 호출 — 동네예보 (getTourStnVilageFcst1)
+     */
+    async function callApi2() {
+        const resultEl  = document.getElementById('api2-result');
+        const statusEl  = document.getElementById('api2-status');
+
+        statusEl.className = 'result-status loading';
+        statusEl.textContent = '요청 중...';
+        resultEl.textContent = '';
+
+        const params = new URLSearchParams({
+            CURRENT_DATE : document.getElementById('api2-date').value,
+            HOUR         : document.getElementById('api2-hour').value,
+            COURSE_ID    : document.getElementById('api2-course').value,
+            dataType     : document.getElementById('api2-dataType').value,
+            pageNo       : document.getElementById('api2-page').value,
+            numOfRows    : document.getElementById('api2-rows').value,
+        });
+
+        try {
+            const res  = await fetch('/api/proxy/tour-forecast?' + params);
+            const text = await res.text();
+
+            if (res.ok) {
+                statusEl.className = 'result-status success';
+                statusEl.textContent = '성공 (' + res.status + ')';
+                try {
+                    resultEl.textContent = JSON.stringify(JSON.parse(text), null, 2);
+                } catch (e) {
+                    resultEl.textContent = text;
+                }
+            } else {
+                statusEl.className = 'result-status error';
+                statusEl.textContent = '에러 (' + res.status + ')';
+                resultEl.textContent = text;
+            }
+        } catch (err) {
+            statusEl.className = 'result-status error';
+            statusEl.textContent = '네트워크 에러';
+            resultEl.textContent = err.message;
+        }
+    }
+</script>
+</body>
+</html>
+

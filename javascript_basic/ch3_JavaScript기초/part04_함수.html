@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 4: 함수</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { color: #f12711; text-align: center; border-bottom: 4px solid #f12711; padding-bottom: 15px; }
+        h2 { color: #f5af19; border-left: 5px solid #f12711; padding-left: 15px; margin-top: 30px; }
+        .section {
+            background: #fff9e6; padding: 25px; margin: 20px 0;
+            border-radius: 10px; border-left: 5px solid #f5af19;
+        }
+        .output {
+            background: #1e1e1e; color: #4ec9b0; padding: 15px; margin: 10px 0;
+            border-radius: 8px; font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px; white-space: pre-wrap; min-height: 30px;
+        }
+        button {
+            background: #f12711; color: white; border: none;
+            padding: 12px 24px; border-radius: 25px; cursor: pointer;
+            font-size: 16px; margin: 5px;
+        }
+        button:hover { background: #d41f0f; }
+        input {
+            padding: 10px; border: 2px solid #ddd; border-radius: 8px;
+            font-size: 16px; margin: 5px;
+        }
+        .tip { background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3; margin: 15px 0; }
+        .warning { background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800; margin: 15px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f12711; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 3장 Part 4: 함수 (Functions)</h1>
+
+        <!-- 함수 선언문 vs 표현식 -->
+        <h2>1. 함수 선언문 vs 함수 표현식</h2>
+
+        <div class="section">
+            <h3>세 가지 함수 정의 방법 비교</h3>
+            <table>
+                <tr>
+                    <th>구분</th>
+                    <th>함수 선언문</th>
+                    <th>함수 표현식</th>
+                    <th>화살표 함수</th>
+                </tr>
+                <tr>
+                    <td>문법</td>
+                    <td><code>function fn() {}</code></td>
+                    <td><code>const fn = function() {}</code></td>
+                    <td><code>const fn = () => {}</code></td>
+                </tr>
+                <tr>
+                    <td>호이스팅</td>
+                    <td>✅ 됨</td>
+                    <td>❌ 안 됨</td>
+                    <td>❌ 안 됨</td>
+                </tr>
+                <tr>
+                    <td>this</td>
+                    <td>호출 방식에 따라</td>
+                    <td>호출 방식에 따라</td>
+                    <td>상위 스코프 this</td>
+                </tr>
+            </table>
+
+            <button onclick="testFunctionTypes()">함수 유형 테스트</button>
+            <div id="funcTypeResult" class="output"></div>
+        </div>
+
+        <h2>2. 화살표 함수 (Arrow Function) ⭐</h2>
+
+        <div class="section">
+            <h3>화살표 함수의 다양한 형태</h3>
+            <button onclick="testArrowFunction()">화살표 함수 테스트</button>
+            <div id="arrowResult" class="output"></div>
+        </div>
+
+        <h2>3. 기본 매개변수 (Default Parameters)</h2>
+
+        <div class="section">
+            <h3>매개변수 기본값 설정</h3>
+            <input type="text" id="nameInput" placeholder="이름 (비우면 기본값)">
+            <input type="text" id="greetInput" placeholder="인사말 (비우면 기본값)">
+            <button onclick="testDefaultParams()">기본 매개변수 테스트</button>
+            <div id="defaultResult" class="output"></div>
+        </div>
+
+        <h2>4. 콜백 함수 (Callback Function)</h2>
+
+        <div class="section">
+            <h3>함수를 인자로 전달하기</h3>
+            <div class="tip">💡 콜백 함수 = 다른 함수에 인자로 전달되어 나중에 호출되는 함수</div>
+            <button onclick="testCallback()">콜백 함수 테스트</button>
+            <div id="callbackResult" class="output"></div>
+        </div>
+
+        <h2>5. 고차 함수 (Higher-Order Function)</h2>
+
+        <div class="section">
+            <h3>함수를 반환하는 함수</h3>
+            <button onclick="testHigherOrder()">고차 함수 테스트</button>
+            <div id="higherOrderResult" class="output"></div>
+        </div>
+
+        <h2>6. 즉시 실행 함수 (IIFE)</h2>
+
+        <div class="section">
+            <h3>선언과 동시에 실행되는 함수</h3>
+            <button onclick="testIIFE()">IIFE 테스트</button>
+            <div id="iifeResult" class="output"></div>
+        </div>
+
+        <h2>7. 🎯 종합 실습: 간단한 계산기</h2>
+
+        <div class="section">
+            <h3>함수를 활용한 계산기</h3>
+            <input type="number" id="calcA" placeholder="숫자 1" value="10">
+            <select id="calcOp">
+                <option value="add">+</option>
+                <option value="sub">-</option>
+                <option value="mul">×</option>
+                <option value="div">÷</option>
+                <option value="mod">%</option>
+                <option value="pow">^</option>
+            </select>
+            <input type="number" id="calcB" placeholder="숫자 2" value="3">
+            <button onclick="calculate()">계산</button>
+            <div id="calcResult" class="output"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // 1. 함수 유형 비교
+        // ========================================
+        function testFunctionTypes() {
+            const el = document.getElementById('funcTypeResult');
+            let result = '';
+
+            // 함수 선언문
+            result += '=== 함수 선언문 (Function Declaration) ===\n';
+            result += 'function add(a, b) { return a + b; }\n';
+            function add(a, b) { return a + b; }
+            result += `add(3, 5) → ${add(3, 5)}\n`;
+            result += '✅ 호이스팅 됨 (선언 전에 호출 가능)\n';
+
+            // 함수 표현식
+            result += '\n=== 함수 표현식 (Function Expression) ===\n';
+            result += 'const subtract = function(a, b) { return a - b; };\n';
+            const subtract = function(a, b) { return a - b; };
+            result += `subtract(10, 3) → ${subtract(10, 3)}\n`;
+            result += '❌ 호이스팅 안 됨 (선언 전 호출 시 에러)\n';
+
+            // 화살표 함수
+            result += '\n=== 화살표 함수 (Arrow Function) ===\n';
+            result += 'const multiply = (a, b) => a * b;\n';
+            const multiply = (a, b) => a * b;
+            result += `multiply(4, 5) → ${multiply(4, 5)}\n`;
+            result += '❌ 호이스팅 안 됨, this가 상위 스코프를 가리킴\n';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 2. 화살표 함수 형태
+        // ========================================
+        function testArrowFunction() {
+            const el = document.getElementById('arrowResult');
+            let result = '';
+
+            // 다양한 형태
+            result += '=== 화살표 함수의 다양한 형태 ===\n\n';
+
+            // 매개변수 없음
+            const hello = () => "Hello!";
+            result += `() => "Hello!"           → ${hello()}\n`;
+
+            // 매개변수 1개 (괄호 생략 가능)
+            const double = x => x * 2;
+            result += `x => x * 2               → double(5) = ${double(5)}\n`;
+
+            // 매개변수 2개
+            const add = (a, b) => a + b;
+            result += `(a, b) => a + b           → add(3, 7) = ${add(3, 7)}\n`;
+
+            // 본문이 여러 줄
+            const getInfo = (name, age) => {
+                const status = age >= 18 ? "성인" : "미성년자";
+                return `${name} (${age}세, ${status})`;
+            };
+            result += `여러 줄 (중괄호+return)   → ${getInfo("홍길동", 25)}\n`;
+
+            // 객체 반환 (소괄호로 감싸기)
+            const makeUser = (name, age) => ({ name, age });
+            result += `객체 반환 ({ name, age }) → ${JSON.stringify(makeUser("김철수", 30))}\n`;
+
+            result += '\n💡 본문이 한 줄이면 중괄호와 return 생략 가능!';
+            result += '\n💡 객체를 반환할 때는 소괄호()로 감싸야 합니다!';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 3. 기본 매개변수
+        // ========================================
+        function testDefaultParams() {
+            const el = document.getElementById('defaultResult');
+            const nameVal = document.getElementById('nameInput').value;
+            const greetVal = document.getElementById('greetInput').value;
+
+            // 기본 매개변수가 있는 함수
+            function greet(name = "Guest", greeting = "안녕하세요") {
+                return `${greeting}, ${name}님!`;
+            }
+
+            let result = '=== 기본 매개변수 ===\n';
+            result += 'function greet(name = "Guest", greeting = "안녕하세요")\n\n';
+
+            result += `greet()               → "${greet()}"\n`;
+            result += `greet("홍길동")        → "${greet("홍길동")}"\n`;
+            result += `greet("홍길동", "Hi")  → "${greet("홍길동", "Hi")}"\n`;
+
+            if (nameVal || greetVal) {
+                result += `\n=== 입력한 값으로 테스트 ===\n`;
+                const args = [];
+                if (nameVal) args.push(nameVal);
+                if (greetVal) args.push(greetVal);
+                result += `greet(${args.map(a => `"${a}"`).join(', ')}) → "${greet(nameVal || undefined, greetVal || undefined)}"`;
+            }
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 4. 콜백 함수
+        // ========================================
+        function testCallback() {
+            const el = document.getElementById('callbackResult');
+            let result = '';
+
+            // 콜백 함수 기본
+            function processArray(arr, callback) {
+                const results = [];
+                for (let item of arr) {
+                    results.push(callback(item));
+                }
+                return results;
+            }
+
+            const numbers = [1, 2, 3, 4, 5];
+
+            result += '=== 콜백 함수 기본 ===\n';
+            result += 'processArray(arr, callback) - 배열의 각 요소에 콜백 적용\n\n';
+
+            const doubled = processArray(numbers, x => x * 2);
+            result += `[1,2,3,4,5] × 2     → [${doubled}]\n`;
+
+            const squared = processArray(numbers, x => x ** 2);
+            result += `[1,2,3,4,5] 제곱    → [${squared}]\n`;
+
+            const strings = processArray(numbers, x => `item_${x}`);
+            result += `[1,2,3,4,5] 문자열  → [${strings}]\n`;
+
+            result += '\n=== 배열 내장 메소드도 콜백 사용! ===\n';
+            const evens = numbers.filter(n => n % 2 === 0);
+            result += `[1,2,3,4,5].filter(n => n%2===0) → [${evens}]\n`;
+
+            const sum = numbers.reduce((acc, cur) => acc + cur, 0);
+            result += `[1,2,3,4,5].reduce((a,c) => a+c) → ${sum}\n`;
+
+            result += '\n💡 콜백 = 함수를 인자로 전달하여 나중에 실행되게 하는 패턴';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 5. 고차 함수
+        // ========================================
+        function testHigherOrder() {
+            const el = document.getElementById('higherOrderResult');
+            let result = '';
+
+            // 함수를 반환하는 함수
+            function multiplyBy(factor) {
+                return function(number) {
+                    return number * factor;
+                };
+            }
+
+            const double = multiplyBy(2);
+            const triple = multiplyBy(3);
+            const tenTimes = multiplyBy(10);
+
+            result += '=== 함수를 반환하는 함수 ===\n';
+            result += 'function multiplyBy(factor) {\n  return function(number) { return number * factor; }\n}\n\n';
+
+            result += `const double = multiplyBy(2);\n`;
+            result += `double(5)  → ${double(5)}\n`;
+            result += `double(12) → ${double(12)}\n\n`;
+
+            result += `const triple = multiplyBy(3);\n`;
+            result += `triple(5)  → ${triple(5)}\n\n`;
+
+            result += `const tenTimes = multiplyBy(10);\n`;
+            result += `tenTimes(7) → ${tenTimes(7)}\n`;
+
+            // 실용적 예제: 접두사 추가기
+            result += '\n=== 실용 예제: 접두사 추가 ===\n';
+            function addPrefix(prefix) {
+                return (str) => `${prefix}_${str}`;
+            }
+
+            const addUser = addPrefix("user");
+            const addAdmin = addPrefix("admin");
+
+            result += `addPrefix("user")("hong")  → "${addUser("hong")}"\n`;
+            result += `addPrefix("admin")("kim")   → "${addAdmin("kim")}"\n`;
+
+            result += '\n💡 이런 패턴을 "클로저"라고 합니다 (4장에서 자세히!)';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 6. IIFE
+        // ========================================
+        function testIIFE() {
+            const el = document.getElementById('iifeResult');
+            let result = '';
+
+            result += '=== 즉시 실행 함수 (IIFE) ===\n';
+            result += 'Immediately Invoked Function Expression\n\n';
+
+            // IIFE 실행
+            const iifeResult = (function() {
+                const secret = "비밀 데이터";
+                return `IIFE 내부에서 반환: "${secret}"`;
+            })();
+
+            result += `(function() { ... })();\n`;
+            result += `→ ${iifeResult}\n\n`;
+
+            // IIFE로 모듈 패턴
+            const counter = (function() {
+                let count = 0;
+                return {
+                    increment: () => ++count,
+                    decrement: () => --count,
+                    getCount: () => count
+                };
+            })();
+
+            result += '=== IIFE 모듈 패턴 (카운터) ===\n';
+            result += `counter.increment() → ${counter.increment()}\n`;
+            result += `counter.increment() → ${counter.increment()}\n`;
+            result += `counter.increment() → ${counter.increment()}\n`;
+            result += `counter.decrement() → ${counter.decrement()}\n`;
+            result += `counter.getCount()  → ${counter.getCount()}\n`;
+
+            result += '\n💡 IIFE는 변수를 외부로부터 보호합니다 (캡슐화)\n';
+            result += '💡 최근에는 모듈 시스템(import/export)이 대체';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 7. 계산기
+        // ========================================
+        function calculate() {
+            const a = Number(document.getElementById('calcA').value);
+            const b = Number(document.getElementById('calcB').value);
+            const op = document.getElementById('calcOp').value;
+            const el = document.getElementById('calcResult');
+
+            // 연산 함수들을 객체로 관리
+            const operations = {
+                add: (x, y) => x + y,
+                sub: (x, y) => x - y,
+                mul: (x, y) => x * y,
+                div: (x, y) => y !== 0 ? x / y : "Error: 0으로 나눌 수 없습니다",
+                mod: (x, y) => y !== 0 ? x % y : "Error: 0으로 나눌 수 없습니다",
+                pow: (x, y) => x ** y
+            };
+
+            const symbols = { add: '+', sub: '-', mul: '×', div: '÷', mod: '%', pow: '^' };
+
+            const result_val = operations[op](a, b);
+            let result = `=== 계산 결과 ===\n`;
+            result += `${a} ${symbols[op]} ${b} = ${result_val}\n\n`;
+            result += `💡 사용된 함수: operations.${op}(${a}, ${b})`;
+
+            el.textContent = result;
+        }
+    </script>
+</body>
+</html>
+

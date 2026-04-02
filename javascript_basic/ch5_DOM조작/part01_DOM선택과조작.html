@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 1: DOM 선택과 조작</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f0f4f8;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c5282;
+            border-bottom: 3px solid #4299e1;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #4299e1;
+            margin-top: 30px;
+        }
+        .example {
+            background: #ebf8ff;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4299e1;
+        }
+        .box {
+            padding: 15px;
+            margin: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .highlight {
+            background: #fed7d7;
+            border-color: #f56565;
+        }
+        button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #3182ce;
+        }
+        #testArea {
+            min-height: 200px;
+            background: #f7fafc;
+            padding: 20px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .output {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 5장 Part 1: DOM 선택과 조작</h1>
+
+        <!-- 요소 선택 -->
+        <h2>1. 요소 선택하기</h2>
+
+        <div class="example">
+            <h3>테스트 영역</h3>
+            <div id="testArea">
+                <div id="uniqueBox" class="box">ID로 선택될 박스</div>
+                <div class="box item">클래스 박스 1</div>
+                <div class="box item">클래스 박스 2</div>
+                <p class="text">문단 1</p>
+                <p class="text">문단 2</p>
+            </div>
+
+            <button onclick="selectById()">getElementById</button>
+            <button onclick="selectByClass()">getElementsByClassName</button>
+            <button onclick="selectByTag()">getElementsByTagName</button>
+            <button onclick="selectByQuery()">querySelector</button>
+            <button onclick="selectAllByQuery()">querySelectorAll</button>
+        </div>
+
+        <!-- 내용 조작 -->
+        <h2>2. 내용 조작하기</h2>
+
+        <div class="example">
+            <h3>텍스트/HTML 조작</h3>
+            <div id="contentBox" class="box">원본 내용</div>
+            <button onclick="changeTextContent()">textContent 변경</button>
+            <button onclick="changeInnerHTML()">innerHTML 변경</button>
+            <button onclick="resetContent()">초기화</button>
+        </div>
+
+        <!-- 요소 생성/추가 -->
+        <h2>3. 요소 생성하고 추가하기</h2>
+
+        <div class="example">
+            <h3>동적 요소 추가</h3>
+            <div id="listContainer"></div>
+            <button onclick="addElement()">요소 추가</button>
+            <button onclick="addMultipleElements()">여러 개 추가</button>
+            <button onclick="clearElements()">전체 삭제</button>
+        </div>
+
+        <!-- 속성 조작 -->
+        <h2>4. 속성 조작하기</h2>
+
+        <div class="example">
+            <h3>classList와 속성</h3>
+            <div id="styleBox" class="box">스타일 박스</div>
+            <button onclick="addClass()">클래스 추가</button>
+            <button onclick="removeClass()">클래스 제거</button>
+            <button onclick="toggleClass()">클래스 토글</button>
+            <button onclick="changeStyle()">인라인 스타일 변경</button>
+        </div>
+
+        <!-- 콘솔 출력 -->
+        <h2>📋 실행 로그</h2>
+        <div id="console" class="output"></div>
+    </div>
+
+    <script>
+        // 콘솔 출력
+        function log(message) {
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.innerHTML += message + '<br>';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('console').innerHTML = '';
+        }
+
+        // ==================== 1. 요소 선택 ====================
+
+        function selectById() {
+            clearLog();
+            log('=== getElementById ===');
+
+            const element = document.getElementById('uniqueBox');
+            log('선택된 요소: ' + element.tagName);
+            log('내용: ' + element.textContent);
+            log('타입: ' + (element instanceof HTMLDivElement));
+
+            // 하이라이트
+            document.querySelectorAll('.box').forEach(box => box.classList.remove('highlight'));
+            element.classList.add('highlight');
+        }
+
+        function selectByClass() {
+            clearLog();
+            log('=== getElementsByClassName ===');
+
+            const elements = document.getElementsByClassName('box');
+            log('선택된 요소 개수: ' + elements.length);
+            log('타입: HTMLCollection (Live)');
+
+            for (let i = 0; i < elements.length; i++) {
+                log(`${i + 1}. ${elements[i].textContent}`);
+            }
+
+            // 하이라이트
+            document.querySelectorAll('.box').forEach(box => box.classList.remove('highlight'));
+            Array.from(elements).forEach(el => el.classList.add('highlight'));
+        }
+
+        function selectByTag() {
+            clearLog();
+            log('=== getElementsByTagName ===');
+
+            const elements = document.getElementsByTagName('p');
+            log('선택된 p 태그 개수: ' + elements.length);
+
+            for (let i = 0; i < elements.length; i++) {
+                log(`${i + 1}. ${elements[i].textContent}`);
+            }
+        }
+
+        function selectByQuery() {
+            clearLog();
+            log('=== querySelector ===');
+
+            const element = document.querySelector('.box');
+            log('첫 번째 .box 선택: ' + element.textContent);
+
+            const itemBox = document.querySelector('.box.item');
+            log('첫 번째 .box.item 선택: ' + itemBox.textContent);
+
+            // 하이라이트
+            document.querySelectorAll('.box').forEach(box => box.classList.remove('highlight'));
+            element.classList.add('highlight');
+        }
+
+        function selectAllByQuery() {
+            clearLog();
+            log('=== querySelectorAll ===');
+
+            const elements = document.querySelectorAll('.box');
+            log('선택된 요소 개수: ' + elements.length);
+            log('타입: NodeList (Static)');
+
+            // forEach 사용 가능!
+            elements.forEach((el, index) => {
+                log(`${index + 1}. ${el.textContent}`);
+            });
+
+            // 하이라이트
+            document.querySelectorAll('.box').forEach(box => box.classList.remove('highlight'));
+            elements.forEach(el => el.classList.add('highlight'));
+        }
+
+        // ==================== 2. 내용 조작 ====================
+
+        function changeTextContent() {
+            clearLog();
+            const box = document.getElementById('contentBox');
+            box.textContent = '텍스트가 변경되었습니다!';
+            log('textContent로 텍스트 변경');
+        }
+
+        function changeInnerHTML() {
+            clearLog();
+            const box = document.getElementById('contentBox');
+            box.innerHTML = '<strong>HTML</strong>이 적용되었습니다!';
+            log('innerHTML로 HTML 변경');
+        }
+
+        function resetContent() {
+            clearLog();
+            const box = document.getElementById('contentBox');
+            box.textContent = '원본 내용';
+            log('내용 초기화');
+        }
+
+        // ==================== 3. 요소 생성/추가 ====================
+
+        let itemCount = 0;
+
+        function addElement() {
+            clearLog();
+            const container = document.getElementById('listContainer');
+
+            // 요소 생성
+            const newDiv = document.createElement('div');
+            newDiv.className = 'box';
+            newDiv.textContent = `항목 ${++itemCount}`;
+
+            // 추가
+            container.appendChild(newDiv);
+
+            log(`항목 ${itemCount} 추가됨`);
+        }
+
+        function addMultipleElements() {
+            clearLog();
+            const container = document.getElementById('listContainer');
+
+            // DocumentFragment 사용 (성능 최적화)
+            const fragment = document.createDocumentFragment();
+
+            for (let i = 0; i < 5; i++) {
+                const newDiv = document.createElement('div');
+                newDiv.className = 'box';
+                newDiv.textContent = `항목 ${++itemCount}`;
+                fragment.appendChild(newDiv);
+            }
+
+            container.appendChild(fragment);
+            log('5개 항목 한번에 추가됨 (DocumentFragment 사용)');
+        }
+
+        function clearElements() {
+            clearLog();
+            const container = document.getElementById('listContainer');
+            container.innerHTML = '';
+            itemCount = 0;
+            log('모든 항목 삭제됨');
+        }
+
+        // ==================== 4. 속성 조작 ====================
+
+        function addClass() {
+            clearLog();
+            const box = document.getElementById('styleBox');
+            box.classList.add('highlight');
+            log('highlight 클래스 추가됨');
+            log('현재 클래스: ' + box.className);
+        }
+
+        function removeClass() {
+            clearLog();
+            const box = document.getElementById('styleBox');
+            box.classList.remove('highlight');
+            log('highlight 클래스 제거됨');
+            log('현재 클래스: ' + box.className);
+        }
+
+        function toggleClass() {
+            clearLog();
+            const box = document.getElementById('styleBox');
+            box.classList.toggle('highlight');
+            log('highlight 클래스 토글됨');
+            log('현재 클래스: ' + box.className);
+        }
+
+        function changeStyle() {
+            clearLog();
+            const box = document.getElementById('styleBox');
+            box.style.backgroundColor = '#fbd38d';
+            box.style.border = '3px solid #dd6b20';
+            box.style.fontWeight = 'bold';
+            log('인라인 스타일 변경됨');
+        }
+
+        // 페이지 로드 시
+        window.onload = function() {
+            log('💡 DOM 선택과 조작 예제가 준비되었습니다!');
+            log('💡 버튼을 클릭하여 다양한 DOM 조작을 확인해보세요.');
+        };
+    </script>
+</body>
+</html>
+```
+

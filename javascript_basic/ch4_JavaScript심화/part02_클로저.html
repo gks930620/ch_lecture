@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 2: 클로저</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #e74c3c;
+            margin-top: 30px;
+        }
+        .example {
+            background: #fff5f5;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #e74c3c;
+        }
+        .counter-box {
+            background: #ecf0f1;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .counter-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 20px 0;
+        }
+        button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #c0392b;
+        }
+        .output {
+            background: #2c3e50;
+            color: #2ecc71;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .result {
+            background: #e8f5e9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4caf50;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin: 5px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 4장 Part 2: 클로저 (Closure)</h1>
+
+        <!-- 클로저 기본 -->
+        <h2>1. 클로저란?</h2>
+        <div class="example">
+            <h3>기본 클로저 예제</h3>
+            <p>클로저 = 함수 + 그 함수가 선언된 렉시컬 환경</p>
+            <button onclick="testBasicClosure()">클로저 테스트</button>
+            <div id="closureResult" class="result"></div>
+        </div>
+
+        <!-- 카운터 예제 -->
+        <h2>2. 실용 예제: 카운터</h2>
+        <div class="example">
+            <div class="counter-box">
+                <h3>클로저 카운터</h3>
+                <div class="counter-display" id="counterDisplay">0</div>
+                <button onclick="counter.increment()">증가 (+1)</button>
+                <button onclick="counter.decrement()">감소 (-1)</button>
+                <button onclick="counter.reset()">초기화</button>
+                <p><small>카운터 변수는 외부에서 직접 접근할 수 없습니다 (데이터 은닉)</small></p>
+            </div>
+        </div>
+
+        <!-- 프라이빗 변수 -->
+        <h2>3. 데이터 은닉 (Private Variables)</h2>
+        <div class="example">
+            <h3>사용자 정보 관리 (프라이빗 변수)</h3>
+            <input type="text" id="nameInput" placeholder="이름 입력">
+            <button onclick="updateUserName()">이름 변경</button>
+            <button onclick="showUserName()">이름 확인</button>
+            <button onclick="tryDirectAccess()">직접 접근 시도</button>
+            <div id="userResult" class="result"></div>
+        </div>
+
+        <!-- 함수 팩토리 -->
+        <h2>4. 함수 팩토리 (Function Factory)</h2>
+        <div class="example">
+            <h3>배수 생성기</h3>
+            <input type="number" id="multiplyInput" placeholder="숫자 입력" value="5">
+            <button onclick="testMultiply()">2배/3배/5배 계산</button>
+            <div id="multiplyResult" class="result"></div>
+        </div>
+
+        <!-- 반복문 클로저 -->
+        <h2>5. 반복문에서의 클로저 문제</h2>
+        <div class="example">
+            <h3>var vs let (setTimeout 예제)</h3>
+            <button onclick="testLoopVar()">var 사용 (문제)</button>
+            <button onclick="testLoopLet()">let 사용 (해결)</button>
+            <div id="loopResult" class="result"></div>
+        </div>
+
+        <!-- 콘솔 출력 -->
+        <h2>📋 실행 로그</h2>
+        <div id="console" class="output"></div>
+    </div>
+
+    <script>
+        // 콘솔 출력 함수
+        function log(message) {
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.innerHTML += message + '<br>';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('console').innerHTML = '';
+        }
+
+        // ==================== 1. 기본 클로저 ====================
+
+        function testBasicClosure() {
+            clearLog();
+            const result = document.getElementById('closureResult');
+
+            log('=== 클로저 기본 예제 ===');
+
+            function outerFunction() {
+                let outerVariable = '외부 함수의 변수';
+
+                function innerFunction() {
+                    log('내부 함수에서 외부 변수 접근: ' + outerVariable);
+                }
+
+                return innerFunction;
+            }
+
+            const myClosure = outerFunction();
+            log('외부 함수 실행 완료, 내부 함수 반환됨');
+            log('내부 함수 호출:');
+            myClosure(); // 외부 함수가 종료되었지만 여전히 접근 가능!
+
+            result.innerHTML = '✅ 클로저: 내부 함수가 외부 변수를 기억합니다!';
+        }
+
+        // ==================== 2. 카운터 (클로저 활용) ====================
+
+        const counter = (function() {
+            let count = 0; // private 변수
+
+            return {
+                increment: function() {
+                    count++;
+                    updateCounterDisplay();
+                    log('카운터 증가: ' + count);
+                },
+                decrement: function() {
+                    count--;
+                    updateCounterDisplay();
+                    log('카운터 감소: ' + count);
+                },
+                reset: function() {
+                    count = 0;
+                    updateCounterDisplay();
+                    log('카운터 초기화: ' + count);
+                },
+                getValue: function() {
+                    return count;
+                }
+            };
+        })();
+
+        function updateCounterDisplay() {
+            document.getElementById('counterDisplay').textContent = counter.getValue();
+        }
+
+        // ==================== 3. 프라이빗 변수 ====================
+
+        const user = (function() {
+            let _name = '홍길동'; // private 변수
+
+            return {
+                getName: function() {
+                    return _name;
+                },
+                setName: function(newName) {
+                    if (newName && newName.trim() !== '') {
+                        _name = newName;
+                        log('이름 변경: ' + _name);
+                        return true;
+                    }
+                    log('❌ 유효하지 않은 이름');
+                    return false;
+                }
+            };
+        })();
+
+        function updateUserName() {
+            const input = document.getElementById('nameInput');
+            const result = document.getElementById('userResult');
+
+            if (user.setName(input.value)) {
+                result.innerHTML = '✅ 이름이 변경되었습니다: ' + user.getName();
+            } else {
+                result.innerHTML = '❌ 유효한 이름을 입력하세요';
+            }
+        }
+
+        function showUserName() {
+            const result = document.getElementById('userResult');
+            result.innerHTML = '현재 이름: ' + user.getName();
+            log('현재 이름: ' + user.getName());
+        }
+
+        function tryDirectAccess() {
+            const result = document.getElementById('userResult');
+            log('직접 접근 시도: user._name = ' + user._name);
+            result.innerHTML = '❌ 직접 접근 불가! user._name = ' + user._name + ' (undefined)';
+        }
+
+        // ==================== 4. 함수 팩토리 ====================
+
+        function makeMultiplier(factor) {
+            return function(number) {
+                return number * factor;
+            };
+        }
+
+        const double = makeMultiplier(2);
+        const triple = makeMultiplier(3);
+        const quintuple = makeMultiplier(5);
+
+        function testMultiply() {
+            clearLog();
+            const input = document.getElementById('multiplyInput');
+            const number = parseInt(input.value) || 5;
+            const result = document.getElementById('multiplyResult');
+
+            log('=== 함수 팩토리 예제 ===');
+            log('입력 숫자: ' + number);
+            log('2배: ' + double(number));
+            log('3배: ' + triple(number));
+            log('5배: ' + quintuple(number));
+
+            result.innerHTML = `
+                <strong>결과:</strong><br>
+                2배 = ${double(number)}<br>
+                3배 = ${triple(number)}<br>
+                5배 = ${quintuple(number)}
+            `;
+        }
+
+        // ==================== 5. 반복문 클로저 문제 ====================
+
+        function testLoopVar() {
+            clearLog();
+            const result = document.getElementById('loopResult');
+            result.innerHTML = '⏳ 3초 후 결과가 나타납니다...';
+
+            log('=== var 사용 (문제) ===');
+            log('3초 후 0, 1, 2가 출력될 것으로 예상하지만...');
+
+            for (var i = 0; i < 3; i++) {
+                setTimeout(function() {
+                    log('출력: ' + i + ' (예상: 각각 0, 1, 2)');
+                }, 3000);
+            }
+
+            setTimeout(() => {
+                result.innerHTML = '❌ var는 함수 스코프라서 모두 3이 출력됩니다!';
+            }, 3500);
+        }
+
+        function testLoopLet() {
+            clearLog();
+            const result = document.getElementById('loopResult');
+            result.innerHTML = '⏳ 3초 후 결과가 나타납니다...';
+
+            log('=== let 사용 (해결) ===');
+            log('3초 후 0, 1, 2가 정상적으로 출력됩니다!');
+
+            for (let i = 0; i < 3; i++) {
+                setTimeout(function() {
+                    log('✅ 출력: ' + i);
+                }, 3000);
+            }
+
+            setTimeout(() => {
+                result.innerHTML = '✅ let은 블록 스코프라서 각각의 i가 유지됩니다!';
+            }, 3500);
+        }
+
+        // ==================== 실전 예제: 할인 계산기 ====================
+
+        function createDiscountCalculator(discountRate) {
+            return function(price) {
+                const discount = price * discountRate;
+                const finalPrice = price - discount;
+                return {
+                    originalPrice: price,
+                    discountAmount: discount,
+                    finalPrice: finalPrice,
+                    discountRate: (discountRate * 100) + '%'
+                };
+            };
+        }
+
+        const vipDiscount = createDiscountCalculator(0.2); // 20% 할인
+        const memberDiscount = createDiscountCalculator(0.1); // 10% 할인
+
+        // 페이지 로드 시
+        window.onload = function() {
+            log('💡 클로저 예제가 준비되었습니다!');
+            log('💡 각 버튼을 클릭하여 클로저의 동작을 확인해보세요.');
+            log('');
+
+            // 할인 계산기 예제
+            log('=== 할인 계산기 (클로저 활용) ===');
+            const result = vipDiscount(10000);
+            log('VIP 고객 (20% 할인): 10,000원');
+            log('  - 할인액: ' + result.discountAmount + '원');
+            log('  - 최종가: ' + result.finalPrice + '원');
+        };
+    </script>
+</body>
+</html>
+```
+

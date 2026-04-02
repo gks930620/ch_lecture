@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 1: 브라우저 성능 최적화 실습</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 { color: #11998e; border-bottom: 3px solid #11998e; padding-bottom: 10px; text-align: center; }
+        h2 { color: #38ef7d; margin-top: 30px; border-left: 5px solid #11998e; padding-left: 15px; color: #11998e; }
+        .section {
+            background: #f0fff0; padding: 20px; margin: 15px 0;
+            border-radius: 8px; border-left: 4px solid #11998e;
+        }
+        .output {
+            background: #1e1e1e; color: #4ec9b0; padding: 15px; margin: 10px 0;
+            border-radius: 8px; font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px; white-space: pre-wrap; min-height: 40px;
+        }
+        button {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white; border: none; padding: 10px 20px;
+            border-radius: 5px; cursor: pointer; font-size: 15px; margin: 5px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(17,153,142,0.4); }
+        button.danger { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .tip { background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3; margin: 15px 0; }
+        .warning { background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800; margin: 15px 0; }
+        .demo-area {
+            border: 2px dashed #ccc; padding: 20px; margin: 15px 0;
+            border-radius: 8px; min-height: 100px; position: relative; overflow: hidden;
+        }
+        .box {
+            width: 50px; height: 50px; background: #11998e; border-radius: 5px;
+            display: inline-block; margin: 3px; transition: all 0.3s;
+        }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background: #11998e; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 9장 Part 1: 브라우저 성능 최적화 실습</h1>
+
+        <!-- 리플로우/리페인트 -->
+        <h2>1. 리플로우(Reflow) vs 리페인트(Repaint)</h2>
+
+        <div class="section">
+            <h3>리플로우/리페인트 비교</h3>
+            <table>
+                <tr>
+                    <th>작업</th>
+                    <th>리플로우</th>
+                    <th>리페인트</th>
+                    <th>비용</th>
+                </tr>
+                <tr><td>width, height 변경</td><td>✅</td><td>✅</td><td>😢 높음</td></tr>
+                <tr><td>margin, padding 변경</td><td>✅</td><td>✅</td><td>😢 높음</td></tr>
+                <tr><td>color 변경</td><td>❌</td><td>✅</td><td>😊 낮음</td></tr>
+                <tr><td>background 변경</td><td>❌</td><td>✅</td><td>😊 낮음</td></tr>
+                <tr><td>transform 변경</td><td>❌</td><td>❌</td><td>😍 매우 낮음</td></tr>
+                <tr><td>opacity 변경</td><td>❌</td><td>❌</td><td>😍 매우 낮음</td></tr>
+            </table>
+        </div>
+
+        <h2>2. DOM 조작 성능 비교</h2>
+
+        <div class="section">
+            <h3>❌ 비효율적: 개별 DOM 추가 vs ✅ 효율적: DocumentFragment</h3>
+            <div class="warning">⚠️ 1000개의 요소를 추가하는 시간을 비교합니다.</div>
+            <button onclick="testSlowDOM()">❌ 개별 추가 (느림)</button>
+            <button onclick="testFastDOM()">✅ Fragment 사용 (빠름)</button>
+            <button onclick="testInnerHTML()">✅ innerHTML 사용</button>
+            <button class="danger" onclick="clearDemoArea('domDemo')">초기화</button>
+            <div id="domPerfResult" class="output"></div>
+            <div class="demo-area" id="domDemo"></div>
+        </div>
+
+        <h2>3. 스타일 변경 최적화</h2>
+
+        <div class="section">
+            <h3>❌ 개별 style 변경 vs ✅ classList 사용</h3>
+            <button onclick="testSlowStyle()">❌ 개별 style 변경</button>
+            <button onclick="testFastStyle()">✅ classList 사용</button>
+            <button onclick="testCssText()">✅ cssText 사용</button>
+            <div id="stylePerfResult" class="output"></div>
+            <div class="demo-area" id="styleDemo">
+                <div id="styleTarget" style="width:100px;height:100px;background:#11998e;border-radius:5px;display:inline-block;"></div>
+            </div>
+        </div>
+
+        <h2>4. 강제 동기 레이아웃 (Forced Reflow)</h2>
+
+        <div class="section">
+            <h3>❌ 읽기-쓰기 반복 vs ✅ 읽기/쓰기 분리</h3>
+            <div class="warning">⚠️ offsetWidth를 읽으면 즉시 리플로우가 발생합니다!</div>
+            <button onclick="testForcedReflow()">❌ 강제 리플로우 (느림)</button>
+            <button onclick="testBatchReflow()">✅ 배치 처리 (빠름)</button>
+            <button class="danger" onclick="clearDemoArea('reflowDemo')">초기화</button>
+            <div id="reflowPerfResult" class="output"></div>
+            <div class="demo-area" id="reflowDemo"></div>
+        </div>
+
+        <h2>5. 애니메이션: left vs transform</h2>
+
+        <div class="section">
+            <h3>❌ left (리플로우) vs ✅ transform (합성만)</h3>
+            <div class="tip">💡 transform은 별도 레이어에서 처리되어 리플로우가 발생하지 않습니다.</div>
+            <button onclick="animateLeft()">❌ left 애니메이션</button>
+            <button onclick="animateTransform()">✅ transform 애니메이션</button>
+            <button onclick="stopAnimation()">멈추기</button>
+            <div id="animResult" class="output"></div>
+            <div class="demo-area" id="animDemo" style="height: 120px; position: relative;">
+                <div id="animBox1" style="width:60px;height:60px;background:#e74c3c;border-radius:5px;position:absolute;top:10px;left:0;">left</div>
+                <div id="animBox2" style="width:60px;height:60px;background:#27ae60;border-radius:5px;position:absolute;top:60px;left:0;">transform</div>
+            </div>
+        </div>
+
+        <h2>6. DevTools 사용법 가이드</h2>
+
+        <div class="section">
+            <h3>개발자 도구 핵심 기능</h3>
+            <button onclick="showDevToolsGuide()">DevTools 가이드 보기</button>
+            <div id="devtoolsResult" class="output"></div>
+        </div>
+
+        <h2>7. console 메소드 모음</h2>
+
+        <div class="section">
+            <h3>다양한 console 메소드 (F12 → Console 탭에서 확인)</h3>
+            <button onclick="testConsole()">Console 메소드 실행 (F12로 확인!)</button>
+            <div id="consoleResult" class="output"></div>
+        </div>
+    </div>
+
+    <style>
+        .styled-box {
+            width: 200px !important;
+            height: 200px !important;
+            background: #e74c3c !important;
+            border-radius: 50% !important;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3) !important;
+        }
+    </style>
+
+    <script>
+        let animationId = null;
+
+        // ========================================
+        // 2. DOM 조작 성능 비교
+        // ========================================
+        function testSlowDOM() {
+            const demo = document.getElementById('domDemo');
+            demo.innerHTML = '';
+            const el = document.getElementById('domPerfResult');
+
+            const start = performance.now();
+
+            // ❌ 비효율적: 매번 DOM에 추가 (매번 리플로우!)
+            for (let i = 0; i < 1000; i++) {
+                const div = document.createElement('div');
+                div.className = 'box';
+                div.style.width = '15px';
+                div.style.height = '15px';
+                demo.appendChild(div);  // 매번 리플로우!
+            }
+
+            const end = performance.now();
+            el.textContent = `❌ 개별 DOM 추가: ${(end - start).toFixed(2)}ms\n\n💡 매번 appendChild할 때마다 리플로우가 발생합니다!`;
+        }
+
+        function testFastDOM() {
+            const demo = document.getElementById('domDemo');
+            demo.innerHTML = '';
+            const el = document.getElementById('domPerfResult');
+
+            const start = performance.now();
+
+            // ✅ 효율적: DocumentFragment 사용 (1번만 리플로우)
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < 1000; i++) {
+                const div = document.createElement('div');
+                div.className = 'box';
+                div.style.width = '15px';
+                div.style.height = '15px';
+                fragment.appendChild(div);  // 메모리에서만 작업
+            }
+            demo.appendChild(fragment);  // 1번만 리플로우!
+
+            const end = performance.now();
+            el.textContent = `✅ DocumentFragment: ${(end - start).toFixed(2)}ms\n\n💡 Fragment는 가상 DOM처럼 메모리에서 작업 후 한 번에 추가합니다!`;
+        }
+
+        function testInnerHTML() {
+            const demo = document.getElementById('domDemo');
+            const el = document.getElementById('domPerfResult');
+
+            const start = performance.now();
+
+            // ✅ innerHTML로 한번에
+            let html = '';
+            for (let i = 0; i < 1000; i++) {
+                html += '<div class="box" style="width:15px;height:15px;"></div>';
+            }
+            demo.innerHTML = html;
+
+            const end = performance.now();
+            el.textContent = `✅ innerHTML: ${(end - start).toFixed(2)}ms\n\n💡 HTML 문자열을 한번에 파싱합니다. (XSS 주의!)`;
+        }
+
+        // ========================================
+        // 3. 스타일 변경 최적화
+        // ========================================
+        function testSlowStyle() {
+            const target = document.getElementById('styleTarget');
+            const el = document.getElementById('stylePerfResult');
+
+            // 초기화
+            target.removeAttribute('class');
+            target.style.cssText = 'width:100px;height:100px;background:#11998e;border-radius:5px;display:inline-block;';
+
+            const start = performance.now();
+
+            // ❌ 개별 style 변경 (여러 번 리플로우)
+            target.style.width = '200px';
+            target.style.height = '200px';
+            target.style.backgroundColor = '#e74c3c';
+            target.style.borderRadius = '50%';
+            target.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+
+            const end = performance.now();
+            el.textContent = `❌ 개별 style 변경: ${(end - start).toFixed(4)}ms\n\n각 속성 변경마다 리플로우/리페인트가 발생할 수 있습니다.\n(브라우저가 최적화하지만 보장되지 않음)`;
+        }
+
+        function testFastStyle() {
+            const target = document.getElementById('styleTarget');
+            const el = document.getElementById('stylePerfResult');
+
+            // 초기화
+            target.style.cssText = 'width:100px;height:100px;background:#11998e;border-radius:5px;display:inline-block;';
+
+            const start = performance.now();
+
+            // ✅ classList 사용 (1번만 리플로우)
+            target.classList.add('styled-box');
+
+            const end = performance.now();
+            el.textContent = `✅ classList 사용: ${(end - start).toFixed(4)}ms\n\nelement.classList.add('styled-box');\n→ CSS 클래스 하나로 모든 스타일 한 번에 적용!\n→ 1번의 리플로우만 발생`;
+        }
+
+        function testCssText() {
+            const target = document.getElementById('styleTarget');
+            const el = document.getElementById('stylePerfResult');
+
+            target.removeAttribute('class');
+
+            const start = performance.now();
+
+            // ✅ cssText 사용 (1번만 리플로우)
+            target.style.cssText = 'width:200px;height:200px;background:#e74c3c;border-radius:50%;display:inline-block;box-shadow:0 5px 15px rgba(0,0,0,0.3);';
+
+            const end = performance.now();
+            el.textContent = `✅ cssText 사용: ${(end - start).toFixed(4)}ms\n\nelement.style.cssText = '...';\n→ 모든 스타일을 한 줄로 설정!\n→ 1번의 리플로우만 발생`;
+        }
+
+        // ========================================
+        // 4. 강제 동기 레이아웃
+        // ========================================
+        function testForcedReflow() {
+            const demo = document.getElementById('reflowDemo');
+            demo.innerHTML = '';
+            const el = document.getElementById('reflowPerfResult');
+
+            // 박스 100개 생성
+            for (let i = 0; i < 100; i++) {
+                const div = document.createElement('div');
+                div.className = 'box';
+                div.style.width = '30px';
+                div.style.height = '30px';
+                demo.appendChild(div);
+            }
+
+            const boxes = demo.querySelectorAll('.box');
+            const start = performance.now();
+
+            // ❌ 강제 리플로우: 읽기-쓰기 반복!
+            boxes.forEach(box => {
+                const width = box.offsetWidth;  // 읽기 → 강제 리플로우!
+                box.style.width = (width + 5) + 'px';  // 쓰기
+            });
+
+            const end = performance.now();
+            el.textContent = `❌ 강제 리플로우 (읽기-쓰기 반복): ${(end - start).toFixed(2)}ms\n\n💡 offsetWidth를 읽으면 브라우저가 즉시 레이아웃을 계산합니다!\n💡 읽기-쓰기를 번갈아 하면 N번의 강제 리플로우 발생!`;
+        }
+
+        function testBatchReflow() {
+            const demo = document.getElementById('reflowDemo');
+            demo.innerHTML = '';
+            const el = document.getElementById('reflowPerfResult');
+
+            // 박스 100개 생성
+            for (let i = 0; i < 100; i++) {
+                const div = document.createElement('div');
+                div.className = 'box';
+                div.style.width = '30px';
+                div.style.height = '30px';
+                demo.appendChild(div);
+            }
+
+            const boxes = demo.querySelectorAll('.box');
+            const start = performance.now();
+
+            // ✅ 배치 처리: 먼저 모두 읽기, 그 다음 모두 쓰기
+            const widths = [];
+            boxes.forEach(box => {
+                widths.push(box.offsetWidth);  // 1. 모든 값 먼저 읽기
+            });
+
+            boxes.forEach((box, i) => {
+                box.style.width = (widths[i] + 5) + 'px';  // 2. 모든 값 쓰기
+            });
+
+            const end = performance.now();
+            el.textContent = `✅ 배치 처리 (읽기/쓰기 분리): ${(end - start).toFixed(2)}ms\n\n💡 먼저 모든 값을 읽고 → 그 다음 모든 값을 쓰기\n💡 리플로우 횟수를 최소화!`;
+        }
+
+        // ========================================
+        // 5. 애니메이션 비교
+        // ========================================
+        function animateLeft() {
+            stopAnimation();
+            const box = document.getElementById('animBox1');
+            const el = document.getElementById('animResult');
+            box.style.left = '0px';
+            box.style.transform = '';
+            let pos = 0;
+            let direction = 1;
+
+            function move() {
+                pos += 2 * direction;
+                if (pos > 300 || pos < 0) direction *= -1;
+                box.style.left = pos + 'px';  // ❌ 리플로우 발생!
+                animationId = requestAnimationFrame(move);
+            }
+            animationId = requestAnimationFrame(move);
+
+            el.textContent = '❌ left 속성 애니메이션 실행 중...\n\n빨간 박스가 left 속성으로 이동합니다.\n→ 매 프레임마다 리플로우 발생!\n→ 성능이 좋지 않음';
+        }
+
+        function animateTransform() {
+            stopAnimation();
+            const box = document.getElementById('animBox2');
+            const el = document.getElementById('animResult');
+            box.style.left = '0px';
+            let pos = 0;
+            let direction = 1;
+
+            function move() {
+                pos += 2 * direction;
+                if (pos > 300 || pos < 0) direction *= -1;
+                box.style.transform = `translateX(${pos}px)`;  // ✅ 합성만!
+                animationId = requestAnimationFrame(move);
+            }
+            animationId = requestAnimationFrame(move);
+
+            el.textContent = '✅ transform 애니메이션 실행 중...\n\n초록 박스가 transform으로 이동합니다.\n→ 별도 레이어에서 GPU 가속!\n→ 리플로우 없이 매우 부드러움';
+        }
+
+        function stopAnimation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+
+        // ========================================
+        // 유틸
+        // ========================================
+        function clearDemoArea(id) {
+            document.getElementById(id).innerHTML = '';
+        }
+
+        // ========================================
+        // 6. DevTools 가이드
+        // ========================================
+        function showDevToolsGuide() {
+            const el = document.getElementById('devtoolsResult');
+            el.textContent = `=== 개발자 도구 (F12) 핵심 패널 ===
+
+📋 Elements (요소)
+   - DOM 트리 확인 및 실시간 수정
+   - CSS 스타일 실시간 편집
+   - 단축키: Ctrl+Shift+C (요소 선택)
+
+🖥️ Console (콘솔)
+   - JavaScript 실행
+   - 로그 확인
+   - 에러 디버깅
+
+🌐 Network (네트워크)
+   - HTTP 요청/응답 확인
+   - 로딩 시간 분석
+   - 상태 코드 확인
+   - API 디버깅
+
+⚡ Performance (성능)
+   - FPS 측정
+   - 리플로우/리페인트 시각화
+   - 병목 구간 찾기
+
+📦 Application (애플리케이션)
+   - LocalStorage / SessionStorage
+   - Cookies
+   - Cache Storage
+
+🏆 Lighthouse
+   - 성능 점수
+   - 접근성 점수
+   - SEO 점수
+   - 개선 제안
+
+=== 자주 사용하는 단축키 ===
+F12          → DevTools 열기
+Ctrl+Shift+C → 요소 선택
+Ctrl+Shift+J → Console 열기
+Ctrl+L       → Console 지우기
+Ctrl+Shift+M → 모바일 미리보기`;
+        }
+
+        // ========================================
+        // 7. Console 메소드
+        // ========================================
+        function testConsole() {
+            const el = document.getElementById('consoleResult');
+
+            // Console에 다양한 메소드 실행
+            console.log('📝 console.log - 일반 로그');
+            console.warn('⚠️ console.warn - 경고');
+            console.error('❌ console.error - 에러');
+            console.info('ℹ️ console.info - 정보');
+
+            console.table([
+                { name: '홍길동', age: 25, city: '서울' },
+                { name: '김철수', age: 30, city: '부산' },
+                { name: '이영희', age: 28, city: '대전' }
+            ]);
+
+            console.group('👥 사용자 그룹');
+            console.log('홍길동');
+            console.log('김철수');
+            console.groupEnd();
+
+            console.time('⏱️ 타이머');
+            let sum = 0;
+            for (let i = 0; i < 1000000; i++) sum += i;
+            console.timeEnd('⏱️ 타이머');
+
+            console.count('카운터');
+            console.count('카운터');
+            console.count('카운터');
+
+            el.textContent = `✅ Console 메소드들을 실행했습니다!\n\nF12 → Console 탭을 확인하세요!\n\n실행된 메소드:\n- console.log()   → 일반 로그\n- console.warn()  → 경고 (노란색)\n- console.error() → 에러 (빨간색)\n- console.info()  → 정보\n- console.table() → 테이블 형태로 출력\n- console.group() → 그룹화\n- console.time()  → 시간 측정\n- console.count() → 호출 횟수`;
+        }
+    </script>
+</body>
+</html>
+

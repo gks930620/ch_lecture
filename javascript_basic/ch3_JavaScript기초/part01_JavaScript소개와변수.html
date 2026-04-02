@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 1: JavaScript 소개와 변수</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #f12711;
+            text-align: center;
+            border-bottom: 4px solid #f12711;
+            padding-bottom: 15px;
+        }
+        h2 {
+            color: #f5af19;
+            border-left: 5px solid #f12711;
+            padding-left: 15px;
+        }
+        .section {
+            background: #fff9e6;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 5px solid #f5af19;
+        }
+        .code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .code .keyword { color: #569cd6; }
+        .code .string { color: #ce9178; }
+        .code .comment { color: #6a9955; }
+        .code .number { color: #b5cea8; }
+        .output {
+            background: #f5f5f5;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        button {
+            background: #f12711;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #d41f0f;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f5af19;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 28.1-28.2: JavaScript란? & 변수 선언</h1>
+
+        <div class="section">
+            <h2>1. JavaScript란?</h2>
+            <p><strong>JavaScript (JS)</strong>는 웹 페이지에 동적인 기능을 추가하는 프로그래밍 언어입니다.</p>
+
+            <h3>웹 기술의 3요소</h3>
+            <ul>
+                <li><strong>HTML</strong>: 구조 (뼈대) 🏗️</li>
+                <li><strong>CSS</strong>: 디자인 (외관) 🎨</li>
+                <li><strong>JavaScript</strong>: 동작 (기능) ⚡</li>
+            </ul>
+
+            <h3>JavaScript로 할 수 있는 것</h3>
+            <ul>
+                <li>✅ 버튼 클릭, 입력값 검증 등 이벤트 처리</li>
+                <li>✅ HTML 내용 동적 변경</li>
+                <li>✅ 애니메이션 효과</li>
+                <li>✅ 서버와 통신 (AJAX)</li>
+                <li>✅ 게임, 계산기, 타이머 등 구현</li>
+            </ul>
+
+            <button onclick="alert('안녕하세요! JavaScript입니다! 👋')">클릭해보세요!</button>
+            <button onclick="document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'">배경 변경</button>
+            <button onclick="location.reload()">원래대로</button>
+        </div>
+
+        <div class="section">
+            <h2>2. JavaScript 작성 위치</h2>
+
+            <h3>① 인라인 JavaScript</h3>
+            <div class="code">
+<span class="comment">&lt;!-- HTML 태그 내 --&gt;</span><br>
+&lt;button <span class="keyword">onclick</span>=<span class="string">"alert('클릭!')"</span>&gt;버튼&lt;/button&gt;
+            </div>
+
+            <h3>② 내부 JavaScript</h3>
+            <div class="code">
+&lt;script&gt;<br>
+&nbsp;&nbsp;<span class="keyword">function</span> sayHello() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;alert(<span class="string">'Hello!'</span>);<br>
+&nbsp;&nbsp;}<br>
+&lt;/script&gt;
+            </div>
+
+            <h3>③ 외부 JavaScript (권장) ⭐</h3>
+            <div class="code">
+<span class="comment">&lt;!-- HTML에서 연결 --&gt;</span><br>
+&lt;script <span class="keyword">src</span>=<span class="string">"script.js"</span>&gt;&lt;/script&gt;
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>3. 변수 (Variables)</h2>
+            <p><strong>변수</strong>는 데이터를 저장하는 <strong>상자</strong>와 같습니다.</p>
+
+            <h3>변수 선언 키워드 (3가지)</h3>
+
+            <table>
+                <tr>
+                    <th>키워드</th>
+                    <th>재할당</th>
+                    <th>재선언</th>
+                    <th>스코프</th>
+                    <th>권장도</th>
+                </tr>
+                <tr>
+                    <td><strong>var</strong></td>
+                    <td>✅ 가능</td>
+                    <td>✅ 가능</td>
+                    <td>함수 스코프</td>
+                    <td>❌ (구식)</td>
+                </tr>
+                <tr>
+                    <td><strong>let</strong></td>
+                    <td>✅ 가능</td>
+                    <td>❌ 불가</td>
+                    <td>블록 스코프</td>
+                    <td>✅ 추천</td>
+                </tr>
+                <tr>
+                    <td><strong>const</strong></td>
+                    <td>❌ 불가</td>
+                    <td>❌ 불가</td>
+                    <td>블록 스코프</td>
+                    <td>✅ 추천</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>4. let - 재할당 가능한 변수</h2>
+
+            <div class="code">
+<span class="comment">// let 변수 선언</span><br>
+<span class="keyword">let</span> name = <span class="string">'홍길동'</span>;<br>
+<span class="keyword">let</span> age = <span class="number">25</span>;<br>
+<span class="keyword">let</span> isStudent = <span class="keyword">true</span>;<br>
+<br>
+<span class="comment">// 값 변경 가능</span><br>
+name = <span class="string">'김철수'</span>;<br>
+age = <span class="number">30</span>;<br>
+<br>
+console.log(name);  <span class="comment">// '김철수'</span><br>
+console.log(age);   <span class="comment">// 30</span>
+            </div>
+
+            <button onclick="letExample()">let 예제 실행</button>
+            <div id="letOutput" class="output" style="display:none;"></div>
+
+            <script>
+                function letExample() {
+                    let name = '홍길동';
+                    let age = 25;
+
+                    let output = `초기값: name = "${name}", age = ${age}\n`;
+
+                    name = '김철수';
+                    age = 30;
+
+                    output += `변경 후: name = "${name}", age = ${age}`;
+
+                    document.getElementById('letOutput').style.display = 'block';
+                    document.getElementById('letOutput').textContent = output;
+                }
+            </script>
+
+            <p><strong>사용 시기:</strong> 값이 변경될 수 있는 변수</p>
+        </div>
+
+        <div class="section">
+            <h2>5. const - 재할당 불가능한 상수</h2>
+
+            <div class="code">
+<span class="comment">// const 변수 선언</span><br>
+<span class="keyword">const</span> PI = <span class="number">3.14159</span>;<br>
+<span class="keyword">const</span> MAX_SIZE = <span class="number">100</span>;<br>
+<span class="keyword">const</span> API_URL = <span class="string">'https://api.example.com'</span>;<br>
+<br>
+<span class="comment">// 값 변경 시도 (❌ 에러 발생!)</span><br>
+PI = <span class="number">3.14</span>;  <span class="comment">// TypeError: Assignment to constant variable</span>
+            </div>
+
+            <button onclick="constExample()">const 예제 실행</button>
+            <div id="constOutput" class="output" style="display:none;"></div>
+
+            <script>
+                function constExample() {
+                    const PI = 3.14159;
+                    const COMPANY_NAME = 'My Company';
+
+                    let output = `PI = ${PI}\nCOMPANY_NAME = "${COMPANY_NAME}"\n\n`;
+                    output += '⚠️ const 변수는 재할당할 수 없습니다!';
+
+                    document.getElementById('constOutput').style.display = 'block';
+                    document.getElementById('constOutput').textContent = output;
+                }
+            </script>
+
+            <p><strong>사용 시기:</strong> 값이 변경되지 않는 상수</p>
+            <p><strong>💡 팁:</strong> 기본적으로 const를 사용하고, 꼭 필요한 경우에만 let 사용!</p>
+        </div>
+
+        <div class="section">
+            <h2>6. var - 구식 변수 선언 (사용 지양)</h2>
+
+            <div class="code">
+<span class="comment">// var 변수 선언 (ES6 이전 방식)</span><br>
+<span class="keyword">var</span> oldName = <span class="string">'홍길동'</span>;<br>
+<span class="keyword">var</span> oldName = <span class="string">'김철수'</span>;  <span class="comment">// 재선언 가능 (문제 발생 가능!)</span><br>
+<br>
+<span class="comment">// let/const와 달리 함수 스코프</span><br>
+<span class="keyword">if</span> (<span class="keyword">true</span>) {<br>
+&nbsp;&nbsp;<span class="keyword">var</span> x = <span class="number">10</span>;<br>
+}<br>
+console.log(x);  <span class="comment">// 10 (블록 밖에서도 접근 가능)</span>
+            </div>
+
+            <p style="color: #f12711;"><strong>⚠️ var는 사용하지 마세요!</strong> let과 const를 사용하세요.</p>
+        </div>
+
+        <div class="section">
+            <h2>7. 변수 명명 규칙</h2>
+
+            <h3>✅ 올바른 변수명</h3>
+            <div class="code">
+<span class="keyword">let</span> userName = <span class="string">'홍길동'</span>;        <span class="comment">// 카멜 케이스 (권장)</span><br>
+<span class="keyword">let</span> user_name = <span class="string">'홍길동'</span>;       <span class="comment">// 스네이크 케이스</span><br>
+<span class="keyword">let</span> age = <span class="number">25</span>;<br>
+<span class="keyword">let</span> _private = <span class="string">'값'</span>;<br>
+<span class="keyword">let</span> $jquery = <span class="string">'값'</span>;<br>
+<span class="keyword">const</span> MAX_VALUE = <span class="number">100</span>;      <span class="comment">// 상수는 대문자 (관례)</span>
+            </div>
+
+            <h3>❌ 잘못된 변수명</h3>
+            <div class="code">
+<span class="keyword">let</span> 2name = <span class="string">'값'</span>;           <span class="comment">// 숫자로 시작 불가</span><br>
+<span class="keyword">let</span> user-name = <span class="string">'값'</span>;       <span class="comment">// 하이픈(-) 사용 불가</span><br>
+<span class="keyword">let</span> user name = <span class="string">'값'</span>;       <span class="comment">// 공백 사용 불가</span><br>
+<span class="keyword">let</span> class = <span class="string">'값'</span>;           <span class="comment">// 예약어 사용 불가</span>
+            </div>
+
+            <h3>📌 명명 규칙 정리</h3>
+            <ul>
+                <li>✅ 영문자, 숫자, _, $ 만 사용 가능</li>
+                <li>✅ 첫 글자는 영문자, _, $ 만 가능 (숫자 불가)</li>
+                <li>✅ 대소문자 구분 (name ≠ Name)</li>
+                <li>✅ 의미있는 이름 사용 (x보다는 age, userName 등)</li>
+                <li>✅ 카멜 케이스 사용 (userName, isLoggedIn)</li>
+                <li>❌ 예약어 사용 불가 (let, const, if, for 등)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>8. 실전 예제</h2>
+
+            <div class="code">
+<span class="comment">// 사용자 정보</span><br>
+<span class="keyword">const</span> USER_ROLE = <span class="string">'admin'</span>;<br>
+<span class="keyword">let</span> userName = <span class="string">'홍길동'</span>;<br>
+<span class="keyword">let</span> userAge = <span class="number">25</span>;<br>
+<span class="keyword">let</span> isLoggedIn = <span class="keyword">false</span>;<br>
+<br>
+<span class="comment">// 값 변경</span><br>
+isLoggedIn = <span class="keyword">true</span>;<br>
+userAge = userAge + <span class="number">1</span>;  <span class="comment">// 26</span><br>
+<br>
+<span class="comment">// 출력</span><br>
+console.log(<span class="string">`이름: ${userName}`</span>);<br>
+console.log(<span class="string">`나이: ${userAge}`</span>);<br>
+console.log(<span class="string">`로그인: ${isLoggedIn}`</span>);
+            </div>
+
+            <button onclick="practiceExample()">실전 예제 실행</button>
+            <div id="practiceOutput" class="output" style="display:none;"></div>
+
+            <script>
+                function practiceExample() {
+                    const USER_ROLE = 'admin';
+                    let userName = '홍길동';
+                    let userAge = 25;
+                    let isLoggedIn = false;
+
+                    let output = '=== 초기 상태 ===\n';
+                    output += `사용자 역할: ${USER_ROLE}\n`;
+                    output += `이름: ${userName}\n`;
+                    output += `나이: ${userAge}\n`;
+                    output += `로그인 여부: ${isLoggedIn}\n\n`;
+
+                    isLoggedIn = true;
+                    userAge = userAge + 1;
+
+                    output += '=== 변경 후 ===\n';
+                    output += `나이: ${userAge} (1살 증가)\n`;
+                    output += `로그인 여부: ${isLoggedIn} (로그인 완료)`;
+
+                    document.getElementById('practiceOutput').style.display = 'block';
+                    document.getElementById('practiceOutput').textContent = output;
+                }
+            </script>
+        </div>
+
+        <div class="section" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <h2 style="color: #4caf50;">✅ 실습 과제</h2>
+            <ol>
+                <li>let과 const를 사용하여 자신의 정보를 변수로 저장하기 (이름, 나이, 직업 등)</li>
+                <li>변수 값을 변경하고 console.log()로 출력하기</li>
+                <li>alert()와 prompt()를 사용하여 사용자 입력 받기</li>
+                <li>계산기 기능 만들기 (두 숫자를 입력받아 더하기)</li>
+            </ol>
+        </div>
+
+        <div style="background: #fff3cd; padding: 20px; border-left: 5px solid #ffc107; border-radius: 5px; margin-top: 20px;">
+            <h3 style="margin-top: 0;">💡 JavaScript 작성 팁</h3>
+            <ul>
+                <li>✅ 기본적으로 <strong>const</strong> 사용, 필요시에만 <strong>let</strong></li>
+                <li>✅ <strong>var는 절대 사용하지 마세요!</strong></li>
+                <li>✅ 의미있고 명확한 변수명 사용</li>
+                <li>✅ 카멜 케이스 사용 (userName, isActive)</li>
+                <li>✅ 상수는 대문자와 언더스코어 (MAX_SIZE, API_URL)</li>
+                <li>✅ console.log()로 디버깅하는 습관 들이기</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        console.log('🎉 JavaScript 강의 페이지가 로드되었습니다!');
+        console.log('F12를 눌러 개발자 도구를 열어보세요!');
+    </script>
+</body>
+</html>
+

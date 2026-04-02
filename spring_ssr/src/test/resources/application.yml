@@ -1,0 +1,35 @@
+# ==========================================
+# 테스트 환경 설정 파일
+# ==========================================
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:3406/test
+    username: test
+    password: test
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # 테스트 시작 시 생성, 종료 시 삭제
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        default_batch_fetch_size: 100
+    open-in-view: false
+
+  sql:
+    init:
+      mode: always
+      data-locations:
+        - classpath:data-users.sql
+        - classpath:data-files.sql
+        - classpath:data-community.sql
+        - classpath:data-comment.sql
+
+file:
+  upload-dir: ./uploads
+
+api:
+  service-key: test-key

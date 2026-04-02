@@ -1,0 +1,637 @@
+<div class="tt_article_useless_p_margin contents_style"><p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">전체코드 : <a href="https://github.com/gks930620/spring_securty_all" target="_blank" rel="noopener&nbsp;noreferrer">https://github.com/gks930620/spring_securty_all</a></p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18"><a href="https://brilliantdevelop.tistory.com/225" target="_blank" rel="noopener&nbsp;noreferrer">https://brilliantdevelop.tistory.com/225</a>에 이어&nbsp; refresh token을 추가해</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">토큰재발급과 로그아웃기능을 구현해보자.</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <h2 style="color: #000000; text-align: start;" data-ke-size="size26">설정파일</h2>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">application.yml</p>
+  <div style="background-color: #ffffff; color: #000000; text-align: start;">
+<pre class="yaml"><code class="hljs"><span class="hljs-attr">spring:</span>
+  <span class="hljs-attr">datasource:</span>
+    <span class="hljs-attr">url:</span> <span class="hljs-string">jdbc:h2:mem:security</span>
+    <span class="hljs-attr">driver-class-name:</span> <span class="hljs-string">org.h2.Driver</span>
+    <span class="hljs-attr">username:</span> <span class="hljs-string">sa</span>
+    <span class="hljs-attr">password:</span>
+  <span class="hljs-attr">jpa:</span>
+    <span class="hljs-attr">hibernate:</span>
+      <span class="hljs-attr">ddl-auto:</span> <span class="hljs-string">create</span>
+    <span class="hljs-attr">properties:</span>
+      <span class="hljs-attr">hibernate:</span>
+        <span class="hljs-attr">show_sql:</span> <span class="hljs-literal">true</span>
+        <span class="hljs-attr">format_sql:</span> <span class="hljs-literal">true</span>
+        <span class="hljs-attr">default_batch_fetch_size:</span> <span class="hljs-number">100</span>
+    <span class="hljs-attr">open-in-view:</span> <span class="hljs-literal">false</span>
+  <span class="hljs-attr">devtools:</span>
+    <span class="hljs-attr">livereload:</span>
+      <span class="hljs-attr">enabled:</span> <span class="hljs-literal">true</span>
+    <span class="hljs-attr">freemarker:</span>
+      <span class="hljs-attr">cache:</span> <span class="hljs-literal">false</span>
+    <span class="hljs-attr">restart:</span>
+      <span class="hljs-attr">enabled:</span> <span class="hljs-literal">true</span>
+  <span class="hljs-attr">thymeleaf:</span>
+    <span class="hljs-attr">cache:</span> <span class="hljs-literal">false</span>
+
+
+<span class="hljs-attr">jwt:</span>
+  <span class="hljs-attr">secret :</span> <span class="hljs-string">${JWT_SECRET_KEY}</span>
+    <span class="hljs-comment">#키는 길이만 충분하고 노출되지만 않으면 됨. gpt한테 만들어하던가 내가 막 타자 아무렇게 해도됨</span>
+  <span class="hljs-attr">expiration_access:</span> <span class="hljs-number">60000</span>  <span class="hljs-comment">#1분 테스트용 </span>
+  <span class="hljs-attr">expiration_refresh :</span> <span class="hljs-number">300000</span>   <span class="hljs-comment">#테스트용 5분</span>
+
+<span class="hljs-attr">logging:</span>
+  <span class="hljs-attr">level:</span>
+    <span class="hljs-attr">org.hibernate.SQL:</span> <span class="hljs-string">debug</span>
+    <span class="hljs-attr">org.hibernate.type:</span> <span class="hljs-string">trace</span>
+    <span class="hljs-attr">org.springframework.security :</span> <span class="hljs-string">DEBUG</span>
+</code></pre>
+  </div>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">SecurityConfig&nbsp; &nbsp; &nbsp;<span>&nbsp;</span></p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18"><span>logout과 토큰 재발급관련 사항만 추가되었다.</span></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SecurityConfig</span> </span>{
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> JwtUtil jwtUtil;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> CustomUserDetailsService customUserDetailsService;  <span class="hljs-comment">//내가 빈으로 등록한것들</span>
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AuthenticationConfiguration authenticationConfiguration;  <span class="hljs-comment">//authenticationManger를 갖고있는 빈.</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> RefreshRepository refreshRepository;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> PasswordEncoder <span class="hljs-title">passwordEncoder</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> BCryptPasswordEncoder();
+    }
+
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> SecurityFilterChain <span class="hljs-title">securityFilterChain</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>{
+        http  <span class="hljs-comment">//내부H2DB  확인용.  진짜 1도 안중요함.</span>
+            .authorizeHttpRequests(auth -&gt; auth
+                .requestMatchers(<span class="hljs-string">"/h2-console/**"</span>).permitAll() <span class="hljs-comment">// H2 콘솔 접근 허용</span>
+            )
+            .csrf(csrf -&gt; csrf.ignoringRequestMatchers(<span class="hljs-string">"/h2-console/**"</span>)) <span class="hljs-comment">// H2 콘솔 CSRF 비활성화</span>
+            .headers(
+                headers -&gt; headers.frameOptions(frame -&gt; frame.disable())); <span class="hljs-comment">// H2 콘솔을 iframe에서 허용</span>
+
+        http    <span class="hljs-comment">//기본 session방식관련 다 X</span>
+            .csrf(csrf -&gt; csrf.disable())
+            .sessionManagement(
+                session -&gt; session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .formLogin(form -&gt; form.disable())
+            .logout(logout -&gt; logout.disable())  <span class="hljs-comment">//기본 로그아웃 사용X</span>
+            .httpBasic(basic -&gt; basic.disable());
+
+        http   <span class="hljs-comment">//경로와 인증/인가 설정.</span>
+            .authorizeHttpRequests(auth -&gt; auth
+                .requestMatchers(
+                    <span class="hljs-string">"/login"</span>, <span class="hljs-string">"/api/join"</span>, <span class="hljs-string">"/api/refresh/reissue"</span>).permitAll() <span class="hljs-comment">//login필터는 기본적으로  /login 일 때 동작</span>
+                .requestMatchers(<span class="hljs-string">"/api/my/info"</span>,<span class="hljs-string">"/api/logout"</span>).authenticated()  <span class="hljs-comment">//security 기본 로그아웃 url인 /logout은 사용X</span>
+            );
+
+
+
+        http          <span class="hljs-comment">//필터</span>
+            .userDetailsService(customUserDetailsService)
+            .addFilterAt(
+                <span class="hljs-keyword">new</span> JwtLoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil,
+                    refreshRepository),
+                UsernamePasswordAuthenticationFilter.class)  <span class="hljs-comment">//기존 세션방식의 로그인 검증필터 대체.</span>
+            .addFilterBefore(
+                <span class="hljs-keyword">new</span> JwtAccessTokenCheckAndSaveUserInfoFilter(jwtUtil, customUserDetailsService),
+                UsernamePasswordAuthenticationFilter.class);
+
+
+        http
+            .exceptionHandling(ex -&gt; ex
+                .authenticationEntryPoint((request, response, authException) -&gt; {
+                    String errorCause =
+                        request.getAttribute(<span class="hljs-string">"ERROR_CAUSE"</span>) != <span class="hljs-keyword">null</span> ? (String) request.getAttribute(
+                            <span class="hljs-string">"ERROR_CAUSE"</span>) : <span class="hljs-keyword">null</span>;
+                    <span class="hljs-comment">//인증없이(access token없이) 인증필요한 곳에 로그인했을 떄.</span>
+                    <span class="hljs-keyword">if</span> (errorCause == <span class="hljs-keyword">null</span>) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType(<span class="hljs-string">"application/json;charset=UTF-8"</span>);
+                        response.getWriter().write(<span class="hljs-string">"{\"error\": \"인증이 필요합니다.\"}"</span>);
+                        <span class="hljs-keyword">return</span>;
+                    }
+                    <span class="hljs-comment">// JwtAccessTokenCheckAndSaveUserInfoFilter  토큰체크하는부분</span>
+                    <span class="hljs-keyword">if</span> (errorCause.equals(<span class="hljs-string">"토큰만료"</span>)) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); <span class="hljs-comment">// 401 응답</span>
+                        response.setContentType(<span class="hljs-string">"application/json"</span>);
+                        response.setCharacterEncoding(<span class="hljs-string">"UTF-8"</span>);
+                        response.getWriter().write(<span class="hljs-string">"{\"error\": \"Access Token expired\"}"</span>);
+                        <span class="hljs-keyword">return</span>;
+                    }
+                    <span class="hljs-keyword">if</span> (errorCause.equals(<span class="hljs-string">"로그인실패"</span>)) { <span class="hljs-comment">//jwtLoginFilter 로그인시도부분.</span>
+                        response.setStatus(
+                            HttpServletResponse.SC_UNAUTHORIZED); <span class="hljs-comment">//로그인실패도 401로 하는게 보통</span>
+                        response.setContentType(<span class="hljs-string">"application/json;charset=UTF-8"</span>);
+                        response.getWriter().write(<span class="hljs-string">"{\"error\": \"아이디 비번 틀림.\"}"</span>);
+                        <span class="hljs-keyword">return</span>;
+                    }
+                })
+            );
+        <span class="hljs-keyword">return</span> http.build();
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">JwtUtil</h2>
+  <p data-ke-size="size18">jwtUtil에서 refresh 토큰생성메소드와&nbsp; token type( access vs refresh)를 구별하는 메소드가 추가.</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="reasonml"><code class="hljs typescript"><span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JwtUtil</span> </span>{
+
+    <span class="hljs-meta">@Value</span>(<span class="hljs-string">"${jwt.secret}"</span>)
+    <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> secretKey;
+
+    <span class="hljs-meta">@Value</span>(<span class="hljs-string">"${jwt.expiration_access}"</span>)
+    <span class="hljs-keyword">private</span> long expirationAccess;
+
+
+    <span class="hljs-meta">@Value</span>(<span class="hljs-string">"${jwt.expiration_refresh}"</span>)
+    <span class="hljs-keyword">private</span> long expirationRefresh;
+
+    <span class="hljs-keyword">private</span> SecretKey <span class="hljs-function"><span class="hljs-title">getSigningKey</span>(<span class="hljs-params"></span>)</span> {
+        <span class="hljs-keyword">return</span> Keys.hmacShaKeyFor(secretKey.getBytes());   <span class="hljs-comment">//HMAC 알고리즘일 때는 SecretKey로 return하기.</span>
+    }
+
+
+
+
+    <span class="hljs-comment">// Access Token 생성</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span>   <span class="hljs-function"><span class="hljs-title">createAccessToken</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> username</span>)</span> {
+        <span class="hljs-keyword">return</span> Jwts.builder()
+            .subject(username) <span class="hljs-comment">// ✅ setSubject() -&gt; subject()</span>
+            .claim(<span class="hljs-string">"token_type"</span>, <span class="hljs-string">"access"</span>)   <span class="hljs-comment">//타입구분을 위해 추가.</span>
+            .issuedAt(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>())
+            .expiration(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(System.currentTimeMillis() + expirationAccess))
+            .signWith(getSigningKey()) <span class="hljs-comment">// ✅ SignatureAlgorithm.HS256 대신 Jwts.SIG.HS256 사용</span>
+            .compact();
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span>   <span class="hljs-function"><span class="hljs-title">createRefreshToken</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> username</span>)</span> {
+        <span class="hljs-keyword">return</span> Jwts.builder()
+            .subject(username)
+            .issuedAt(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>())
+            .claim(<span class="hljs-string">"token_type"</span> ,<span class="hljs-string">"refresh"</span>)
+            .expiration(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(System.currentTimeMillis() + expirationRefresh))
+            .signWith(getSigningKey()) <span class="hljs-comment">// ✅ SignatureAlgorithm.HS256 대신 Jwts.SIG.HS256 사용</span>
+            .compact();
+    }
+
+
+
+    <span class="hljs-comment">//토큰에서 username 추출.  뭐 subject에 uuid를 넣기도하지만.. 여기서는 subject에 username세팅했었음.</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span> <span class="hljs-function"><span class="hljs-title">extractUsername</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> token</span>)</span> {
+        <span class="hljs-keyword">return</span> Jwts.parser()
+            .verifyWith(getSigningKey())  <span class="hljs-comment">// 0.12.3버전에서는 verifyWith에 Key말고 SecretKey가 와야한다.</span>
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .getSubject();
+    }
+
+
+    <span class="hljs-comment">//토큰에서 인증여부 확인.  코드상 문제가없다면 보통 만료됐을 때 false</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">boolean</span> <span class="hljs-function"><span class="hljs-title">validateToken</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> token</span>)</span> {
+        <span class="hljs-keyword">try</span> {
+            Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())  <span class="hljs-comment">// ✅ 서명 검증</span>
+                .build()
+                .parseSignedClaims(token)    <span class="hljs-comment">// ✅ JWT 파싱</span>
+                .getPayload();               <span class="hljs-comment">// ✅ claims(토큰 정보) 추출</span>
+            <span class="hljs-comment">//  토큰 만료 확인</span>
+            <span class="hljs-built_in">Date</span> expiration = claims.getExpiration();
+            <span class="hljs-keyword">return</span> expiration.after(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>()); <span class="hljs-comment">// 현재 시간보다 만료 시간이 뒤에 있어야 유효</span>
+
+        } <span class="hljs-keyword">catch</span> (JwtException | IllegalArgumentException e) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        }
+    }
+
+
+    <span class="hljs-comment">// 토큰에서 token_type 클레임 추출</span>
+    <span class="hljs-keyword">public</span>  <span class="hljs-built_in">String</span> <span class="hljs-function"><span class="hljs-title">getTokenType</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> token</span>)</span> {
+        <span class="hljs-keyword">try</span> {
+            Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+            <span class="hljs-keyword">return</span> claims.get(<span class="hljs-string">"token_type"</span>, <span class="hljs-built_in">String</span>.class); <span class="hljs-comment">// token_type 값 반환</span>
+        } <span class="hljs-keyword">catch</span> (ExpiredJwtException e) {   <span class="hljs-comment">//만료되었어도 token type은 return</span>
+            Claims claims = e.getClaims();
+            <span class="hljs-keyword">return</span> claims != <span class="hljs-literal">null</span> ? claims.get(<span class="hljs-string">"token_type"</span>, <span class="hljs-built_in">String</span>.class) : <span class="hljs-literal">null</span>;
+        }
+    }
+}
+
+<span class="hljs-comment">//jjwt 버전에 따라 구현방식이 다르다. 현재는 0.12.3 버전.</span></code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">Access token과 Refresh token으로 로그인 기능 구현하기&nbsp;</h2>
+  <h3 data-ke-size="size23">로그인시도</h3>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/JfGD8/btsMHrKPaVN/AAAAAAAAAAAAAAAAAAAAAAcZpyo5dwRBBg-2AEaX3Kdf9bvCqEFVT_IJliS3b3mJ/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=dvqRrGyqEu%2Fke6JB6rUzAhqummk%3D" data-phocus="https://blog.kakaocdn.net/dna/JfGD8/btsMHrKPaVN/AAAAAAAAAAAAAAAAAAAAAAcZpyo5dwRBBg-2AEaX3Kdf9bvCqEFVT_IJliS3b3mJ/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=dvqRrGyqEu%2Fke6JB6rUzAhqummk%3D"><img src="https://blog.kakaocdn.net/dna/JfGD8/btsMHrKPaVN/AAAAAAAAAAAAAAAAAAAAAAcZpyo5dwRBBg-2AEaX3Kdf9bvCqEFVT_IJliS3b3mJ/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=dvqRrGyqEu%2Fke6JB6rUzAhqummk%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FJfGD8%2FbtsMHrKPaVN%2FAAAAAAAAAAAAAAAAAAAAAAcZpyo5dwRBBg-2AEaX3Kdf9bvCqEFVT_IJliS3b3mJ%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DdvqRrGyqEu%252Fke6JB6rUzAhqummk%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="0"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">기존 access token 생성 후 보내는 기능에서 refresh token이 추가되었는데&nbsp;</p>
+  <p data-ke-size="size18">refresh token은 DB에 저장해야 된다.&nbsp;<br><br></p>
+  <p data-ke-size="size18"><b>RefreshEntity</b></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="less"><code class="hljs"><span class="hljs-variable">@Entity</span>
+<span class="hljs-variable">@Getter</span>
+<span class="hljs-variable">@Setter</span>
+<span class="hljs-variable">@NoArgsConstructor</span>
+<span class="hljs-variable">@AllArgsConstructor</span>
+public class RefreshEntity {
+    <span class="hljs-variable">@Id</span>
+    <span class="hljs-variable">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    <span class="hljs-variable">@ManyToOne</span>(fetch = FetchType.LAZY)
+    private UserEntity userEntity;
+
+    <span class="hljs-variable">@Column</span>(unique = true)
+    private String token;
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>RefreshRepository</b></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="angelscript"><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">RefreshRepository</span>  <span class="hljs-keyword">extends</span> <span class="hljs-title">JpaRepository</span>&lt;<span class="hljs-title">RefreshEntity</span>,<span class="hljs-title">Long</span>&gt; </span>{
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">deleteByToken</span><span class="hljs-params">(String token)</span></span>;
+    <span class="hljs-function"><span class="hljs-keyword">public</span> RefreshEntity <span class="hljs-title">findByToken</span><span class="hljs-params">(String token)</span></span>;
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>JwtLoginFilter</b></p>
+  <p data-ke-size="size18">로그인 성공했을 때 refresh 관련내용이 추가되었다.</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JwtLoginFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">UsernamePasswordAuthenticationFilter</span> </span>{
+
+    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> AuthenticationManager authenticationManager;  <span class="hljs-comment">//new 로 생성하면 부모의 authenticationManager필드는 null이기 때문에 생성자로 주입.</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> JwtUtil jwtUtil;
+
+    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> RefreshRepository refreshRepository;
+
+    <span class="hljs-comment">// 로그인 시도</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Authentication <span class="hljs-title">attemptAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> AuthenticationException </span>{
+        <span class="hljs-keyword">try</span> {
+            Map&lt;String, String&gt; credentials = <span class="hljs-keyword">new</span> ObjectMapper().readValue(request.getInputStream(), HashMap.class);
+            String username = credentials.get(<span class="hljs-string">"username"</span>);
+            String password = credentials.get(<span class="hljs-string">"password"</span>);
+
+            UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
+            <span class="hljs-keyword">this</span>.setDetails(request, authRequest);
+            <span class="hljs-keyword">return</span> authenticationManager.authenticate(authRequest);  <span class="hljs-comment">//여기서 AuthenticationException 발생.</span>
+        } <span class="hljs-keyword">catch</span> (IOException e) {
+            e.printStackTrace();
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> RuntimeException(<span class="hljs-string">"Failed to parse authentication request"</span>, e);  <span class="hljs-comment">//readValue하는과정에서 발생.</span>
+        }
+
+    }
+
+    <span class="hljs-comment">// 로그인 성공 → JWT 토큰 발급</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">successfulAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>{
+        CustomUserAccount customUserAccount = (CustomUserAccount) authResult.getPrincipal();
+
+        String accessToken = jwtUtil.createAccessToken(customUserAccount.getUsername());
+        String refreshToken=jwtUtil.createRefreshToken(customUserAccount.getUsername());
+
+
+        <span class="hljs-comment">//  새 Refresh Token 저장 (기존 Token 삭제 X)</span>
+        RefreshEntity refreshEntity = <span class="hljs-keyword">new</span> RefreshEntity();
+        refreshEntity.setUserEntity(customUserAccount.getUserEntity());  <span class="hljs-comment">// 이전 필터에서 사용자정보저장할 떄  userEntity는  entity상태로 저장됨.</span>
+        refreshEntity.setToken(refreshToken);
+        refreshRepository.save(refreshEntity);
+
+
+        <span class="hljs-comment">// 토큰을 응답에 포함</span>
+        response.setContentType(<span class="hljs-string">"application/json"</span>);
+        response.getWriter().write(<span class="hljs-keyword">new</span> ObjectMapper().writeValueAsString(
+            Map.of(<span class="hljs-string">"access_token"</span>, accessToken, <span class="hljs-string">"refresh_token"</span>, refreshToken)
+        ));
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">unsuccessfulAuthentication</span><span class="hljs-params">(HttpServletRequest request,
+        HttpServletResponse response, AuthenticationException failed)</span>
+        <span class="hljs-keyword">throws</span> IOException, ServletException </span>{
+        request.setAttribute(<span class="hljs-string">"ERROR_CAUSE"</span> , <span class="hljs-string">"로그인실패"</span>); <span class="hljs-comment">//실패 후 config의 entryPoint로</span>
+        <span class="hljs-keyword">super</span>.unsuccessfulAuthentication(request,response,failed);
+    }
+
+}</code></pre>
+    <p data-ke-size="size16">&nbsp;</p>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h3 data-ke-size="size23">로그인 후&nbsp; access token을 가지고 /api/my/info 요청&nbsp;</h3>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/uia0l/btsMH7LH3IJ/AAAAAAAAAAAAAAAAAAAAAP3Cu22eBb8P6HLmC0JdqeVQ99IMFKR-oBWdcoWGFdng/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=X1xqFozqt%2Fblrm7sOuEuctbO5l0%3D" data-phocus="https://blog.kakaocdn.net/dna/uia0l/btsMH7LH3IJ/AAAAAAAAAAAAAAAAAAAAAP3Cu22eBb8P6HLmC0JdqeVQ99IMFKR-oBWdcoWGFdng/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=X1xqFozqt%2Fblrm7sOuEuctbO5l0%3D"><img src="https://blog.kakaocdn.net/dna/uia0l/btsMH7LH3IJ/AAAAAAAAAAAAAAAAAAAAAP3Cu22eBb8P6HLmC0JdqeVQ99IMFKR-oBWdcoWGFdng/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=X1xqFozqt%2Fblrm7sOuEuctbO5l0%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fuia0l%2FbtsMH7LH3IJ%2FAAAAAAAAAAAAAAAAAAAAAP3Cu22eBb8P6HLmC0JdqeVQ99IMFKR-oBWdcoWGFdng%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DX1xqFozqt%252Fblrm7sOuEuctbO5l0%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="1"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">/api/my/info 요청에 access token으로 로그인하는 부분으로 인해 바뀌는 코드는 없다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h3 data-ke-size="size23">refresh token 재발급</h3>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/vODe7/btsMJkchlxV/AAAAAAAAAAAAAAAAAAAAAEESycAcKc8P8v1R2q001XSDSdAwFX0vLNJdMGoZeJk4/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=sBoSvvS2%2B9hKawaTJvls7i1gdsM%3D" data-phocus="https://blog.kakaocdn.net/dna/vODe7/btsMJkchlxV/AAAAAAAAAAAAAAAAAAAAAEESycAcKc8P8v1R2q001XSDSdAwFX0vLNJdMGoZeJk4/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=sBoSvvS2%2B9hKawaTJvls7i1gdsM%3D"><img src="https://blog.kakaocdn.net/dna/vODe7/btsMJkchlxV/AAAAAAAAAAAAAAAAAAAAAEESycAcKc8P8v1R2q001XSDSdAwFX0vLNJdMGoZeJk4/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=sBoSvvS2%2B9hKawaTJvls7i1gdsM%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FvODe7%2FbtsMJkchlxV%2FAAAAAAAAAAAAAAAAAAAAAEESycAcKc8P8v1R2q001XSDSdAwFX0vLNJdMGoZeJk4%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DsBoSvvS2%252B9hKawaTJvls7i1gdsM%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="2"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">클라이언트가 access token이 만료됐다는 사실을 받으면</p>
+  <p data-ke-size="size18">refresh token으로 토큰재발급을 신청한다.&nbsp; &nbsp;(클라이언트가 신청한다. 서버는 각각의 요청만 잘 처리하면 됨)</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>/api/refresh/reiisue</b></p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/c7mEzU/btsMHRvUsds/AAAAAAAAAAAAAAAAAAAAAAPEEPAPPV9pTrQ2yefSf-G229EV0tUqFCQugEy1h1ZB/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=XVz4GzY3iHMX5QaJgmQPXL1GAUU%3D" data-phocus="https://blog.kakaocdn.net/dna/c7mEzU/btsMHRvUsds/AAAAAAAAAAAAAAAAAAAAAAPEEPAPPV9pTrQ2yefSf-G229EV0tUqFCQugEy1h1ZB/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=XVz4GzY3iHMX5QaJgmQPXL1GAUU%3D"><img src="https://blog.kakaocdn.net/dna/c7mEzU/btsMHRvUsds/AAAAAAAAAAAAAAAAAAAAAAPEEPAPPV9pTrQ2yefSf-G229EV0tUqFCQugEy1h1ZB/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=XVz4GzY3iHMX5QaJgmQPXL1GAUU%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fc7mEzU%2FbtsMHRvUsds%2FAAAAAAAAAAAAAAAAAAAAAAPEEPAPPV9pTrQ2yefSf-G229EV0tUqFCQugEy1h1ZB%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DXVz4GzY3iHMX5QaJgmQPXL1GAUU%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="3"></span></figure>
+  <figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/btpyIz/btsMJnz4p2I/AAAAAAAAAAAAAAAAAAAAAB54CcOCmUngREhjkxYX_gLJL5l_eEStkF0tHgSU7ixi/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=nzP%2BbVOWRf8fe6h7OV%2Ffl59E8BE%3D" data-phocus="https://blog.kakaocdn.net/dna/btpyIz/btsMJnz4p2I/AAAAAAAAAAAAAAAAAAAAAB54CcOCmUngREhjkxYX_gLJL5l_eEStkF0tHgSU7ixi/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=nzP%2BbVOWRf8fe6h7OV%2Ffl59E8BE%3D"><img src="https://blog.kakaocdn.net/dna/btpyIz/btsMJnz4p2I/AAAAAAAAAAAAAAAAAAAAAB54CcOCmUngREhjkxYX_gLJL5l_eEStkF0tHgSU7ixi/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=nzP%2BbVOWRf8fe6h7OV%2Ffl59E8BE%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbtpyIz%2FbtsMJnz4p2I%2FAAAAAAAAAAAAAAAAAAAAAB54CcOCmUngREhjkxYX_gLJL5l_eEStkF0tHgSU7ixi%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DnzP%252BbVOWRf8fe6h7OV%252Ffl59E8BE%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="4"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">이 요청은 permitAll() 이기 때문에 필터에서 통과돼야 한다.&nbsp;</p>
+  <p data-ke-size="size18"><b>/api/refresh/reiisue</b>에서는 토큰이 refresh 토큰일 거고 이 토큰에 대한 검증은 컨트롤러에서 한다.&nbsp;</p>
+  <p data-ke-size="size18">그래서 필터에서는 refresh 토큰이면 그냥 통과시키면 된다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>JwtAccessTokenCheckAndSaveUserInfoFilter</b></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JwtAccessTokenCheckAndSaveUserInfoFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OncePerRequestFilter</span> </span>{
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> JwtUtil jwtUtil;  <span class="hljs-comment">//단순히  jwt기능제공</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> UserDetailsService userDetailsService;  <span class="hljs-comment">//내가만들고 빈 등록한 CustomUserDetailsService</span>
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doFilterInternal</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response,
+        FilterChain chain)</span>
+        <span class="hljs-keyword">throws</span> ServletException, IOException </span>{
+
+        String token = getTokenFromRequest(request);
+        <span class="hljs-comment">//refresh든 access든  authroization header로 보낸다고 가정함.</span>
+        <span class="hljs-comment">// 보내는 방식이 다르면 거기에 맞춰 따로 token얻는 방법을 작성해야함.</span>
+
+        <span class="hljs-keyword">if</span> (token == <span class="hljs-keyword">null</span>) {
+            chain.doFilter(request, response);
+            <span class="hljs-keyword">return</span>;
+        }
+
+        <span class="hljs-comment">//token은 access 아니면 refresh 2개뿐</span>
+        String tokenType = jwtUtil.getTokenType(token);
+        <span class="hljs-keyword">if</span> (tokenType.equals(<span class="hljs-string">"refresh"</span>)) {
+            chain.doFilter(request, response);   <span class="hljs-comment">//refresh토큰이 있다 =&gt; /api/refresh/reissue는 인증 필요없는 곳 무사통과</span>
+            <span class="hljs-keyword">return</span>;
+        }
+
+
+        <span class="hljs-comment">//access token에 대해서....</span>
+
+        <span class="hljs-keyword">if</span> (!jwtUtil.validateToken(token)) { <span class="hljs-comment">//토큰이 문제 있다면.. jwtUtil에 문제가 없다면 만료되었을 때만.</span>
+            request.setAttribute(<span class="hljs-string">"ERROR_CAUSE"</span>, <span class="hljs-string">"토큰만료"</span>);
+            chain.doFilter(request, response);   <span class="hljs-comment">// access_token이 만료된거라면 인증필요한 url =&gt; security가 authenticationException</span>
+            <span class="hljs-keyword">return</span>;
+        }
+
+        <span class="hljs-comment">//만료 안 되었다면 SecurityContext에 인증정보 담아 로그인한걸로 판단!!</span>
+        String username = jwtUtil.extractUsername(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(
+            username); <span class="hljs-comment">//내가 만든 CustomUserAccount</span>
+        UsernamePasswordAuthenticationToken authenticationToken =
+            <span class="hljs-keyword">new</span> UsernamePasswordAuthenticationToken(userDetails, <span class="hljs-keyword">null</span>,
+                userDetails.getAuthorities());
+        authenticationToken.setDetails(
+            <span class="hljs-keyword">new</span> WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);  <span class="hljs-comment">//이걸 해야 비로소 securityConfig가 로그인한 걸로 간주</span>
+        chain.doFilter(request, response);  <span class="hljs-comment">//인증된 상태로 통과!</span>
+
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">private</span> String <span class="hljs-title">getTokenFromRequest</span><span class="hljs-params">(HttpServletRequest request)</span> </span>{
+        String bearerToken = request.getHeader(<span class="hljs-string">"Authorization"</span>);
+        <span class="hljs-keyword">if</span> (StringUtils.hasText(bearerToken) &amp;&amp; bearerToken.startsWith(<span class="hljs-string">"Bearer "</span>)) {  <span class="hljs-comment">//띄어쓰기 주의</span>
+            <span class="hljs-keyword">return</span> bearerToken.substring(<span class="hljs-number">7</span>);
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">필터를 통과해 Controller에 오면 Controller에서 토큰재발급을 하면 된다.</p>
+  <p data-ke-size="size18"><b>RefreshController</b></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping("/api/refresh")</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RefreshController</span> </span>{
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> JwtUtil jwtUtil;
+    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> RefreshService refreshService;
+
+    <span class="hljs-meta">@RequestMapping("/reissue")</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;?&gt; refreshAccessToken(<span class="hljs-meta">@RequestHeader("Authorization")</span> String refreshToken) {
+        <span class="hljs-comment">//refresh토큰은 Authroization 헤더에..</span>
+        String token = refreshToken.replace(<span class="hljs-string">"Bearer "</span>, <span class="hljs-string">""</span>);
+
+
+
+
+        <span class="hljs-comment">//폐기된 토큰(로그아웃)인지도 검증 = DB에 있냐 없냐 !     ( 클라이언트가 폐기된 토큰을 사용할 수도 있음. 탈취됐을 수도 있고..)</span>
+        RefreshEntity find = refreshService.getRefresh(token);
+        <span class="hljs-keyword">if</span>(find==<span class="hljs-keyword">null</span>){
+            <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                Map.of(<span class="hljs-string">"error"</span>,<span class="hljs-string">"Refresh Token discarded"</span>));
+        }
+
+
+        <span class="hljs-comment">//기존 refresh 토큰 삭제</span>
+        refreshService.deleteRefresh(token);
+
+        <span class="hljs-comment">// Refresh Token 검증</span>
+        <span class="hljs-keyword">if</span> (!jwtUtil.validateToken(token)) { <span class="hljs-comment">//만료되었을 때</span>
+            <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                Map.of(<span class="hljs-string">"error"</span>,<span class="hljs-string">"Refresh Token expired"</span>));
+        }
+
+        <span class="hljs-comment">//만료 안되었을 때 ,  폐기된 적도 없을 때..</span>
+
+        String username = jwtUtil.extractUsername(token);
+
+        String newAccessToken = jwtUtil.createAccessToken(username);
+        String newRefreshToken=jwtUtil.createRefreshToken(username);
+
+        refreshService.saveRefresh(newRefreshToken);  <span class="hljs-comment">//refresh토큰은 저장</span>
+        <span class="hljs-keyword">return</span> ResponseEntity.ok(Map.of(<span class="hljs-string">"access_token"</span>, newAccessToken , <span class="hljs-string">"refresh_token"</span>,newRefreshToken) );
+
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>RefreshService</b></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@Service</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RefreshService</span> </span>{
+    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> RefreshRepository refreshRepository;
+    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> UserRepository userRepository;
+    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> JwtUtil jwtUtil;
+
+
+    <span class="hljs-meta">@Transactional(readOnly = false)</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> RefreshEntity <span class="hljs-title">getRefresh</span><span class="hljs-params">(String token)</span></span>{
+        <span class="hljs-keyword">return</span> refreshRepository.findByToken(token);
+    }
+
+    <span class="hljs-meta">@Transactional(readOnly = false)</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">saveRefresh</span><span class="hljs-params">(String token)</span></span>{
+        RefreshEntity refreshEntity = <span class="hljs-keyword">new</span> RefreshEntity();
+        String username = jwtUtil.extractUsername(token);
+        refreshEntity.setUserEntity(userRepository.findByUsername(username));
+        refreshEntity.setToken(token);
+        refreshRepository.save(refreshEntity);
+    }
+    <span class="hljs-meta">@Transactional(readOnly = false)</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">deleteRefresh</span><span class="hljs-params">(String token)</span></span>{
+            refreshRepository.deleteByToken(token);
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h3 data-ke-size="size23">로그아웃</h3>
+  <p data-ke-size="size18">config에서 로그아웃<b> /api/logout</b>을 .authenticated()로 했다.</p>
+  <p data-ke-size="size18">그래서 controller에 가기 위해서는 access token을 가지고 요청해야 필터를 통과한다.</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/QdskD/btsMIMmVYN1/AAAAAAAAAAAAAAAAAAAAAOC7W7rxUxzN-hXIlYjMQrRpRjJd-iFFA0bbbwesQT8a/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=XEKlGm%2FW4T8ojglEWImh8wco3JQ%3D" data-phocus="https://blog.kakaocdn.net/dna/QdskD/btsMIMmVYN1/AAAAAAAAAAAAAAAAAAAAAOC7W7rxUxzN-hXIlYjMQrRpRjJd-iFFA0bbbwesQT8a/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=XEKlGm%2FW4T8ojglEWImh8wco3JQ%3D"><img src="https://blog.kakaocdn.net/dna/QdskD/btsMIMmVYN1/AAAAAAAAAAAAAAAAAAAAAOC7W7rxUxzN-hXIlYjMQrRpRjJd-iFFA0bbbwesQT8a/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=XEKlGm%2FW4T8ojglEWImh8wco3JQ%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FQdskD%2FbtsMIMmVYN1%2FAAAAAAAAAAAAAAAAAAAAAOC7W7rxUxzN-hXIlYjMQrRpRjJd-iFFA0bbbwesQT8a%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DXEKlGm%252FW4T8ojglEWImh8wco3JQ%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="465" height="262" data-origin-width="641" data-origin-height="361" data-phocus-index="5"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">그래서 postman 에서 보낼 때 Authrization 헤더에 Bearer방식으로 access token을 보내고</p>
+  <p data-ke-size="size18">별도의 header(또는 body) 등으로 refresh토큰을 보내야 한다.&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">LogoutController</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping("/api")</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LogoutController</span> </span>{
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> JwtUtil jwtUtil;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> RefreshService refreshService;
+
+    <span class="hljs-meta">@RequestMapping("/logout")</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;?&gt; logout(<span class="hljs-meta">@RequestHeader("RefreshToken")</span> String refreshToken) {
+    <span class="hljs-comment">//header 이름은 RefreshToken으로 정했다.</span>
+        refreshService.deleteRefresh(refreshToken);
+        <span class="hljs-keyword">return</span> ResponseEntity.ok(Map.of(<span class="hljs-string">"message"</span>, <span class="hljs-string">"Logged out successfully"</span>));
+    }
+
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">※참고로&nbsp;refresh토큰을 삭제했기 때문에 refresh토큰으로&nbsp; 재발급요청에서 재발급은 안된다.</p>
+  <p data-ke-size="size18">하지만 access token이 만료되기전까지 기존 access token으로 로그인은 가능하다.&nbsp;</p>
+  <p data-ke-size="size18">여기서는 클라이언트가 기존 access token 사용안한다고 믿는 거고,&nbsp;</p>
+  <p data-ke-size="size18">보안을 강화하려면 access token도 못 쓰게하는 별도의 기능이 서버에 필요하다.&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">실행결과</h2>
+  <p data-ke-size="size18">로그인전 /my/info</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1199" data-origin-height="595"><span data-url="https://blog.kakaocdn.net/dna/b5rv88/btsMIEWVtIG/AAAAAAAAAAAAAAAAAAAAAFA2P-KZ8xTt1dQKEGAUCZveZzcw0FpRREYZyQhoUjEw/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=kiP0slpZLJ17MgrhBAqG%2Bn%2BQ3%2F4%3D" data-phocus="https://blog.kakaocdn.net/dna/b5rv88/btsMIEWVtIG/AAAAAAAAAAAAAAAAAAAAAFA2P-KZ8xTt1dQKEGAUCZveZzcw0FpRREYZyQhoUjEw/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=kiP0slpZLJ17MgrhBAqG%2Bn%2BQ3%2F4%3D"><img src="https://blog.kakaocdn.net/dna/b5rv88/btsMIEWVtIG/AAAAAAAAAAAAAAAAAAAAAFA2P-KZ8xTt1dQKEGAUCZveZzcw0FpRREYZyQhoUjEw/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=kiP0slpZLJ17MgrhBAqG%2Bn%2BQ3%2F4%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fb5rv88%2FbtsMIEWVtIG%2FAAAAAAAAAAAAAAAAAAAAAFA2P-KZ8xTt1dQKEGAUCZveZzcw0FpRREYZyQhoUjEw%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DkiP0slpZLJ17MgrhBAqG%252Bn%252BQ3%252F4%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="564" height="280" data-origin-width="1199" data-origin-height="595" data-phocus-index="6"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">회원가입전 로그인시도</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1168" data-origin-height="575"><span data-url="https://blog.kakaocdn.net/dna/Gd16X/btsMI2XyDsc/AAAAAAAAAAAAAAAAAAAAAFXkF6ELhcRqB76vpBvEHCJ3ov8MIoaxIbw5Fa_BnnPy/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=YN4jYGhrSf2xkmyHyEHEtnHmizI%3D" data-phocus="https://blog.kakaocdn.net/dna/Gd16X/btsMI2XyDsc/AAAAAAAAAAAAAAAAAAAAAFXkF6ELhcRqB76vpBvEHCJ3ov8MIoaxIbw5Fa_BnnPy/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=YN4jYGhrSf2xkmyHyEHEtnHmizI%3D"><img src="https://blog.kakaocdn.net/dna/Gd16X/btsMI2XyDsc/AAAAAAAAAAAAAAAAAAAAAFXkF6ELhcRqB76vpBvEHCJ3ov8MIoaxIbw5Fa_BnnPy/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=YN4jYGhrSf2xkmyHyEHEtnHmizI%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FGd16X%2FbtsMI2XyDsc%2FAAAAAAAAAAAAAAAAAAAAAFXkF6ELhcRqB76vpBvEHCJ3ov8MIoaxIbw5Fa_BnnPy%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DYN4jYGhrSf2xkmyHyEHEtnHmizI%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1168" height="575" data-origin-width="1168" data-origin-height="575" data-phocus-index="7"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">회원가입</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1208" data-origin-height="559"><span data-url="https://blog.kakaocdn.net/dna/Qbuyj/btsMH4hs2N6/AAAAAAAAAAAAAAAAAAAAAK62dKgOerhi2-mG0MfLc8hA38KmpOVTzzFkBV-F26G6/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=xFHRUrqloZ2XwjOoUDeqCOO6FOE%3D" data-phocus="https://blog.kakaocdn.net/dna/Qbuyj/btsMH4hs2N6/AAAAAAAAAAAAAAAAAAAAAK62dKgOerhi2-mG0MfLc8hA38KmpOVTzzFkBV-F26G6/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=xFHRUrqloZ2XwjOoUDeqCOO6FOE%3D"><img src="https://blog.kakaocdn.net/dna/Qbuyj/btsMH4hs2N6/AAAAAAAAAAAAAAAAAAAAAK62dKgOerhi2-mG0MfLc8hA38KmpOVTzzFkBV-F26G6/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=xFHRUrqloZ2XwjOoUDeqCOO6FOE%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FQbuyj%2FbtsMH4hs2N6%2FAAAAAAAAAAAAAAAAAAAAAK62dKgOerhi2-mG0MfLc8hA38KmpOVTzzFkBV-F26G6%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DxFHRUrqloZ2XwjOoUDeqCOO6FOE%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1208" height="559" data-origin-width="1208" data-origin-height="559" data-phocus-index="8"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">회원가입 후 로그인시도</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1185" data-origin-height="613"><span data-url="https://blog.kakaocdn.net/dna/brKplC/btsMHP5URLC/AAAAAAAAAAAAAAAAAAAAAOE1bUjUsCzDFQnQmf3vhUWXnwqw302vjWgFoSPSeH76/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=5T1a4reBlsO0tW47oWqteZ5Wrtc%3D" data-phocus="https://blog.kakaocdn.net/dna/brKplC/btsMHP5URLC/AAAAAAAAAAAAAAAAAAAAAOE1bUjUsCzDFQnQmf3vhUWXnwqw302vjWgFoSPSeH76/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=5T1a4reBlsO0tW47oWqteZ5Wrtc%3D"><img src="https://blog.kakaocdn.net/dna/brKplC/btsMHP5URLC/AAAAAAAAAAAAAAAAAAAAAOE1bUjUsCzDFQnQmf3vhUWXnwqw302vjWgFoSPSeH76/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=5T1a4reBlsO0tW47oWqteZ5Wrtc%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbrKplC%2FbtsMHP5URLC%2FAAAAAAAAAAAAAAAAAAAAAOE1bUjUsCzDFQnQmf3vhUWXnwqw302vjWgFoSPSeH76%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D5T1a4reBlsO0tW47oWqteZ5Wrtc%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1185" height="613" data-origin-width="1185" data-origin-height="613" data-phocus-index="9"></span></figure>
+  <p></p>
+  <p style="text-align: center;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: center;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">access token으로 /api/my/info 요청</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1201" data-origin-height="532"><span data-url="https://blog.kakaocdn.net/dna/TNr70/btsMIEigRVK/AAAAAAAAAAAAAAAAAAAAAMicO9Z8S--CZn3qSvpS5Yqp7BnBwjxAvpHQMriAw-vW/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Rw0n9uTIIvgh85ftvxpkwrCg2No%3D" data-phocus="https://blog.kakaocdn.net/dna/TNr70/btsMIEigRVK/AAAAAAAAAAAAAAAAAAAAAMicO9Z8S--CZn3qSvpS5Yqp7BnBwjxAvpHQMriAw-vW/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Rw0n9uTIIvgh85ftvxpkwrCg2No%3D"><img src="https://blog.kakaocdn.net/dna/TNr70/btsMIEigRVK/AAAAAAAAAAAAAAAAAAAAAMicO9Z8S--CZn3qSvpS5Yqp7BnBwjxAvpHQMriAw-vW/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Rw0n9uTIIvgh85ftvxpkwrCg2No%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FTNr70%2FbtsMIEigRVK%2FAAAAAAAAAAAAAAAAAAAAAMicO9Z8S--CZn3qSvpS5Yqp7BnBwjxAvpHQMriAw-vW%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DRw0n9uTIIvgh85ftvxpkwrCg2No%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1201" height="532" data-origin-width="1201" data-origin-height="532" data-phocus-index="10"></span></figure>
+  <p></p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">access token시 /api/my/info</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1168" data-origin-height="556"><span data-url="https://blog.kakaocdn.net/dna/b2ozGC/btsMHr5gWZU/AAAAAAAAAAAAAAAAAAAAANo8HTUoghSmzorzSfb8_DBd4p6hjmtAQyqjOUNHM0qI/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=XlvlIAjwObr4XDWsdIBfB1foqFQ%3D" data-phocus="https://blog.kakaocdn.net/dna/b2ozGC/btsMHr5gWZU/AAAAAAAAAAAAAAAAAAAAANo8HTUoghSmzorzSfb8_DBd4p6hjmtAQyqjOUNHM0qI/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=XlvlIAjwObr4XDWsdIBfB1foqFQ%3D"><img src="https://blog.kakaocdn.net/dna/b2ozGC/btsMHr5gWZU/AAAAAAAAAAAAAAAAAAAAANo8HTUoghSmzorzSfb8_DBd4p6hjmtAQyqjOUNHM0qI/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=XlvlIAjwObr4XDWsdIBfB1foqFQ%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fb2ozGC%2FbtsMHr5gWZU%2FAAAAAAAAAAAAAAAAAAAAANo8HTUoghSmzorzSfb8_DBd4p6hjmtAQyqjOUNHM0qI%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DXlvlIAjwObr4XDWsdIBfB1foqFQ%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1168" height="556" data-origin-width="1168" data-origin-height="556" data-phocus-index="11"></span></figure>
+  <p></p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">refresh토큰 재발급&nbsp; /api/refresh/reissue</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1178" data-origin-height="547"><span data-url="https://blog.kakaocdn.net/dna/zAPwe/btsMJzUHas8/AAAAAAAAAAAAAAAAAAAAAHo5CoLQRwvoYBD0YQdgnZJTZnneDflXSiIDqKi4rO06/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Nefg%2BGb0R5hNDdzCckZHBbPvLHQ%3D" data-phocus="https://blog.kakaocdn.net/dna/zAPwe/btsMJzUHas8/AAAAAAAAAAAAAAAAAAAAAHo5CoLQRwvoYBD0YQdgnZJTZnneDflXSiIDqKi4rO06/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Nefg%2BGb0R5hNDdzCckZHBbPvLHQ%3D"><img src="https://blog.kakaocdn.net/dna/zAPwe/btsMJzUHas8/AAAAAAAAAAAAAAAAAAAAAHo5CoLQRwvoYBD0YQdgnZJTZnneDflXSiIDqKi4rO06/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Nefg%2BGb0R5hNDdzCckZHBbPvLHQ%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FzAPwe%2FbtsMJzUHas8%2FAAAAAAAAAAAAAAAAAAAAAHo5CoLQRwvoYBD0YQdgnZJTZnneDflXSiIDqKi4rO06%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DNefg%252BGb0R5hNDdzCckZHBbPvLHQ%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1178" height="547" data-origin-width="1178" data-origin-height="547" data-phocus-index="12"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">로그아웃시도&nbsp; - Authrization Barerer에는 access token , Header에는 refresh토큰 세팅 후 요청</p>
+  <p data-ke-size="size18">이미지에는 access token세팅한 부분이 안보임.</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1161" data-origin-height="518"><span data-url="https://blog.kakaocdn.net/dna/cpBmcx/btsMI8J4gvK/AAAAAAAAAAAAAAAAAAAAAP_GDKkoTCLow_oD53dSotHlftsGh_hXn7sL_XgTF7AC/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=7s0SWVdUKYIXLeoJ6axEF2o7Dx4%3D" data-phocus="https://blog.kakaocdn.net/dna/cpBmcx/btsMI8J4gvK/AAAAAAAAAAAAAAAAAAAAAP_GDKkoTCLow_oD53dSotHlftsGh_hXn7sL_XgTF7AC/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=7s0SWVdUKYIXLeoJ6axEF2o7Dx4%3D"><img src="https://blog.kakaocdn.net/dna/cpBmcx/btsMI8J4gvK/AAAAAAAAAAAAAAAAAAAAAP_GDKkoTCLow_oD53dSotHlftsGh_hXn7sL_XgTF7AC/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=7s0SWVdUKYIXLeoJ6axEF2o7Dx4%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcpBmcx%2FbtsMI8J4gvK%2FAAAAAAAAAAAAAAAAAAAAAP_GDKkoTCLow_oD53dSotHlftsGh_hXn7sL_XgTF7AC%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D7s0SWVdUKYIXLeoJ6axEF2o7Dx4%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1161" height="518" data-origin-width="1161" data-origin-height="518" data-phocus-index="13"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">로그아웃&nbsp; 후 재발급 신청 =&gt; discared</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1306" data-origin-height="680"><span data-url="https://blog.kakaocdn.net/dna/bmmHSn/btsMJrigf1x/AAAAAAAAAAAAAAAAAAAAADHhNyOOdnooalvDFnkikqZIYRu4srZywlguz8YCtUCM/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=WtlrGAwAWAdAJKFaMr%2BsTzvcpYc%3D" data-phocus="https://blog.kakaocdn.net/dna/bmmHSn/btsMJrigf1x/AAAAAAAAAAAAAAAAAAAAADHhNyOOdnooalvDFnkikqZIYRu4srZywlguz8YCtUCM/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=WtlrGAwAWAdAJKFaMr%2BsTzvcpYc%3D"><img src="https://blog.kakaocdn.net/dna/bmmHSn/btsMJrigf1x/AAAAAAAAAAAAAAAAAAAAADHhNyOOdnooalvDFnkikqZIYRu4srZywlguz8YCtUCM/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=WtlrGAwAWAdAJKFaMr%2BsTzvcpYc%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbmmHSn%2FbtsMJrigf1x%2FAAAAAAAAAAAAAAAAAAAAADHhNyOOdnooalvDFnkikqZIYRu4srZywlguz8YCtUCM%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DWtlrGAwAWAdAJKFaMr%252BsTzvcpYc%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1306" height="680" data-origin-width="1306" data-origin-height="680" data-phocus-index="14"></span></figure>
+  <p></p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size18">refresh토큰 만료 =&gt;&nbsp; expired</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1188" data-origin-height="561"><span data-url="https://blog.kakaocdn.net/dna/Ev2Ck/btsMJpxX7cU/AAAAAAAAAAAAAAAAAAAAAKSPHectmUOQ15XLrVrFpC9gYKzs0oz5PW1LM6fY8xvH/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=jDHNHVBzdoRdc0EHbf1jv9XhupQ%3D" data-phocus="https://blog.kakaocdn.net/dna/Ev2Ck/btsMJpxX7cU/AAAAAAAAAAAAAAAAAAAAAKSPHectmUOQ15XLrVrFpC9gYKzs0oz5PW1LM6fY8xvH/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=jDHNHVBzdoRdc0EHbf1jv9XhupQ%3D"><img src="https://blog.kakaocdn.net/dna/Ev2Ck/btsMJpxX7cU/AAAAAAAAAAAAAAAAAAAAAKSPHectmUOQ15XLrVrFpC9gYKzs0oz5PW1LM6fY8xvH/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=jDHNHVBzdoRdc0EHbf1jv9XhupQ%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FEv2Ck%2FbtsMJpxX7cU%2FAAAAAAAAAAAAAAAAAAAAAKSPHectmUOQ15XLrVrFpC9gYKzs0oz5PW1LM6fY8xvH%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DjDHNHVBzdoRdc0EHbf1jv9XhupQ%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1188" height="561" data-origin-width="1188" data-origin-height="561" data-phocus-index="15"></span></figure>
+  <p></p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p></div>

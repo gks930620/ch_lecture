@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 3: this 바인딩과 call/apply/bind</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #9b59b6;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #9b59b6;
+            margin-top: 30px;
+        }
+        .example {
+            background: #f8f5ff;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #9b59b6;
+        }
+        button {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #8e44ad;
+        }
+        .output {
+            background: #2c3e50;
+            color: #f39c12;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .result {
+            background: #fff3cd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #f39c12;
+        }
+        input {
+            padding: 8px;
+            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 4장 Part 3: this 바인딩과 call/apply/bind</h1>
+
+        <!-- this 기본 -->
+        <h2>1. this 바인딩 규칙</h2>
+
+        <div class="example">
+            <h3>전역 컨텍스트</h3>
+            <button onclick="testGlobalThis()">전역 this 확인</button>
+            <div id="globalResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>메소드 호출</h3>
+            <button onclick="testMethodThis()">메소드 this 확인</button>
+            <div id="methodResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>생성자 함수</h3>
+            <button onclick="testConstructorThis()">생성자 this 확인</button>
+            <div id="constructorResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>화살표 함수 vs 일반 함수</h3>
+            <button onclick="testArrowThis()">화살표 함수 this</button>
+            <div id="arrowResult" class="result"></div>
+        </div>
+
+        <!-- call/apply/bind -->
+        <h2>2. call(), apply(), bind()</h2>
+
+        <div class="example">
+            <h3>call() - 인자를 개별로 전달</h3>
+            <button onclick="testCall()">call() 테스트</button>
+            <div id="callResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>apply() - 인자를 배열로 전달</h3>
+            <button onclick="testApply()">apply() 테스트</button>
+            <div id="applyResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>bind() - 새로운 함수 생성</h3>
+            <button onclick="testBind()">bind() 테스트</button>
+            <div id="bindResult" class="result"></div>
+        </div>
+
+        <!-- 실전 예제 -->
+        <h2>3. 실전 예제</h2>
+
+        <div class="example">
+            <h3>이벤트 핸들러에서 this 문제</h3>
+            <button id="eventButton">클릭하세요</button>
+            <button onclick="setupEventHandlers()">이벤트 핸들러 설정</button>
+            <div id="eventResult" class="result"></div>
+        </div>
+
+        <!-- 콘솔 출력 -->
+        <h2>📋 실행 로그</h2>
+        <div id="console" class="output"></div>
+    </div>
+
+    <script>
+        // 콘솔 출력 함수
+        function log(message) {
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.innerHTML += message + '<br>';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('console').innerHTML = '';
+        }
+
+        // ==================== 1. this 바인딩 규칙 ====================
+
+        function testGlobalThis() {
+            clearLog();
+            const result = document.getElementById('globalResult');
+
+            log('=== 전역 컨텍스트의 this ===');
+            log('this === window: ' + (this === window));
+            log('typeof this: ' + typeof this);
+
+            function normalFunction() {
+                log('일반 함수 내부 this === window: ' + (this === window));
+            }
+
+            normalFunction();
+
+            result.innerHTML = '✅ 전역 컨텍스트에서 this는 window 객체입니다.';
+        }
+
+        function testMethodThis() {
+            clearLog();
+            const result = document.getElementById('methodResult');
+
+            log('=== 메소드 호출 ===');
+
+            const person = {
+                name: '홍길동',
+                age: 25,
+                introduce: function() {
+                    log('this.name: ' + this.name);
+                    log('this.age: ' + this.age);
+                    return `안녕하세요, ${this.name}입니다. ${this.age}세입니다.`;
+                }
+            };
+
+            const greeting = person.introduce();
+            log('결과: ' + greeting);
+
+            // 메소드를 변수에 할당하면?
+            log('');
+            log('--- 메소드를 변수에 할당 ---');
+            const introduce = person.introduce;
+            try {
+                log('introduce(): ' + introduce()); // this는 window!
+            } catch(e) {
+                log('❌ 에러: ' + e.message);
+            }
+
+            result.innerHTML = '✅ 메소드 호출 시 this는 메소드를 호출한 객체입니다.';
+        }
+
+        function testConstructorThis() {
+            clearLog();
+            const result = document.getElementById('constructorResult');
+
+            log('=== 생성자 함수 ===');
+
+            function Person(name, age) {
+                this.name = name;
+                this.age = age;
+                log('생성자 내부 this.name: ' + this.name);
+                log('생성자 내부 this.age: ' + this.age);
+            }
+
+            const person1 = new Person('홍길동', 25);
+            const person2 = new Person('김철수', 30);
+
+            log('');
+            log('person1.name: ' + person1.name);
+            log('person2.name: ' + person2.name);
+
+            result.innerHTML = '✅ new 키워드로 호출 시 this는 새로 생성된 객체입니다.';
+        }
+
+        function testArrowThis() {
+            clearLog();
+            const result = document.getElementById('arrowResult');
+
+            log('=== 화살표 함수 vs 일반 함수 ===');
+
+            const obj = {
+                name: '객체',
+                regularFunc: function() {
+                    log('일반 함수 this.name: ' + this.name);
+
+                    // 내부 함수 - this가 window
+                    function inner() {
+                        log('내부 일반 함수 this.name: ' + this.name); // undefined
+                    }
+                    inner();
+
+                    // 화살표 함수 - 상위 스코프의 this 사용
+                    const arrowInner = () => {
+                        log('내부 화살표 함수 this.name: ' + this.name); // '객체'
+                    };
+                    arrowInner();
+                },
+                arrowFunc: () => {
+                    log('화살표 함수 this.name: ' + this.name); // undefined (window.name)
+                }
+            };
+
+            log('--- regularFunc 호출 ---');
+            obj.regularFunc();
+
+            log('');
+            log('--- arrowFunc 호출 ---');
+            obj.arrowFunc();
+
+            result.innerHTML = '✅ 화살표 함수는 자신만의 this가 없고 상위 스코프의 this를 사용합니다.';
+        }
+
+        // ==================== 2. call/apply/bind ====================
+
+        function testCall() {
+            clearLog();
+            const result = document.getElementById('callResult');
+
+            log('=== call() 메소드 ===');
+
+            function greet(greeting, punctuation) {
+                return `${greeting}, ${this.name}${punctuation}`;
+            }
+
+            const person1 = { name: '홍길동' };
+            const person2 = { name: '김철수' };
+
+            // call로 this 바인딩
+            log('person1: ' + greet.call(person1, '안녕하세요', '!'));
+            log('person2: ' + greet.call(person2, 'Hello', '.'));
+
+            // Math.max 활용
+            log('');
+            log('--- Math.max에 call 사용 ---');
+            const numbers = [5, 6, 2, 3, 7];
+            const max = Math.max.call(null, 5, 6, 2, 3, 7);
+            log('최댓값: ' + max);
+
+            result.innerHTML = '✅ call()은 함수를 즉시 호출하며 인자를 개별로 전달합니다.';
+        }
+
+        function testApply() {
+            clearLog();
+            const result = document.getElementById('applyResult');
+
+            log('=== apply() 메소드 ===');
+
+            function greet(greeting, punctuation) {
+                return `${greeting}, ${this.name}${punctuation}`;
+            }
+
+            const person = { name: '홍길동' };
+
+            // apply로 this 바인딩 (인자를 배열로)
+            log('결과: ' + greet.apply(person, ['안녕하세요', '!']));
+
+            // Math.max에 배열 전달
+            log('');
+            log('--- Math.max에 apply 사용 ---');
+            const numbers = [5, 6, 2, 3, 7];
+            const max = Math.max.apply(null, numbers);
+            log('배열: [' + numbers + ']');
+            log('최댓값: ' + max);
+
+            // 최신 방식 (스프레드)
+            const max2 = Math.max(...numbers);
+            log('스프레드 사용: ' + max2);
+
+            result.innerHTML = '✅ apply()는 인자를 배열로 전달합니다 (call과 다른 점).';
+        }
+
+        function testBind() {
+            clearLog();
+            const result = document.getElementById('bindResult');
+
+            log('=== bind() 메소드 ===');
+
+            const person = {
+                name: '홍길동',
+                greet: function() {
+                    return `안녕하세요, ${this.name}입니다.`;
+                }
+            };
+
+            log('직접 호출: ' + person.greet());
+
+            // bind로 새 함수 생성
+            const boundGreet = person.greet.bind(person);
+            log('bind된 함수: ' + boundGreet());
+
+            // 메소드를 변수에 할당해도 this 유지됨
+            const greet = person.greet;
+            try {
+                log('bind 안 함: ' + greet());
+            } catch(e) {
+                log('❌ bind 안 하면 에러!');
+            }
+
+            // 부분 적용 (Partial Application)
+            log('');
+            log('--- 부분 적용 ---');
+            function add(a, b) {
+                return a + b;
+            }
+
+            const add5 = add.bind(null, 5);
+            log('add5(10): ' + add5(10)); // 5 + 10 = 15
+            log('add5(20): ' + add5(20)); // 5 + 20 = 25
+
+            result.innerHTML = '✅ bind()는 새로운 함수를 생성하며 this를 영구적으로 바인딩합니다.';
+        }
+
+        // ==================== 3. 실전 예제 ====================
+
+        function setupEventHandlers() {
+            clearLog();
+            const result = document.getElementById('eventResult');
+            const button = document.getElementById('eventButton');
+
+            log('=== 이벤트 핸들러에서 this ===');
+
+            const counter = {
+                count: 0,
+                // ❌ 일반 함수 - this가 button을 가리킴
+                handleClickWrong: function() {
+                    this.count++; // button.count++
+                    log('❌ 잘못된 방법 - this.count: ' + this.count);
+                },
+                // ✅ 화살표 함수 - 상위 스코프의 this
+                handleClickArrow: () => {
+                    counter.count++;
+                    log('✅ 화살표 함수 - count: ' + counter.count);
+                    result.innerHTML = `현재 카운트: ${counter.count}`;
+                },
+                // ✅ bind 사용
+                handleClickBind: function() {
+                    this.count++;
+                    log('✅ bind 사용 - count: ' + this.count);
+                    result.innerHTML = `현재 카운트: ${this.count}`;
+                }
+            };
+
+            // 화살표 함수 사용 (권장)
+            button.onclick = counter.handleClickArrow;
+
+            // 또는 bind 사용
+            // button.onclick = counter.handleClickBind.bind(counter);
+
+            result.innerHTML = '✅ 이벤트 핸들러가 설정되었습니다. 버튼을 클릭해보세요!';
+            log('버튼 클릭 대기 중...');
+        }
+
+        // ==================== 종합 예제 ====================
+
+        const calculator = {
+            value: 0,
+            add: function(num) {
+                this.value += num;
+                return this;
+            },
+            subtract: function(num) {
+                this.value -= num;
+                return this;
+            },
+            multiply: function(num) {
+                this.value *= num;
+                return this;
+            },
+            getResult: function() {
+                return this.value;
+            }
+        };
+
+        // 페이지 로드 시
+        window.onload = function() {
+            log('💡 this 바인딩 예제가 준비되었습니다!');
+            log('');
+
+            // 메소드 체이닝 예제
+            log('=== 메소드 체이닝 (this 반환) ===');
+            const result = calculator
+                .add(10)
+                .subtract(5)
+                .multiply(2)
+                .getResult();
+            log('계산 결과: ' + result + ' (10 + (-5) * 2 = 10)');
+        };
+    </script>
+</body>
+</html>
+```
+

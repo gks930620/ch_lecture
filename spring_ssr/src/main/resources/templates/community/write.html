@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 작성 - 커뮤니티</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background-color: #fafafa; min-height: 100vh; }
+
+        .app-header { background-color: #6200ea; color: white; padding: 0 16px; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 500; text-decoration: none; color: white; }
+        .header-logo .material-icons { font-size: 28px; }
+        .nav-item { padding: 8px 16px; border-radius: 4px; text-decoration: none; color: white; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); }
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .user-info { font-size: 14px; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255,255,255,0.1); border-radius: 20px; }
+        .user-info .material-icons { font-size: 18px; }
+        .btn-header { padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+        .btn-login { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; }
+        .btn-logout { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; }
+
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+        .page-header { margin-bottom: 24px; }
+        .page-header h1 { font-size: 28px; font-weight: 500; color: #212121; display: flex; align-items: center; gap: 8px; }
+        .page-header .material-icons { font-size: 32px; color: #6200ea; }
+        .write-form { background: white; border-radius: 8px; padding: 32px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; color: #424242; margin-bottom: 8px; }
+        .form-label.required::after { content: ' *'; color: #d32f2f; }
+        .form-input { width: 100%; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 14px; outline: none; }
+        .form-input:focus { border-color: #6200ea; }
+        .form-help { font-size: 12px; color: #757575; margin-top: 6px; }
+        #editor { height: 400px; background: white; }
+        .ql-container { height: calc(100% - 42px); overflow-y: auto; }
+        .ql-editor { min-height: 100%; }
+        .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px; }
+        .btn { padding: 12px 24px; border-radius: 4px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background-color: #6200ea; color: white; }
+        .btn-primary:hover { background-color: #5000ca; }
+        .btn-secondary { background-color: #f5f5f5; color: #424242; }
+        .btn-secondary:hover { background-color: #e0e0e0; }
+        .btn .material-icons { font-size: 18px; }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/" class="header-logo">
+                    <span class="material-icons">code</span>
+                    <span>Boilerplate</span>
+                </a>
+                <a href="/community" class="nav-item">
+                    <span class="material-icons">forum</span>
+                    커뮤니티
+                </a>
+            </div>
+            <div class="header-right">
+                <th:block th:if="${session.loginUser != null}">
+                    <a href="/mypage" class="user-info" style="text-decoration: none;">
+                        <span class="material-icons">account_circle</span>
+                        <span th:text="${session.loginUser.nickname}">닉네임</span>
+                    </a>
+                    <form action="/logout" method="post" style="display:inline;">
+                        <button type="submit" class="btn-header btn-logout">로그아웃</button>
+                    </form>
+                </th:block>
+                <th:block th:if="${session.loginUser == null}">
+                    <a href="/login" class="btn-header btn-login">로그인</a>
+                </th:block>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>
+                <span class="material-icons">edit</span>
+                게시글 작성
+            </h1>
+        </div>
+
+        <form class="write-form" id="writeForm" method="post" action="/community/write" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="form-label required" for="title">제목</label>
+                <input type="text" class="form-input" id="title" name="title"
+                       placeholder="제목을 입력하세요" required maxlength="200">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required">내용</label>
+                <div id="editor"></div>
+                <input type="hidden" name="content" id="contentInput">
+                <div class="form-help">내용을 입력하세요. 에디터에서 이미지를 삽입할 수 있습니다.</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">첨부파일</label>
+                <div id="attachment-list"></div>
+                <button type="button" onclick="addAttachmentRow()"
+                        style="margin-top: 8px; padding: 6px 14px; border: 1px dashed #9e9e9e; border-radius: 4px; background: #fafafa; color: #616161; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    <span class="material-icons" style="font-size: 18px;">add</span>첨부파일 추가
+                </button>
+                <div class="form-help">파일당 최대 10MB</div>
+            </div>
+
+            <div class="form-actions">
+                <a href="/community" class="btn btn-secondary">
+                    <span class="material-icons">close</span>
+                    취소
+                </a>
+                <button type="submit" class="btn btn-primary" onclick="return submitWrite()">
+                    <span class="material-icons">check</span>
+                    등록
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: '내용을 입력하세요...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // 에디터에서 업로드한 파일의 정보를 저장하는 배열 (object: {id, url})
+        const editorFiles = [];
+
+        // 이미지 업로드 커스텀 핸들러 (본문 이미지 - 즉시 업로드)
+        quill.getModule('toolbar').addHandler('image', function() {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+            input.onchange = async function() {
+                const file = input.files[0];
+                if (!file) return;
+                const formData = new FormData();
+                formData.append('files', file);
+                formData.append('refId', '0'); // 글 작성 시에는 아직 ID 없음 (임시 0)
+                formData.append('refType', 'COMMUNITY');
+                formData.append('usage', 'IMAGES');
+                try {
+                    const res = await fetch('/api/files/upload', { method: 'POST', body: formData });
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        // 업로드된 파일의 fileId와 url을 저장
+                        if (data[0].fileId) editorFiles.push({ id: data[0].fileId, url: data[0].url });
+                        const range = quill.getSelection(true);
+                        quill.insertEmbed(range.index, 'image', data[0].url);
+                    }
+                } catch(e) {
+                    alert('이미지 업로드에 실패했습니다.');
+                }
+            };
+        });
+
+        // ※ 에디터에서 이미지 삭제 시 서버 호출하지 않음 (글 등록 시 최종 목록으로 동기화)
+        // 단, editorFiles 배열은 현재 에디터 상태와 동기화해야 함
+        quill.on('text-change', function() {
+            const html = quill.root.innerHTML;
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            const currentSrcs = Array.from(div.querySelectorAll('img')).map(img => img.getAttribute('src'));
+
+            // editorFiles 배열에서, 현재 에디터 내용에 없는 이미지는 제거
+            for (let i = editorFiles.length - 1; i >= 0; i--) {
+                if (!currentSrcs.includes(editorFiles[i].url)) {
+                    editorFiles.splice(i, 1);
+                }
+            }
+        });
+
+        // ─── 첨부파일 행 추가/제거 ───
+        let attachmentSeq = 0;
+        function addAttachmentRow() {
+            const id = 'attachment-row-' + (attachmentSeq++);
+            const list = document.getElementById('attachment-list');
+            const row = document.createElement('div');
+            row.id = id;
+            row.style.cssText = 'display:flex; align-items:center; gap:8px; margin-bottom:6px;';
+            row.innerHTML = `
+                <input type="file" name="files" class="attachment-file"
+                       style="flex:1; padding:6px; border:1px solid #e0e0e0; border-radius:4px; font-size:13px;">
+                <button type="button" onclick="document.getElementById('${id}').remove()"
+                        style="background:none; border:none; color:#d32f2f; cursor:pointer; display:inline-flex; align-items:center; padding:4px;">
+                    <span class="material-icons" style="font-size:20px;">close</span>
+                </button>`;
+            list.appendChild(row);
+        }
+
+        // ─── 글 등록 (form submit 전 유효성 검사 + 에디터 내용 세팅) ───
+        function submitWrite() {
+            const title = document.getElementById('title').value.trim();
+            const content = quill.root.innerHTML.trim();
+            const text = quill.getText().trim();
+
+            if (!title) { alert('제목을 입력해주세요.'); return false; }
+            if (!text || text.length < 2) { alert('내용을 입력해주세요.'); return false; }
+
+            // 에디터 내용을 hidden input에 세팅
+            document.getElementById('contentInput').value = content;
+
+            // editorFiles에서 id들만 추출하여 form에 hidden inputs로 추가
+            const form = document.getElementById('writeForm');
+            Array.from(form.querySelectorAll('input[name="editorFileIds"]')).forEach(i => i.remove());
+            editorFiles.map(f => f.id).forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'editorFileIds';
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            return true; // form submit 진행
+        }
+    </script>
+</body>
+</html>
+

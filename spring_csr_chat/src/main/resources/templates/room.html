@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>방 상세</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    /* 전체 기본 스타일 */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #chatList {
+      list-style: none;
+      padding: 0;
+    }
+    #chatList li {
+      margin: 6px 0;
+      padding: 8px 12px;
+      border-radius: 12px;
+      max-width: 60%;
+      word-wrap: break-word;
+    }
+    /* 시스템 메시지 (입장/퇴장) */
+    .system-msg {
+      color: gray;
+      font-style: italic;
+      text-align: center;
+      background: none;
+    }
+    /* 내가 보낸 메시지 */
+    .my-msg {
+      background-color: #d0ebff;
+      text-align: right;
+      margin-left: auto;
+    }
+    /* 남이 보낸 메시지 */
+    .other-msg {
+      background-color: #f1f3f5;
+      text-align: left;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+<h2>채팅방</h2>
+<div>
+  <input type="text" id="msgInput" placeholder="메시지를 입력하세요">
+  <button id="sendBtn">보내기</button>
+</div>
+<ul id="chatList"></ul>
+
+<script>
+  $(document).ready(function() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("로그인한 사람만 방 목록 가능합니다");
+      window.location.href = "/loginPage";
+      return;
+    }
+
+    const roomId = window.location.pathname.split("/").pop();  // /room/123 -> 123
+
+    // ✅ 현재 로그인한 사용자 이름 가져오기 (/api/me)
+    let currentUser = null;
+    $.ajax({
+      url: `/api/me`,
+      method: "GET",
+      headers: { "Authorization": "Bearer " + token },
+      async: false, // 동기 요청 (connect 전에 username 확보)
+      success: function(res) {
+        if (res.username) {
+          currentUser = res.username;
+          console.log("현재 로그인 사용자:", currentUser);
+        } else {
+          alert("사용자 정보를 불러올 수 없습니다.");
+        }
+      },
+      error: function() {
+        alert("사용자 정보를 불러오지 못했습니다.");
+      }
+    });
+
+
+
+
+    // ✅ STOMP 연결
+    const socket = new SockJS('/ws-chat');
+   //spring 서버의 websocket 엔드포인트 , 이 연결자체는 Http핸드쉐이크  이기때문에 security 설정에 걸림
+    // 이 외의 stomp 연결 주소들은 spring securiy 랑 상관없고  채팅 인터셉터 JwtChannelInterceptor에 걸림
+    // 참고로 SockJS는  websocket이 브라우저 버전 등의 이유로 연결 실패했을 때
+    // HTTP Streamin, Long Polling과 같은 HTTP 기반의 다른 기술로 전환해 다시 연결을 시도하게 하는 것
+    // 연결이 잘 됐다면 하는역할은 new WebSocket()과 동일
+
+
+    const stompClient = Stomp.over(socket);
+
+    //promise  async await 쓸걸....
+    stompClient.connect(
+      { Authorization: "Bearer " + token, "roomId": roomId },
+      function(frame) {
+        console.log('Connected: ' + frame);
+
+
+        // 연결 후 현재 채팅방에 websocket 구독
+        stompClient.subscribe(`/sub/room/${roomId}`, function(message) {
+          let msg;
+          try {
+            msg = JSON.parse(message.body);   // 서버에서  보낸 데이터를 받아서 파싱
+          } catch (e) {
+            // 서버에서 단순 문자열 보낼 경우 대비
+            msg = { content: message.body };
+          }
+
+          // ✅ (1) 시스템 메시지 (입장/퇴장)
+          if (!msg.sender) {
+            $('#chatList').append(
+              `<li class="system-msg">${msg.content}</li>`
+            );
+            return;
+          }
+
+          // ✅ (2) 내가 보낸 메시지
+          if (msg.sender === currentUser) {
+            $('#chatList').append(
+              `<li class="my-msg"><b>${msg.sender}</b>: ${msg.content}</li>`
+            );
+          }
+          // ✅ (3) 남이 보낸 메시지
+          else {
+            $('#chatList').append(
+              `<li class="other-msg"><b>${msg.sender}</b>: ${msg.content}</li>`
+            );
+          }
+        });
+      },
+      function(error) {
+        console.error('STOMP 연결 오류', error);
+        alert("채팅 연결 실패");
+      }
+    );
+
+    // ✅ 메시지 보내기
+    $('#sendBtn').click(function() {
+      const msg = $('#msgInput').val();
+      if (msg.trim() === "") return;
+
+      stompClient.send(
+        `/pub/room/${roomId}`,  //구독자 방에 msg 보내기 , 이  데이터가 ChatController로 가서 Meessage<> msg가 됨
+        {},
+        JSON.stringify({ content: msg })
+      );
+
+      $('#msgInput').val('');
+    });
+  });
+</script>
+</body>
+</html>

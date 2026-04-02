@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>chlecture</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+    <name>Web Basic Lecture</name>
+    <description>서블릿/JSP 기초 강의 실습 프로젝트</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <!-- ============================================================ -->
+        <!-- [Ch00 실습환경] Servlet API                                    -->
+        <!-- 프로젝트 최초 생성 시 추가. Tomcat이 제공하므로 scope=provided   -->
+        <!-- ============================================================ -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ============================================================ -->
+        <!-- [Ch00 실습환경] JSP API                                        -->
+        <!-- JSP 파일에서 사용하는 API. Tomcat이 제공하므로 scope=provided   -->
+        <!-- ============================================================ -->
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>javax.servlet.jsp-api</artifactId>
+            <version>2.3.3</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ============================================================ -->
+        <!-- [Ch08 JSTL/EL] JSTL 라이브러리                                -->
+        <!-- <c:forEach>, <c:if> 등 JSTL 태그를 사용하기 위해 필요          -->
+        <!-- Ch08 수업 시작 시 추가                                         -->
+        <!-- ============================================================ -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+        <!-- ============================================================ -->
+        <!-- [Ch10 MyBatis 게시판] MyBatis 프레임워크                       -->
+        <!-- SQL 매퍼 프레임워크. Ch10 수업에서 실제 DB 연동 시 주석 해제    -->
+        <!-- (In-memory DAO만 사용할 때는 주석 그대로 유지해도 무방)         -->
+        <!-- ============================================================ -->
+        <!--
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.5.11</version>
+        </dependency>
+        -->
+
+        <!-- ============================================================ -->
+        <!-- [Ch10 MyBatis 게시판] MySQL JDBC 드라이버                      -->
+        <!-- DB 연동 실습 시 주석 해제. H2 등 다른 DB 사용 시 교체 가능      -->
+        <!-- ============================================================ -->
+        <!--
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.33</version>
+        </dependency>
+        -->
+    </dependencies>
+
+    <build>
+        <finalName>web_basic</finalName>
+        <plugins>
+            <!-- WAR 패키징 플러그인 (web.xml 없이도 빌드 가능하도록 설정) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+            <!-- 컴파일러 플러그인 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+

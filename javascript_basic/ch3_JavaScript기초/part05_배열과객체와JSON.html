@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 5: 배열과 객체와 JSON</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { color: #f12711; text-align: center; border-bottom: 4px solid #f12711; padding-bottom: 15px; }
+        h2 { color: #f5af19; border-left: 5px solid #f12711; padding-left: 15px; margin-top: 30px; }
+        .section {
+            background: #fff9e6; padding: 25px; margin: 20px 0;
+            border-radius: 10px; border-left: 5px solid #f5af19;
+        }
+        .output {
+            background: #1e1e1e; color: #4ec9b0; padding: 15px; margin: 10px 0;
+            border-radius: 8px; font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px; white-space: pre-wrap; min-height: 30px; max-height: 400px;
+            overflow-y: auto;
+        }
+        button {
+            background: #f12711; color: white; border: none;
+            padding: 12px 24px; border-radius: 25px; cursor: pointer;
+            font-size: 16px; margin: 5px;
+        }
+        button:hover { background: #d41f0f; }
+        .tip { background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3; margin: 15px 0; }
+        input, textarea {
+            padding: 10px; border: 2px solid #ddd; border-radius: 8px;
+            font-size: 16px; margin: 5px;
+        }
+        textarea { width: 90%; font-family: 'Consolas', monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 3장 Part 5: 배열과 객체와 JSON</h1>
+
+        <!-- 배열 기본 -->
+        <h2>1. 배열 (Array) 기본</h2>
+
+        <div class="section">
+            <h3>배열 생성과 기본 조작</h3>
+            <button onclick="testArrayBasic()">배열 기본 테스트</button>
+            <div id="arrayBasicResult" class="output"></div>
+        </div>
+
+        <h2>2. 배열 메소드 (추가/삭제)</h2>
+
+        <div class="section">
+            <h3>push, pop, shift, unshift, splice</h3>
+            <button onclick="testArrayMethods()">배열 메소드 테스트</button>
+            <div id="arrayMethodResult" class="output"></div>
+        </div>
+
+        <h2>3. ⭐ 핵심 배열 메소드 (map, filter, reduce)</h2>
+
+        <div class="section">
+            <h3>데이터 변환의 핵심 메소드</h3>
+            <div class="tip">💡 map, filter, reduce는 실무에서 가장 많이 사용하는 메소드입니다!</div>
+            <button onclick="testMapFilterReduce()">map/filter/reduce 테스트</button>
+            <div id="mapFilterResult" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h3>⭐ 메소드 체이닝 실전 예제</h3>
+            <button onclick="testChaining()">체이닝 테스트</button>
+            <div id="chainingResult" class="output"></div>
+        </div>
+
+        <!-- 객체 -->
+        <h2>4. 객체 (Object)</h2>
+
+        <div class="section">
+            <h3>객체 생성과 조작</h3>
+            <button onclick="testObject()">객체 테스트</button>
+            <div id="objectResult" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h3>객체 관련 메소드 (Object.keys, values, entries)</h3>
+            <button onclick="testObjectMethods()">객체 메소드 테스트</button>
+            <div id="objectMethodResult" class="output"></div>
+        </div>
+
+        <!-- JSON -->
+        <h2>5. JSON</h2>
+
+        <div class="section">
+            <h3>JSON.stringify / JSON.parse</h3>
+            <button onclick="testJSON()">JSON 변환 테스트</button>
+            <div id="jsonResult" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h3>🎯 JSON 직접 변환해보기</h3>
+            <p>아래에 JSON 문자열을 입력하고 파싱해보세요:</p>
+            <textarea id="jsonInput" rows="5">{"name": "홍길동", "age": 25, "hobbies": ["독서", "운동"]}</textarea><br>
+            <button onclick="parseJSON()">JSON → 객체 변환</button>
+            <div id="jsonParseResult" class="output"></div>
+        </div>
+
+        <!-- 종합 실습 -->
+        <h2>6. 🎯 종합 실습: 학생 성적 관리</h2>
+
+        <div class="section">
+            <h3>배열과 객체, 메소드를 활용한 성적 처리</h3>
+            <button onclick="testStudentGrades()">성적 관리 실행</button>
+            <div id="gradeResult" class="output"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // 1. 배열 기본
+        // ========================================
+        function testArrayBasic() {
+            const el = document.getElementById('arrayBasicResult');
+            let result = '';
+
+            const fruits = ["사과", "바나나", "체리", "포도", "키위"];
+
+            result += '=== 배열 생성 ===\n';
+            result += `const fruits = ${JSON.stringify(fruits)}\n\n`;
+
+            result += '=== 접근 (인덱스는 0부터!) ===\n';
+            result += `fruits[0]      → "${fruits[0]}"\n`;
+            result += `fruits[2]      → "${fruits[2]}"\n`;
+            result += `fruits[fruits.length - 1] → "${fruits[fruits.length - 1]}" (마지막)\n`;
+            result += `fruits.length  → ${fruits.length}\n`;
+
+            result += '\n=== 검색 ===\n';
+            result += `fruits.indexOf("체리")    → ${fruits.indexOf("체리")}\n`;
+            result += `fruits.indexOf("망고")    → ${fruits.indexOf("망고")} (없으면 -1)\n`;
+            result += `fruits.includes("바나나") → ${fruits.includes("바나나")}\n`;
+            result += `fruits.includes("망고")   → ${fruits.includes("망고")}\n`;
+
+            result += '\n=== slice (원본 변경 없음) ===\n';
+            result += `fruits.slice(1, 3)  → ${JSON.stringify(fruits.slice(1, 3))}\n`;
+            result += `fruits.slice(-2)    → ${JSON.stringify(fruits.slice(-2))} (뒤에서 2개)\n`;
+            result += `원본 유지:           → ${JSON.stringify(fruits)}\n`;
+
+            result += '\n=== join / reverse / sort ===\n';
+            result += `fruits.join(", ")   → "${fruits.join(", ")}"\n`;
+            result += `[...fruits].reverse() → ${JSON.stringify([...fruits].reverse())}\n`;
+            result += `[...fruits].sort()    → ${JSON.stringify([...fruits].sort())}\n`;
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 2. 배열 추가/삭제 메소드
+        // ========================================
+        function testArrayMethods() {
+            const el = document.getElementById('arrayMethodResult');
+            let result = '';
+
+            let arr = [1, 2, 3];
+            result += `시작: [${arr}]\n\n`;
+
+            result += '=== push / pop (끝에서 추가/삭제) ===\n';
+            arr.push(4);
+            result += `push(4)    → [${arr}]\n`;
+            arr.push(5, 6);
+            result += `push(5, 6) → [${arr}]\n`;
+            const popped = arr.pop();
+            result += `pop()      → [${arr}]  (제거된 값: ${popped})\n`;
+
+            result += '\n=== unshift / shift (앞에서 추가/삭제) ===\n';
+            arr.unshift(0);
+            result += `unshift(0) → [${arr}]\n`;
+            const shifted = arr.shift();
+            result += `shift()    → [${arr}]  (제거된 값: ${shifted})\n`;
+
+            result += '\n=== splice (만능: 삭제 + 삽입) ===\n';
+            arr = [1, 2, 3, 4, 5];
+            result += `원본: [${arr}]\n`;
+
+            let removed = arr.splice(2, 1);
+            result += `splice(2, 1)      → [${arr}] (인덱스 2에서 1개 삭제, 삭제: ${removed})\n`;
+
+            arr.splice(2, 0, 30, 31);
+            result += `splice(2, 0, 30, 31) → [${arr}] (인덱스 2에 삽입)\n`;
+
+            arr.splice(1, 2, 20);
+            result += `splice(1, 2, 20)  → [${arr}] (인덱스 1에서 2개 삭제 후 20 삽입)\n`;
+
+            result += '\n💡 push/pop = 스택(Stack)\n';
+            result += '💡 push/shift = 큐(Queue)';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 3. map, filter, reduce
+        // ========================================
+        function testMapFilterReduce() {
+            const el = document.getElementById('mapFilterResult');
+            let result = '';
+            const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+            result += `원본: [${numbers}]\n\n`;
+
+            result += '=== map: 변환 (새 배열 반환) ===\n';
+            const doubled = numbers.map(n => n * 2);
+            result += `× 2      → [${doubled}]\n`;
+            const strings = numbers.map(n => `item_${n}`);
+            result += `문자열   → [${strings.slice(0, 5).join(', ')}, ...]\n`;
+
+            result += '\n=== filter: 필터링 (조건에 맞는 것만) ===\n';
+            const evens = numbers.filter(n => n % 2 === 0);
+            result += `짝수만   → [${evens}]\n`;
+            const big = numbers.filter(n => n > 5);
+            result += `5 초과   → [${big}]\n`;
+
+            result += '\n=== reduce: 누적 (하나의 값으로) ===\n';
+            const sum = numbers.reduce((acc, cur) => acc + cur, 0);
+            result += `합계     → ${sum}\n`;
+            const max = numbers.reduce((a, b) => a > b ? a : b);
+            result += `최댓값   → ${max}\n`;
+            const min = numbers.reduce((a, b) => a < b ? a : b);
+            result += `최솟값   → ${min}\n`;
+
+            result += '\n=== find / findIndex ===\n';
+            const firstEven = numbers.find(n => n % 2 === 0);
+            result += `find(짝수)      → ${firstEven} (첫 번째만)\n`;
+            const firstEvenIdx = numbers.findIndex(n => n % 2 === 0);
+            result += `findIndex(짝수) → ${firstEvenIdx}\n`;
+
+            result += '\n=== every / some ===\n';
+            result += `every(n > 0)    → ${numbers.every(n => n > 0)} (모두 양수?)\n`;
+            result += `some(n > 8)     → ${numbers.some(n => n > 8)} (하나라도 8 초과?)\n`;
+
+            result += '\n=== sort (정렬) ===\n';
+            const unsorted = [30, 1, 100, 5, 20];
+            result += `[30,1,100,5,20].sort()          → [${[...unsorted].sort()}]  ⚠️ 문자열 정렬!\n`;
+            result += `[30,1,100,5,20].sort((a,b)=>a-b) → [${[...unsorted].sort((a, b) => a - b)}] ✅ 숫자 정렬!\n`;
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 4. 메소드 체이닝
+        // ========================================
+        function testChaining() {
+            const el = document.getElementById('chainingResult');
+            let result = '';
+
+            const students = [
+                { name: "홍길동", score: 85, grade: "B" },
+                { name: "김철수", score: 92, grade: "A" },
+                { name: "이영희", score: 78, grade: "C" },
+                { name: "박민수", score: 95, grade: "A" },
+                { name: "최지영", score: 88, grade: "B" },
+                { name: "정하나", score: 67, grade: "D" }
+            ];
+
+            result += '=== 학생 데이터 ===\n';
+            students.forEach(s => {
+                result += `  ${s.name}: ${s.score}점 (${s.grade})\n`;
+            });
+
+            result += '\n=== 메소드 체이닝 예제 ===\n';
+
+            // 80점 이상 학생의 이름만 추출
+            const goodStudents = students
+                .filter(s => s.score >= 80)
+                .map(s => s.name);
+            result += `80점 이상 이름: [${goodStudents.join(', ')}]\n`;
+
+            // 평균 점수
+            const avg = students
+                .map(s => s.score)
+                .reduce((sum, score) => sum + score, 0) / students.length;
+            result += `평균 점수: ${avg.toFixed(1)}점\n`;
+
+            // 점수 내림차순 정렬 → 상위 3명
+            const top3 = [...students]
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 3)
+                .map(s => `${s.name}(${s.score}점)`);
+            result += `상위 3명: ${top3.join(', ')}\n`;
+
+            // A등급 학생 수
+            const aCount = students.filter(s => s.grade === "A").length;
+            result += `A등급 학생 수: ${aCount}명\n`;
+
+            result += '\n💡 .filter().map().sort() 식으로 체이닝하면 깔끔!';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 5. 객체
+        // ========================================
+        function testObject() {
+            const el = document.getElementById('objectResult');
+            let result = '';
+
+            const person = {
+                name: "홍길동",
+                age: 25,
+                isStudent: true,
+                hobbies: ["독서", "운동", "코딩"],
+                address: {
+                    city: "서울",
+                    district: "강남구"
+                },
+                greet() {
+                    return `안녕하세요, ${this.name}입니다!`;
+                }
+            };
+
+            result += '=== 객체 접근 ===\n';
+            result += `person.name          → "${person.name}"   (점 표기법)\n`;
+            result += `person["age"]        → ${person["age"]}             (대괄호 표기법)\n`;
+            result += `person.address.city  → "${person.address.city}" (중첩 객체)\n`;
+            result += `person.hobbies[0]    → "${person.hobbies[0]}"   (배열 안 접근)\n`;
+            result += `person.greet()       → "${person.greet()}"  (메소드 호출)\n`;
+
+            result += '\n=== 속성 추가/수정/삭제 ===\n';
+            person.email = "hong@example.com";
+            result += `person.email = "hong@example.com" → 추가됨\n`;
+            person.age = 26;
+            result += `person.age = 26                   → 수정됨\n`;
+            delete person.isStudent;
+            result += `delete person.isStudent            → 삭제됨\n`;
+
+            result += '\n=== 속성 확인 ===\n';
+            result += `"name" in person     → ${"name" in person}\n`;
+            result += `"phone" in person    → ${"phone" in person}\n`;
+
+            result += '\n=== 단축 속성명 ===\n';
+            const name = "김철수";
+            const age = 30;
+            const user = { name, age };  // { name: name, age: age }와 동일
+            result += `{ name, age } → ${JSON.stringify(user)}`;
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 6. Object 메소드
+        // ========================================
+        function testObjectMethods() {
+            const el = document.getElementById('objectMethodResult');
+            let result = '';
+
+            const user = { name: "홍길동", age: 25, city: "서울", job: "개발자" };
+
+            result += `객체: ${JSON.stringify(user)}\n\n`;
+
+            result += '=== Object.keys() ===\n';
+            result += `→ [${Object.keys(user).map(k => `"${k}"`).join(', ')}]\n`;
+
+            result += '\n=== Object.values() ===\n';
+            result += `→ [${Object.values(user).map(v => `"${v}"`).join(', ')}]\n`;
+
+            result += '\n=== Object.entries() ===\n';
+            Object.entries(user).forEach(([key, value]) => {
+                result += `  ["${key}", "${value}"]\n`;
+            });
+
+            result += '\n=== 구조 분해 할당 (Destructuring) ===\n';
+            const { name, age, ...rest } = user;
+            result += `const { name, age, ...rest } = user;\n`;
+            result += `name → "${name}"\n`;
+            result += `age  → ${age}\n`;
+            result += `rest → ${JSON.stringify(rest)}\n`;
+
+            result += '\n=== 스프레드로 객체 합치기 ===\n';
+            const merged = { ...user, email: "hong@test.com", age: 26 };
+            result += `{ ...user, email: "...", age: 26 }\n`;
+            result += `→ ${JSON.stringify(merged)}\n`;
+            result += '💡 같은 키가 있으면 뒤의 값으로 덮어씌워짐 (age: 25 → 26)';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 7. JSON
+        // ========================================
+        function testJSON() {
+            const el = document.getElementById('jsonResult');
+            let result = '';
+
+            const user = {
+                name: "홍길동",
+                age: 25,
+                hobbies: ["독서", "운동"],
+                address: { city: "서울" }
+            };
+
+            result += '=== JSON.stringify (객체 → JSON 문자열) ===\n';
+            const jsonStr = JSON.stringify(user);
+            result += `기본:     ${jsonStr}\n\n`;
+
+            const pretty = JSON.stringify(user, null, 2);
+            result += `보기좋게:\n${pretty}\n\n`;
+
+            result += '=== JSON.parse (JSON 문자열 → 객체) ===\n';
+            const parsed = JSON.parse(jsonStr);
+            result += `파싱 결과: ${JSON.stringify(parsed)}\n`;
+            result += `parsed.name → "${parsed.name}"\n`;
+            result += `parsed.hobbies[0] → "${parsed.hobbies[0]}"\n`;
+
+            result += '\n=== 실무: LocalStorage에 객체 저장 ===\n';
+            localStorage.setItem("demo_user", JSON.stringify(user));
+            const loaded = JSON.parse(localStorage.getItem("demo_user"));
+            result += `저장: localStorage.setItem("key", JSON.stringify(obj))\n`;
+            result += `읽기: JSON.parse(localStorage.getItem("key"))\n`;
+            result += `결과: ${JSON.stringify(loaded)}`;
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 8. JSON 파싱 실습
+        // ========================================
+        function parseJSON() {
+            const input = document.getElementById('jsonInput').value;
+            const el = document.getElementById('jsonParseResult');
+
+            try {
+                const parsed = JSON.parse(input);
+                let result = '✅ JSON 파싱 성공!\n\n';
+                result += `타입: ${typeof parsed}\n`;
+                result += `배열?: ${Array.isArray(parsed)}\n\n`;
+
+                if (typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    result += '=== 객체 속성 ===\n';
+                    for (let [key, value] of Object.entries(parsed)) {
+                        result += `  ${key}: ${JSON.stringify(value)} (${typeof value})\n`;
+                    }
+                } else {
+                    result += `값: ${JSON.stringify(parsed, null, 2)}`;
+                }
+
+                el.textContent = result;
+            } catch (e) {
+                el.textContent = `❌ JSON 파싱 에러!\n${e.message}\n\n💡 JSON 키는 반드시 큰따옴표("")로 감싸야 합니다.`;
+            }
+        }
+
+        // ========================================
+        // 9. 종합 실습: 학생 성적 관리
+        // ========================================
+        function testStudentGrades() {
+            const el = document.getElementById('gradeResult');
+            let result = '';
+
+            const students = [
+                { name: "홍길동", korean: 90, math: 85, english: 92 },
+                { name: "김철수", korean: 78, math: 95, english: 88 },
+                { name: "이영희", korean: 85, math: 72, english: 95 },
+                { name: "박민수", korean: 92, math: 98, english: 90 },
+                { name: "최지영", korean: 65, math: 70, english: 68 },
+                { name: "정하나", korean: 88, math: 82, english: 79 }
+            ];
+
+            // 평균 계산 추가
+            const withAvg = students.map(s => ({
+                ...s,
+                avg: Math.round((s.korean + s.math + s.english) / 3 * 10) / 10,
+                total: s.korean + s.math + s.english
+            }));
+
+            result += '=== 📊 학생 성적표 ===\n';
+            result += '이름      국어  수학  영어  총점  평균   등급\n';
+            result += '─'.repeat(52) + '\n';
+
+            const getGrade = avg => avg >= 90 ? 'A' : avg >= 80 ? 'B' : avg >= 70 ? 'C' : avg >= 60 ? 'D' : 'F';
+
+            withAvg
+                .sort((a, b) => b.avg - a.avg)
+                .forEach(s => {
+                    const grade = getGrade(s.avg);
+                    result += `${s.name.padEnd(6)}  ${String(s.korean).padStart(3)}   ${String(s.math).padStart(3)}   ${String(s.english).padStart(3)}   ${String(s.total).padStart(3)}  ${String(s.avg).padStart(5)}  ${grade}\n`;
+                });
+
+            // 통계
+            result += '\n=== 📈 통계 ===\n';
+            const avgAll = withAvg.reduce((sum, s) => sum + s.avg, 0) / withAvg.length;
+            result += `전체 평균: ${avgAll.toFixed(1)}점\n`;
+
+            const best = withAvg.reduce((a, b) => a.avg > b.avg ? a : b);
+            result += `1등: ${best.name} (${best.avg}점)\n`;
+
+            const aStudents = withAvg.filter(s => getGrade(s.avg) === 'A');
+            result += `A등급: ${aStudents.map(s => s.name).join(', ')} (${aStudents.length}명)\n`;
+
+            const subjects = ['korean', 'math', 'english'];
+            const subjectNames = { korean: '국어', math: '수학', english: '영어' };
+            result += '\n=== 과목별 평균 ===\n';
+            subjects.forEach(sub => {
+                const subAvg = students.reduce((sum, s) => sum + s[sub], 0) / students.length;
+                result += `${subjectNames[sub]}: ${subAvg.toFixed(1)}점\n`;
+            });
+
+            el.textContent = result;
+        }
+    </script>
+</body>
+</html>
+

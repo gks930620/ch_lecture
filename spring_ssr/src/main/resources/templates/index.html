@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Boot Boilerplate</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background-color: #fafafa; min-height: 100vh; }
+        .app-header { background-color: #6200ea; color: white; padding: 0 16px; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 500; text-decoration: none; color: white; }
+        .header-logo .material-icons { font-size: 28px; }
+        .nav-item { padding: 8px 16px; border-radius: 4px; text-decoration: none; color: white; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); }
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .user-info { font-size: 14px; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255,255,255,0.1); border-radius: 20px; }
+        .user-info .material-icons { font-size: 18px; }
+        .btn-header { padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+        .btn-login { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; }
+        .btn-logout { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; }
+
+        .hero-section { background: linear-gradient(135deg, #6200ea 0%, #3700b3 100%); color: white; padding: 80px 20px; text-align: center; }
+        .hero-title { font-size: 48px; font-weight: 500; margin-bottom: 16px; }
+        .hero-subtitle { font-size: 20px; opacity: 0.9; margin-bottom: 32px; }
+        .cta-button { display: inline-block; background-color: white; color: #6200ea; padding: 14px 32px; border-radius: 4px; text-decoration: none; font-weight: 500; font-size: 16px; }
+        .cta-button:hover { background-color: #f5f5f5; }
+        .feature-section { padding: 60px 20px; max-width: 1200px; margin: 0 auto; }
+        .section-title { text-align: center; font-size: 32px; font-weight: 500; margin-bottom: 40px; color: #333; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+        .feature-card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 32px; text-align: center; }
+        .feature-icon { background-color: #6200ea; color: white; width: 64px; height: 64px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+        .feature-icon .material-icons { font-size: 32px; }
+        .feature-title { font-size: 20px; font-weight: 500; color: #333; margin-bottom: 12px; }
+        .feature-desc { font-size: 14px; color: #666; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/" class="header-logo">
+                    <span class="material-icons">code</span>
+                    <span>Boilerplate</span>
+                </a>
+                <a href="/community" class="nav-item">
+                    <span class="material-icons">forum</span>
+                    커뮤니티
+                </a>
+                <a href="/api/test" class="nav-item">
+                    <span class="material-icons">cloud</span>
+                    API 테스트
+                </a>
+            </div>
+            <div class="header-right">
+                <!-- 로그인 상태 -->
+                <th:block th:if="${session.loginUser != null}">
+                    <a href="/mypage" class="user-info" style="text-decoration: none;">
+                        <span class="material-icons">account_circle</span>
+                        <span th:text="${session.loginUser.nickname}">닉네임</span>
+                    </a>
+                    <form action="/logout" method="post" style="display:inline;">
+                        <button type="submit" class="btn-header btn-logout">로그아웃</button>
+                    </form>
+                </th:block>
+                <!-- 비로그인 상태 -->
+                <th:block th:if="${session.loginUser == null}">
+                    <a href="/login" class="btn-header btn-login">로그인</a>
+                </th:block>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <h1 class="hero-title">Spring Boot Boilerplate</h1>
+            <p class="hero-subtitle">SSR MVC 패턴 기반 게시판 스타터 템플릿</p>
+            <a href="/community" class="cta-button">커뮤니티 바로가기</a>
+        </section>
+
+        <section class="feature-section">
+            <h2 class="section-title">주요 기능</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-icons">forum</span></div>
+                    <h3 class="feature-title">커뮤니티 게시판</h3>
+                    <p class="feature-desc">게시글 CRUD, 댓글 기능, 페이징, QueryDSL 동적 검색</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-icons">web</span></div>
+                    <h3 class="feature-title">SSR / Thymeleaf</h3>
+                    <p class="feature-desc">서버사이드 렌더링, Spring MVC 패턴으로 구성된 뷰 레이어</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-icons">lock</span></div>
+                    <h3 class="feature-title">세션 로그인</h3>
+                    <p class="feature-desc">HttpSession 기반 로그인/로그아웃, 회원가입</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-icons">cloud_upload</span></div>
+                    <h3 class="feature-title">파일 업로드/다운로드</h3>
+                    <p class="feature-desc">로컬 파일 저장, 이미지 서빙, 첨부파일 다운로드</p>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
+

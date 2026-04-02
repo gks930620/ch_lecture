@@ -1,0 +1,542 @@
+<div class="tt_article_useless_p_margin contents_style"><p data-ke-size="size18">전체코드 : <a href="https://github.com/gks930620/spring_securty_all" target="_blank" rel="noopener&nbsp;noreferrer">https://github.com/gks930620/spring_securty_all</a></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">구현 자체는&nbsp; JWT access token,refresh token에&nbsp;</p>
+  <p data-ke-size="size18">Oauth2 몇몇 기능을 추가한 거밖에 없다.&nbsp;</p>
+  <p data-ke-size="size18">그래서 여기는 전체코드를 전부 설명하는것이 아니라 추가된 내용만 작성하는걸로 하고</p>
+  <p data-ke-size="size18">전체코드는 github를 참고하도록 하자.&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">Custom-oauth2/login/kakao 컨트롤러</h2>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/cb2v2k/btsMLY28nCE/AAAAAAAAAAAAAAAAAAAAAMF51hTI-M8IDaObnsEHd0gebplWDxmm49hBeL8DSbfJ/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=cXEBUBZLWHlQB5OJdrSuaZBu2Uw%3D" data-phocus="https://blog.kakaocdn.net/dna/cb2v2k/btsMLY28nCE/AAAAAAAAAAAAAAAAAAAAAMF51hTI-M8IDaObnsEHd0gebplWDxmm49hBeL8DSbfJ/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=cXEBUBZLWHlQB5OJdrSuaZBu2Uw%3D"><img src="https://blog.kakaocdn.net/dna/cb2v2k/btsMLY28nCE/AAAAAAAAAAAAAAAAAAAAAMF51hTI-M8IDaObnsEHd0gebplWDxmm49hBeL8DSbfJ/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=cXEBUBZLWHlQB5OJdrSuaZBu2Uw%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fcb2v2k%2FbtsMLY28nCE%2FAAAAAAAAAAAAAAAAAAAAAMF51hTI-M8IDaObnsEHd0gebplWDxmm49hBeL8DSbfJ%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DcXEBUBZLWHlQB5OJdrSuaZBu2Uw%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="0"></span></figure>
+  <p></p>
+  <p data-ke-size="size16">이 떄 이 url은 permitALL 되어야한다.</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size18"><b>Oauth2LoginController</b></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="reasonml"><code class="hljs kotlin"><span class="hljs-meta">@Controller</span>
+<span class="hljs-meta">@RequestMapping(<span class="hljs-meta-string">"/custom-oauth2/login"</span>)</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Oauth2LoginController</span> </span>{
+
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> InMemoryAuthorizationRequestRepository authorizationRequestRepository;
+
+
+    <span class="hljs-meta">@Value(<span class="hljs-meta-string">"<span class="hljs-subst">${spring.security.oauth2.client.registration.kakao.client-id}</span>"</span>)</span>
+    <span class="hljs-keyword">private</span> String kakaoClientId;
+
+    <span class="hljs-meta">@Value(<span class="hljs-meta-string">"<span class="hljs-subst">${spring.security.oauth2.client.registration.kakao.redirect-uri}</span>"</span>)</span>
+    <span class="hljs-keyword">private</span> String kakaoRedirectUri;
+
+    <span class="hljs-meta">@RequestMapping(<span class="hljs-meta-string">"/kakao"</span>)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;?&gt; kakaoOauth2Login(HttpServletRequest request, HttpServletResponse response){
+        String state=<span class="hljs-string">""</span>+UUID.randomUUID();
+
+        <span class="hljs-comment">// ✅ OAuth2AuthorizationRequest 직접 생성 == 로그인사용자가 로그인페이지 요청한사용자인지 확인하는 용.  클라이언트 구별!!</span>
+        OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+            .authorizationUri(<span class="hljs-string">"https://kauth.kakao.com/oauth/authorize"</span>)
+            .clientId(kakaoClientId)
+            .redirectUri(kakaoRedirectUri)
+            .state(state)
+            .attributes(attrs -&gt; attrs.put(<span class="hljs-string">"registration_id"</span>, <span class="hljs-string">"kakao"</span>))
+            .build();
+
+        authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+        <span class="hljs-comment">//기본은 session에 저장해서 구별하는건데 여기서는 session없으니까 그냥 map에다..  서버여러대면 DB 등</span>
+
+        <span class="hljs-comment">// ✅ Authorization URL 생성</span>
+        String authorizationUrl = <span class="hljs-string">"https://kauth.kakao.com/oauth/authorize"</span>
+            + <span class="hljs-string">"?client_id="</span> + kakaoClientId
+            + <span class="hljs-string">"&amp;redirect_uri="</span> + kakaoRedirectUri
+            + <span class="hljs-string">"&amp;response_type=code"</span>
+            + <span class="hljs-string">"&amp;state="</span> + state;
+
+        <span class="hljs-keyword">return</span> ResponseEntity.ok(Map.of(<span class="hljs-string">"authorizationUrl"</span>, authorizationUrl)); <span class="hljs-comment">//client에는 카카오 restAPI문서에서 요구하는 형태로!</span>
+    }
+}
+</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>InMemoryAuthorizationRequestRepository</b></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="pf"><code class="hljs typescript"><span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">InMemoryAuthorizationRequestRepository</span> <span class="hljs-title">implements</span>
+    <span class="hljs-title">AuthorizationRequestRepository</span>&lt;<span class="hljs-title">OAuth2AuthorizationRequest</span>&gt; </span>{
+
+    <span class="hljs-keyword">private</span> final <span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>, OAuth2AuthorizationRequest&gt; authorizationRequests = <span class="hljs-keyword">new</span> ConcurrentHashMap&lt;&gt;();
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> OAuth2AuthorizationRequest <span class="hljs-function"><span class="hljs-title">loadAuthorizationRequest</span>(<span class="hljs-params">HttpServletRequest request</span>)</span> {
+        <span class="hljs-built_in">String</span> state = request.getParameter(<span class="hljs-string">"state"</span>);
+        <span class="hljs-keyword">if</span> (state == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+        }
+        <span class="hljs-keyword">return</span> authorizationRequests.get(state);
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-function"><span class="hljs-title">saveAuthorizationRequest</span>(<span class="hljs-params">OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response</span>)</span> {
+        <span class="hljs-keyword">if</span> (authorizationRequest == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">return</span>;
+        }
+
+        <span class="hljs-built_in">String</span> state = authorizationRequest.getState();
+        authorizationRequests.put(state, authorizationRequest);
+
+        System.out.println(<span class="hljs-string">"✅ OAuth2AuthorizationRequest 저장: "</span> + state);
+
+        <span class="hljs-comment">// 5분 후 자동 삭제 (보안 상 Authorization Request를 계속 들고 있을 필요 없음)</span>
+        <span class="hljs-keyword">new</span> Thread(() -&gt; {
+            <span class="hljs-keyword">try</span> {
+                TimeUnit.MINUTES.sleep(<span class="hljs-number">5</span>);
+                authorizationRequests.remove(state);
+                System.out.println(<span class="hljs-string">"🗑️ OAuth2AuthorizationRequest 만료 삭제: "</span> + state);
+            } <span class="hljs-keyword">catch</span> (InterruptedException ignored) {}
+        }).start();
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> OAuth2AuthorizationRequest <span class="hljs-function"><span class="hljs-title">removeAuthorizationRequest</span>(<span class="hljs-params">HttpServletRequest request,HttpServletResponse response</span>)</span> {
+        <span class="hljs-built_in">String</span> state = request.getParameter(<span class="hljs-string">"state"</span>);
+        <span class="hljs-keyword">if</span> (state == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+        }
+        System.out.println(<span class="hljs-string">"🚀 OAuth2AuthorizationRequest 조회 후 삭제: "</span> + state);
+        <span class="hljs-keyword">return</span> authorizationRequests.remove(state);
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>Oauth2LoginSuccessHandler</b></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" style="background-color: #f8f8f8; color: #383a42;" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@Component</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OAuth2LoginSuccessHandler</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SimpleUrlAuthenticationSuccessHandler</span> </span>{
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> JwtUtil jwtUtil;
+    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> RefreshRepository refreshRepository;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAuthenticationSuccess</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>{
+        CustomUserAccount customUserAccount = (CustomUserAccount) authentication.getPrincipal();
+
+
+        String accessToken = jwtUtil.createAccessToken(customUserAccount.getUsername());
+        String refreshToken=jwtUtil.createRefreshToken(customUserAccount.getUsername());
+
+
+        <span class="hljs-comment">// ✅ 새 Refresh Token 저장 (기존 Token 삭제 X)</span>
+        RefreshEntity refreshEntity = <span class="hljs-keyword">new</span> RefreshEntity();
+        refreshEntity.setUserEntity(customUserAccount.getUserEntity());  <span class="hljs-comment">// 이전 필터에서 사용자정보저장할 떄  userEntity는  entity상태로 저장됨.</span>
+        refreshEntity.setToken(refreshToken);
+        refreshRepository.save(refreshEntity);
+
+
+        <span class="hljs-comment">// 토큰을 응답에 포함</span>
+        response.setContentType(<span class="hljs-string">"application/json"</span>);
+<span class="hljs-comment">//        response.getWriter().write("{\"access_token\": \"" + accessToken + "\"}");</span>
+        response.getWriter().write(<span class="hljs-keyword">new</span> ObjectMapper().writeValueAsString(
+            Map.of(<span class="hljs-string">"access_token"</span>, accessToken, <span class="hljs-string">"refresh_token"</span>, refreshToken)
+        ));
+
+
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><br>이후 로그인성공을 했다면 클라이언트에게&nbsp; JWT 방식에 맞게&nbsp; access token, refresh token을 보내주면 된다.&nbsp;&nbsp;</p>
+  <p data-ke-size="size18">successHandler는 위의 config에&nbsp; successHandler 등록하면 된다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/dMWozE/btsMNyBYTUk/AAAAAAAAAAAAAAAAAAAAAO4DQHjMIQjwJJv0XmVfwNVs0IOJrD_BxQgnuX12NWj2/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=ss5RGlZOcTm5JmjfqHdsSAEWgBg%3D" data-phocus="https://blog.kakaocdn.net/dna/dMWozE/btsMNyBYTUk/AAAAAAAAAAAAAAAAAAAAAO4DQHjMIQjwJJv0XmVfwNVs0IOJrD_BxQgnuX12NWj2/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=ss5RGlZOcTm5JmjfqHdsSAEWgBg%3D"><img src="https://blog.kakaocdn.net/dna/dMWozE/btsMNyBYTUk/AAAAAAAAAAAAAAAAAAAAAO4DQHjMIQjwJJv0XmVfwNVs0IOJrD_BxQgnuX12NWj2/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=ss5RGlZOcTm5JmjfqHdsSAEWgBg%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FdMWozE%2FbtsMNyBYTUk%2FAAAAAAAAAAAAAAAAAAAAAO4DQHjMIQjwJJv0XmVfwNVs0IOJrD_BxQgnuX12NWj2%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3Dss5RGlZOcTm5JmjfqHdsSAEWgBg%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="1"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>SecurityConfig</b></p>
+  <pre id="code_1760344765318" class="java" data-ke-language="java" data-ke-type="codeblock"><code class="hljs">
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SecurityConfig</span> </span>{
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> JwtUtil jwtUtil;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> CustomUserDetailsService customUserDetailsService;  <span class="hljs-comment">//내가 빈으로 등록한것들</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> CustomOAuth2UserService customOAuth2UserService;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AuthenticationConfiguration authenticationConfiguration;  <span class="hljs-comment">//authenticationManger를 갖고있는 빈.</span>
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> RefreshRepository refreshRepository;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AuthorizationRequestRepository authorizationRequestRepository;
+
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> PasswordEncoder <span class="hljs-title">passwordEncoder</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> BCryptPasswordEncoder();
+    }
+
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> SecurityFilterChain <span class="hljs-title">securityFilterChain</span><span class="hljs-params">(HttpSecurity http)</span> <span class="hljs-keyword">throws</span> Exception </span>{
+        http  <span class="hljs-comment">//내부H2DB  확인용.  진짜 1도 안중요함.</span>
+            .authorizeHttpRequests(auth -&gt; auth
+                .requestMatchers(<span class="hljs-string">"/h2-console/**"</span>).permitAll() <span class="hljs-comment">// H2 콘솔 접근 허용</span>
+            )
+            .csrf(csrf -&gt; csrf.ignoringRequestMatchers(<span class="hljs-string">"/h2-console/**"</span>)) <span class="hljs-comment">// H2 콘솔 CSRF 비활성화</span>
+            .headers(
+                headers -&gt; headers.frameOptions(frame -&gt; frame.disable())); <span class="hljs-comment">// H2 콘솔을 iframe에서 허용</span>
+
+        http    <span class="hljs-comment">//기본 session방식관련 다 X</span>
+            .csrf(csrf -&gt; csrf.disable())
+            .sessionManagement(
+                session -&gt; session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .formLogin(form -&gt; form.disable())
+            .logout(logout -&gt; logout.disable())  <span class="hljs-comment">//기본 로그아웃 사용X</span>
+            .httpBasic(basic -&gt; basic.disable());
+
+        http   <span class="hljs-comment">//경로와 인증/인가 설정.</span>
+            .authorizeHttpRequests(auth -&gt; auth
+                .requestMatchers(
+                    <span class="hljs-string">"/login"</span>, <span class="hljs-string">"/api/join"</span>, <span class="hljs-string">"/api/refresh/reissue"</span> , <span class="hljs-string">"/custom-oauth2/login/**"</span>) .permitAll() <span class="hljs-comment">//  oauth2도 추가</span>
+                .requestMatchers(<span class="hljs-string">"/api/my/info"</span>,<span class="hljs-string">"/api/logout"</span>).authenticated()  <span class="hljs-comment">//security 기본 로그아웃 url인 /logout은 사용X</span>
+            );
+
+        http.oauth2Login(oauth2 -&gt; oauth2
+            .authorizationEndpoint(authEndpoint -&gt; authEndpoint
+                .authorizationRequestRepository(authorizationRequestRepository)) <span class="hljs-comment">// ✅ 직접 구현한 저장소 적용</span>
+            .userInfoEndpoint(userInfo -&gt; userInfo.userService(customOAuth2UserService))
+            .successHandler(oAuth2LoginSuccessHandler) <span class="hljs-comment">// ✅ 로그인 성공 시 JWT 발급</span>
+            .failureHandler((request, response, exception) -&gt; {
+                exception.printStackTrace();
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            })  <span class="hljs-comment">// ✅ 실패 시 로그 찍기</span>
+        );
+
+
+        http          <span class="hljs-comment">//필터</span>
+            .userDetailsService(customUserDetailsService)
+            .addFilterAt(
+                <span class="hljs-keyword">new</span> JwtLoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil,
+                    refreshRepository),
+                UsernamePasswordAuthenticationFilter.class)  <span class="hljs-comment">//기존 세션방식의 로그인 검증필터 대체.</span>
+            .addFilterBefore(
+                <span class="hljs-keyword">new</span> JwtAccessTokenCheckAndSaveUserInfoFilter(jwtUtil, customUserDetailsService),
+                UsernamePasswordAuthenticationFilter.class);
+
+
+        http
+            .exceptionHandling(ex -&gt; ex
+                .authenticationEntryPoint((request, response, authException) -&gt; {
+                    String errorCause =
+                        request.getAttribute(<span class="hljs-string">"ERROR_CAUSE"</span>) != <span class="hljs-keyword">null</span> ? (String) request.getAttribute(
+                            <span class="hljs-string">"ERROR_CAUSE"</span>) : <span class="hljs-keyword">null</span>;
+                    <span class="hljs-comment">//인증없이(access token없이) 인증필요한 곳에 로그인했을 떄.</span>
+                    <span class="hljs-keyword">if</span> (errorCause == <span class="hljs-keyword">null</span>) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType(<span class="hljs-string">"application/json;charset=UTF-8"</span>);
+                        response.getWriter().write(<span class="hljs-string">"{\"error\": \"인증이 필요합니다.\"}"</span>);
+                        <span class="hljs-keyword">return</span>;
+                    }
+                    <span class="hljs-comment">// JwtAccessTokenCheckAndSaveUserInfoFilter  토큰체크하는부분</span>
+                    <span class="hljs-keyword">if</span> (errorCause.equals(<span class="hljs-string">"토큰만료"</span>)) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); <span class="hljs-comment">// 401 응답</span>
+                        response.setContentType(<span class="hljs-string">"application/json"</span>);
+                        response.setCharacterEncoding(<span class="hljs-string">"UTF-8"</span>);
+                        response.getWriter().write(<span class="hljs-string">"{\"error\": \"Access Token expired\"}"</span>);
+                        <span class="hljs-keyword">return</span>;
+                    }
+                    <span class="hljs-keyword">if</span> (errorCause.equals(<span class="hljs-string">"로그인실패"</span>)) { <span class="hljs-comment">//jwtLoginFilter 로그인시도부분.</span>
+                        response.setStatus(
+                            HttpServletResponse.SC_UNAUTHORIZED); <span class="hljs-comment">//로그인실패도 401로 하는게 보통</span>
+                        response.setContentType(<span class="hljs-string">"application/json;charset=UTF-8"</span>);
+                        response.getWriter().write(<span class="hljs-string">"{\"error\": \"아이디 비번 틀림.\"}"</span>);
+                        <span class="hljs-keyword">return</span>;
+                    }
+                })
+            );
+        <span class="hljs-keyword">return</span> http.build();
+    }
+}</code></pre>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>CustomOauth2UserService</b></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="dart"><code class="hljs typescript"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomOAuth2UserService</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">DefaultOAuth2UserService</span> </span>{
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> UserRepository userRepository;
+
+
+    <span class="hljs-meta">@Transactional</span>(readOnly = <span class="hljs-literal">false</span>)
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        <span class="hljs-comment">// 카카오로그인이든 폼로그인이든 똑같은 서비스를 제공하기 위해 DB 저장</span>
+
+        OAuth2User oAuth2User = <span class="hljs-built_in">super</span>.loadUser(userRequest);<span class="hljs-comment">//  user-info-uri : https://kapi.kakao.com/v2/user/me 에서 유저정보를 가져옴.</span>
+
+        <span class="hljs-built_in">String</span> registrationId = userRequest.getClientRegistration().getRegistrationId(); <span class="hljs-comment">//"kakao"</span>
+
+
+
+        <span class="hljs-comment">// OAuth2 제공자(Kakao)에서 가져온 사용자 정보</span>
+        <span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">Object</span>&gt; attributes = oAuth2User.getAttributes();
+        <span class="hljs-comment">/**
+         {
+         "id": 1234567890,  문자아님 Long
+         "kakao_account": {
+         "email": "user<span class="hljs-doctag">@example</span>.com",
+         "profile": {
+         "nickname": "홍길동"
+         }
+         }
+         }
+         */</span>
+        Long id= (Long) attributes.get(<span class="hljs-string">"id"</span>);  <span class="hljs-comment">//카카오는 id가 Long.</span>
+        <span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>,<span class="hljs-built_in">Object</span>&gt; kakaoAccount=(<span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>,<span class="hljs-built_in">Object</span>&gt;)attributes.get(<span class="hljs-string">"kakao_account"</span>);
+        <span class="hljs-built_in">String</span> email= (<span class="hljs-built_in">String</span>) kakaoAccount.get(<span class="hljs-string">"email"</span>);
+        <span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>,<span class="hljs-built_in">Object</span>&gt; profile=(<span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>,<span class="hljs-built_in">Object</span>&gt;)kakaoAccount.get(<span class="hljs-string">"profile"</span>);
+        <span class="hljs-built_in">String</span>  nickname=(<span class="hljs-built_in">String</span>)profile.get(<span class="hljs-string">"nickname"</span>);
+
+
+
+        <span class="hljs-comment">//  DB에서 사용자 조회 (없으면 생성)</span>
+        UserEntity user = userRepository.findByUsername(<span class="hljs-string">"kakao"</span>+id);
+        <span class="hljs-keyword">if</span> (user == <span class="hljs-literal">null</span>) {  <span class="hljs-comment">//카카오로 처음 로그인하는 분</span>
+            user = <span class="hljs-keyword">new</span> UserEntity();
+            user.setUsername(<span class="hljs-string">"kakao"</span>+id);
+            user.setPassword(<span class="hljs-string">"{noop}oauth2user"</span>); <span class="hljs-comment">// OAuth2 로그인은 비밀번호 없음. {noop}은 security가  암호화 안된 비밀번호임을 암시.</span>
+            user.setEmail(email);
+            user.setNickname(nickname);
+            user.getRoles().add(<span class="hljs-string">"USER"</span>);
+
+            user.setProvider(registrationId);
+            userRepository.save(user);
+        }<span class="hljs-keyword">else</span>{  <span class="hljs-comment">//처음 로그인은 아님. 카카오에서 nickname변경됐다면 우리 DB에도  반영해야지</span>
+            <span class="hljs-comment">//username password는 안 바뀜.</span>
+            user.setEmail(email);
+            user.setNickname(nickname);
+        }
+
+        <span class="hljs-comment">//CustomUserAccount로 반환 (OAuth2User + UserDetails 통합)</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> CustomUserAccount(user, attributes);
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p style="color: #000000; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #000000; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #000000; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #000000; text-align: start;" data-ke-size="size18">CustomUserAccount&nbsp; &nbsp;(getUserEntity 추가)</p>
+  <pre id="code_1760344882386" class="java" data-ke-language="java" data-ke-type="codeblock"><code class="hljs"><span class="hljs-keyword">package</span> com.security.jwt.model;
+
+<span class="hljs-keyword">import</span> com.security.jwt.entity.UserEntity;
+<span class="hljs-keyword">import</span> java.util.Collection;
+<span class="hljs-keyword">import</span> java.util.Map;
+<span class="hljs-keyword">import</span> lombok.Getter;
+<span class="hljs-keyword">import</span> org.springframework.security.core.GrantedAuthority;
+<span class="hljs-keyword">import</span> org.springframework.security.core.authority.SimpleGrantedAuthority;
+<span class="hljs-keyword">import</span> org.springframework.security.core.userdetails.UserDetails;
+<span class="hljs-keyword">import</span> org.springframework.security.oauth2.core.user.OAuth2User;
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomUserAccount</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetails</span>, <span class="hljs-title">OAuth2User</span> </span>{
+    <span class="hljs-keyword">private</span> UserEntity userEntity;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Object&gt; attributes; <span class="hljs-comment">// OAuth2 로그인</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">CustomUserAccount</span><span class="hljs-params">(UserEntity userEntity)</span> </span>{  <span class="hljs-comment">//일반 사용자로 로그인 한 경우</span>
+        <span class="hljs-keyword">this</span>.userEntity = userEntity;
+        <span class="hljs-keyword">this</span>.attributes=<span class="hljs-keyword">null</span>;
+    }
+
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">CustomUserAccount</span><span class="hljs-params">(UserEntity userEntity,  Map&lt;String, Object&gt; attributes)</span> </span>{  <span class="hljs-comment">//Oauth2로 로그인한 경우</span>
+        <span class="hljs-keyword">this</span>.userEntity = userEntity;
+        <span class="hljs-keyword">this</span>.attributes=attributes;
+    }
+
+
+  <span class="hljs-function"><span class="hljs-keyword">public</span> UserEntity <span class="hljs-title">getUserEntity</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> userEntity;
+    }
+
+    <span class="hljs-comment">// userDetails</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getUsername</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> userEntity.getUsername();
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getPassword</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> userEntity.getPassword();
+    }
+
+    <span class="hljs-comment">//이 메소드는 oauth2User와 UserDetails의 getAuthroties()를 전부 override</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
+        <span class="hljs-keyword">return</span> userEntity.getRoles().stream()
+            .map(SimpleGrantedAuthority::<span class="hljs-keyword">new</span>)
+            .toList();
+    }
+
+
+    <span class="hljs-comment">// Oauth2User</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Map&lt;String, Object&gt; <span class="hljs-title">getAttributes</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> attributes;
+    }
+
+
+    <span class="hljs-comment">// 카카오로그인이든 폼로그인이든 똑같은 서비스를 제공하기 위해 DB 저장했던 userEntity 사용</span>
+
+
+    <span class="hljs-comment">/**
+     * oauth2User는  사용자를 getName()으로 식별하지만, 통합User객체를 사용하기때문에
+     * userDetails와 맞춰줌.
+     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>{   <span class="hljs-comment">//Spring SecurityContext에서 OAuth2 로그인한 사용자의 식별자로 사용됨.</span>
+        <span class="hljs-keyword">return</span> getUsername();
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getEmail</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> userEntity.getEmail();
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getNickname</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> userEntity.getNickname();
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getProvider</span><span class="hljs-params">()</span></span>{
+        <span class="hljs-keyword">return</span> userEntity.getProvider();
+    }
+
+}</code></pre>
+  <h2 style="color: #000000; text-align: start;" data-ke-size="size26">&nbsp;</h2>
+  <h2 style="color: #000000; text-align: start;" data-ke-size="size26">&nbsp;</h2>
+  <h2 style="color: #000000; text-align: start;" data-ke-size="size26">로그인과정&nbsp;</h2>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/qc4EV/btsMN7cU1iV/AAAAAAAAAAAAAAAAAAAAAOtbc-7yhIV66VNBuVseL0SHjwgn48epoRq5ou2q1_RV/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=zC3IYbdh6t0U5vMN%2BS4qrNGLDro%3D" data-phocus="https://blog.kakaocdn.net/dna/qc4EV/btsMN7cU1iV/AAAAAAAAAAAAAAAAAAAAAOtbc-7yhIV66VNBuVseL0SHjwgn48epoRq5ou2q1_RV/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=zC3IYbdh6t0U5vMN%2BS4qrNGLDro%3D"><img src="https://blog.kakaocdn.net/dna/qc4EV/btsMN7cU1iV/AAAAAAAAAAAAAAAAAAAAAOtbc-7yhIV66VNBuVseL0SHjwgn48epoRq5ou2q1_RV/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=zC3IYbdh6t0U5vMN%2BS4qrNGLDro%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fqc4EV%2FbtsMN7cU1iV%2FAAAAAAAAAAAAAAAAAAAAAOtbc-7yhIV66VNBuVseL0SHjwgn48epoRq5ou2q1_RV%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DzC3IYbdh6t0U5vMN%252BS4qrNGLDro%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="2"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">우리가 설정할건&nbsp; 카카오로 인가코드 보내기 전에 Oauth2AuthorizationRequest를 검사하는 것이다.</p>
+  <p data-ke-size="size18">이는 SeucirtyConfig의&nbsp; &nbsp; authorizationRequestRepository를 위에서 만든&nbsp;</p>
+  <p data-ke-size="size18">InMemoryAuthorzationRequestRepository로 지정해주면 된다.&nbsp;</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="xl"><code class="hljs scss">http<span class="hljs-selector-class">.oauth2Login</span>(oauth2 -&gt; oauth2
+    .authorizationEndpoint(authEndpoint -&gt; authEndpoint
+        .authorizationRequestRepository(authorizationRequestRepository)) <span class="hljs-comment">// ✅ 직접 구현한 저장소 적용</span>
+    <span class="hljs-selector-class">.userInfoEndpoint</span>(userInfo -&gt; userInfo.userService(customOAuth2UserService))
+    <span class="hljs-selector-class">.successHandler</span>(oAuth2LoginSuccessHandler) <span class="hljs-comment">// ✅ 로그인 성공 시 JWT 발급</span>
+    <span class="hljs-selector-class">.failureHandler</span>((request, response, exception) -&gt; {
+        exception<span class="hljs-selector-class">.printStackTrace</span>();
+        response<span class="hljs-selector-class">.sendError</span>(HttpServletResponse.SC_UNAUTHORIZED);
+    })  <span class="hljs-comment">// ✅ 실패 시 로그 찍기</span>
+);</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <h2 data-ke-size="size26">실행결과</h2>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-filename="1.로그인페이지받기 , redirect-uri, state,type 등.png" data-origin-width="1461" data-origin-height="560"><span data-url="https://blog.kakaocdn.net/dna/blp8i2/btsMNy26MZc/AAAAAAAAAAAAAAAAAAAAAAxafcjC2b7ElhtZdBsnkEErdR2A67NsOqsn37pPGo9w/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=DR99zS85u88nTXqaWEb4sEgQXNQ%3D" data-phocus="https://blog.kakaocdn.net/dna/blp8i2/btsMNy26MZc/AAAAAAAAAAAAAAAAAAAAAAxafcjC2b7ElhtZdBsnkEErdR2A67NsOqsn37pPGo9w/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=DR99zS85u88nTXqaWEb4sEgQXNQ%3D"><img src="https://blog.kakaocdn.net/dna/blp8i2/btsMNy26MZc/AAAAAAAAAAAAAAAAAAAAAAxafcjC2b7ElhtZdBsnkEErdR2A67NsOqsn37pPGo9w/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=DR99zS85u88nTXqaWEb4sEgQXNQ%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fblp8i2%2FbtsMNy26MZc%2FAAAAAAAAAAAAAAAAAAAAAAxafcjC2b7ElhtZdBsnkEErdR2A67NsOqsn37pPGo9w%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DDR99zS85u88nTXqaWEb4sEgQXNQ%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1461" height="560" data-filename="1.로그인페이지받기 , redirect-uri, state,type 등.png" data-origin-width="1461" data-origin-height="560" data-phocus-index="3"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">로그인페이지로 요청 후 authorizationURL을 받는다.&nbsp;&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1232" data-origin-height="666"><span data-url="https://blog.kakaocdn.net/dna/cgfBvb/btsMNNFIqmE/AAAAAAAAAAAAAAAAAAAAAGyhYYJqhx6Ez3ArUaRCtc0Sgo1ltqbznQd5ryVLQjyP/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=eBpPTO55ZdQCcxsHw45nav%2FFH58%3D" data-phocus="https://blog.kakaocdn.net/dna/cgfBvb/btsMNNFIqmE/AAAAAAAAAAAAAAAAAAAAAGyhYYJqhx6Ez3ArUaRCtc0Sgo1ltqbznQd5ryVLQjyP/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=eBpPTO55ZdQCcxsHw45nav%2FFH58%3D"><img src="https://blog.kakaocdn.net/dna/cgfBvb/btsMNNFIqmE/AAAAAAAAAAAAAAAAAAAAAGyhYYJqhx6Ez3ArUaRCtc0Sgo1ltqbznQd5ryVLQjyP/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=eBpPTO55ZdQCcxsHw45nav%2FFH58%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcgfBvb%2FbtsMNNFIqmE%2FAAAAAAAAAAAAAAAAAAAAAGyhYYJqhx6Ez3ArUaRCtc0Sgo1ltqbznQd5ryVLQjyP%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DeBpPTO55ZdQCcxsHw45nav%252FFH58%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1232" height="666" data-origin-width="1232" data-origin-height="666" data-phocus-index="4"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">authorizationURL로 요청하면 다음과 같은 화면이 나온다.&nbsp;&nbsp;</p>
+  <p data-ke-size="size18">(지금 우리 서버는 백엔드서버지만 딱히 로그인페이지에서 id,pw를 입력할&nbsp; 클라이언트를 안 만들어서</p>
+  <p data-ke-size="size18">브라우저로 진행한다.)</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1600" data-origin-height="203"><span data-url="https://blog.kakaocdn.net/dna/bCSjrt/btsMOiyGEJq/AAAAAAAAAAAAAAAAAAAAAHEIwRfMfV-4QVg6Rl-6UB91T3LH5SlGxEkDMEianjlA/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=j6DqEr0Q3WE370kaFG0uYJFkFfE%3D" data-phocus="https://blog.kakaocdn.net/dna/bCSjrt/btsMOiyGEJq/AAAAAAAAAAAAAAAAAAAAAHEIwRfMfV-4QVg6Rl-6UB91T3LH5SlGxEkDMEianjlA/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=j6DqEr0Q3WE370kaFG0uYJFkFfE%3D"><img src="https://blog.kakaocdn.net/dna/bCSjrt/btsMOiyGEJq/AAAAAAAAAAAAAAAAAAAAAHEIwRfMfV-4QVg6Rl-6UB91T3LH5SlGxEkDMEianjlA/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=j6DqEr0Q3WE370kaFG0uYJFkFfE%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbCSjrt%2FbtsMOiyGEJq%2FAAAAAAAAAAAAAAAAAAAAAHEIwRfMfV-4QVg6Rl-6UB91T3LH5SlGxEkDMEianjlA%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3Dj6DqEr0Q3WE370kaFG0uYJFkFfE%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1600" height="203" data-origin-width="1600" data-origin-height="203" data-phocus-index="5"></span></figure>
+  <figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1154" data-origin-height="83"><span data-url="https://blog.kakaocdn.net/dna/etguBC/btsMOoMfRzW/AAAAAAAAAAAAAAAAAAAAAITWFBp8laoCFNxsjtH-hwfl1kDhiKTLfKlpcFyU0uPd/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=0nsZNcSLI97QwA%2Fga30LU9Lf%2BtU%3D" data-phocus="https://blog.kakaocdn.net/dna/etguBC/btsMOoMfRzW/AAAAAAAAAAAAAAAAAAAAAITWFBp8laoCFNxsjtH-hwfl1kDhiKTLfKlpcFyU0uPd/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=0nsZNcSLI97QwA%2Fga30LU9Lf%2BtU%3D" data-alt="redirect-uri를 처리한 서버로그. 인가코드가 포함되어있다."><img src="https://blog.kakaocdn.net/dna/etguBC/btsMOoMfRzW/AAAAAAAAAAAAAAAAAAAAAITWFBp8laoCFNxsjtH-hwfl1kDhiKTLfKlpcFyU0uPd/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=0nsZNcSLI97QwA%2Fga30LU9Lf%2BtU%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FetguBC%2FbtsMOoMfRzW%2FAAAAAAAAAAAAAAAAAAAAAITWFBp8laoCFNxsjtH-hwfl1kDhiKTLfKlpcFyU0uPd%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D0nsZNcSLI97QwA%252Fga30LU9Lf%252BtU%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1154" height="83" data-origin-width="1154" data-origin-height="83" data-phocus-index="6"></span><figcaption>redirect-uri를 처리한 서버로그. 인가코드가 포함되어있다.</figcaption>
+  </figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">브라우저는 로그인 후 자동으로 redirect-uri로&nbsp; 요청한다.&nbsp;&nbsp;</p>
+  <p data-ke-size="size18"><b>로그를 보면 /login/oauth2/code/kakao?code= 가 </b>있다<b>. 인가코드가 포함된 요청이다.</b></p>
+  <p data-ke-size="size18">(브라우저가 아닐 때는 redirect-uri로 클라이언트가 직접 백엔드서버에 요청하면 된다.)</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b><span>브라우저가 </span>/login/oauth2/code/kakao?code=<span>&nbsp; &nbsp;로 요청을 하는 순간&nbsp;</span></b></p>
+  <p data-ke-size="size18"><b><span>우리 서버에서는&nbsp; 카카오 인증서버 + 리소스 서버 요청해서 데이터받고 자체 DB에 저장하는 과정을 다 한다.</span></b><b><span></span></b></p>
+  <p data-ke-size="size18">이 후&nbsp; &nbsp; OAuth2LoginSuccessHandler의&nbsp; onAuthenticationSuccess메소드에서&nbsp;&nbsp;</p>
+  <p data-ke-size="size18">response에 직접 access_token과 refresh_token을 json 형태로 담아 return 했기에&nbsp;</p>
+  <p data-ke-size="size18">브라우저화면에 표시된다.</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1440" data-origin-height="519"><span data-url="https://blog.kakaocdn.net/dna/biEPO9/btsMLWEh71B/AAAAAAAAAAAAAAAAAAAAAHed-NZEDTUhpPCfrQGy5JbN7svf9oDcc3tXX1q3s7RX/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=gme1cmGvdVlicOIPC1JQmjp4Agg%3D" data-phocus="https://blog.kakaocdn.net/dna/biEPO9/btsMLWEh71B/AAAAAAAAAAAAAAAAAAAAAHed-NZEDTUhpPCfrQGy5JbN7svf9oDcc3tXX1q3s7RX/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=gme1cmGvdVlicOIPC1JQmjp4Agg%3D"><img src="https://blog.kakaocdn.net/dna/biEPO9/btsMLWEh71B/AAAAAAAAAAAAAAAAAAAAAHed-NZEDTUhpPCfrQGy5JbN7svf9oDcc3tXX1q3s7RX/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=gme1cmGvdVlicOIPC1JQmjp4Agg%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbiEPO9%2FbtsMLWEh71B%2FAAAAAAAAAAAAAAAAAAAAAHed-NZEDTUhpPCfrQGy5JbN7svf9oDcc3tXX1q3s7RX%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3Dgme1cmGvdVlicOIPC1JQmjp4Agg%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1440" height="519" data-origin-width="1440" data-origin-height="519" data-phocus-index="7"></span></figure>
+  <p></p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">이후 이 access token으로&nbsp;<span>&nbsp;</span><b>/my/info</b>에 요청하면 내 정보를 보게된다.</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">나머지 토큰만료, refresh 토큰등은&nbsp; 일반회원과 똑같이 처리된다.<br>(카카오로 로그인을 했다면 일반회원처럼 DB에 저장되어있기떄문에)</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">※ 사실 이 글에서는 Client-side를 post-man과 브라우저로 하기 때문에 브라우저에</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">access_token과 refresh_token이 노출되었다.&nbsp; Client -side가 브라우저일 때는 cookie 등에</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">포함시켜 노출을 피해야 한다.&nbsp; &nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">클라이언트가 브라우저 ,앱 등 다양하고, 하나의 서버에서 Oauth2 JWT 를 처리하려한다면&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">OAuth2LoginSuccessHandler의&nbsp; onAuthenticationSuccess메소드 안에서&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">다음과 같이 따로 처리해줄&nbsp; 필요가 있다.</p>
+  <div style="background-color: #2b2b2b; color: #a9b7c6;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onAuthenticationSuccess</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response,
+                                    Authentication authentication)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>{
+
+        <span class="hljs-keyword">if</span>(브라우저라면){
+           쿠키에 token 감추기
+           <span class="hljs-keyword">return</span> ;
+        }
+
+        <span class="hljs-keyword">if</span>( 앱이라면){
+         response.setContentType(<span class="hljs-string">"application/json"</span>);
+         response.getWriter().write(<span class="hljs-keyword">new</span> ObjectMapper().writeValueAsString(
+            Map.of(<span class="hljs-string">"access_token"</span>, accessToken, <span class="hljs-string">"refresh_token"</span>, refreshToken)
+          ));
+          <span class="hljs-keyword">return</span> ;
+        }
+
+        <span class="hljs-keyword">if</span>(그외 기타 등등){
+        }
+
+ }</code></pre>
+  </div>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p></div>
+

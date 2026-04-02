@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 2: 자료형과 연산자</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { color: #f12711; text-align: center; border-bottom: 4px solid #f12711; padding-bottom: 15px; }
+        h2 { color: #f5af19; border-left: 5px solid #f12711; padding-left: 15px; margin-top: 30px; }
+        .section {
+            background: #fff9e6; padding: 25px; margin: 20px 0;
+            border-radius: 10px; border-left: 5px solid #f5af19;
+        }
+        .output {
+            background: #1e1e1e; color: #4ec9b0; padding: 15px; margin: 10px 0;
+            border-radius: 8px; font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px; white-space: pre-wrap; min-height: 30px;
+        }
+        button {
+            background: #f12711; color: white; border: none;
+            padding: 12px 24px; border-radius: 25px; cursor: pointer;
+            font-size: 16px; margin: 5px;
+        }
+        button:hover { background: #d41f0f; transform: translateY(-1px); }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #f12711; color: white; }
+        .tip { background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 3장 Part 2: 자료형과 연산자</h1>
+
+        <!-- 자료형 -->
+        <h2>1. 자료형 (Data Types)</h2>
+
+        <div class="section">
+            <h3>원시 타입 7가지 확인</h3>
+            <p>typeof 연산자로 각 자료형을 확인합니다.</p>
+            <button onclick="testDataTypes()">자료형 테스트</button>
+            <div id="dataTypeResult" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h3>문자열 메소드</h3>
+            <p>자주 사용하는 문자열 메소드들을 테스트합니다.</p>
+            <button onclick="testStringMethods()">문자열 메소드 테스트</button>
+            <div id="stringResult" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h3>타입 변환 (Type Conversion)</h3>
+            <p>명시적 타입 변환과 암묵적 타입 변환을 확인합니다.</p>
+            <button onclick="testTypeConversion()">타입 변환 테스트</button>
+            <div id="typeConvResult" class="output"></div>
+        </div>
+
+        <!-- 연산자 -->
+        <h2>2. 연산자 (Operators)</h2>
+
+        <div class="section">
+            <h3>산술 연산자</h3>
+            <button onclick="testArithmetic()">산술 연산자 테스트</button>
+            <div id="arithmeticResult" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h3>⭐ == vs === (매우 중요!)</h3>
+            <div class="tip">💡 <strong>결론: 항상 ===를 사용하세요!</strong> ==는 예상치 못한 타입 변환이 발생합니다.</div>
+            <button onclick="testEquality()">동등 vs 일치 연산자 테스트</button>
+            <div id="equalityResult" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h3>논리 연산자와 단축 평가</h3>
+            <button onclick="testLogical()">논리 연산자 테스트</button>
+            <div id="logicalResult" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h3>Falsy / Truthy 값</h3>
+            <p>JavaScript에서 false로 평가되는 값(Falsy) 7가지를 확인합니다.</p>
+            <button onclick="testFalsyTruthy()">Falsy/Truthy 테스트</button>
+            <div id="falsyResult" class="output"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // ========================================
+        // 1. 자료형 테스트
+        // ========================================
+        function testDataTypes() {
+            const el = document.getElementById('dataTypeResult');
+            let result = '';
+
+            // 7가지 원시 타입
+            result += '=== 원시 타입 (Primitive Types) ===\n';
+            result += `typeof 42          → "${typeof 42}"        (Number)\n`;
+            result += `typeof 3.14        → "${typeof 3.14}"      (Number - 정수/소수 구분 없음)\n`;
+            result += `typeof "hello"     → "${typeof "hello"}"   (String)\n`;
+            result += `typeof true        → "${typeof true}"      (Boolean)\n`;
+            result += `typeof undefined   → "${typeof undefined}" (Undefined)\n`;
+            result += `typeof null        → "${typeof null}"      (⚠️ "object" - JS의 유명한 버그!)\n`;
+            result += `typeof Symbol()    → "${typeof Symbol()}"  (Symbol)\n`;
+            result += `typeof 123n        → "${typeof 123n}"      (BigInt)\n`;
+
+            result += '\n=== 참조 타입 (Reference Types) ===\n';
+            result += `typeof {}          → "${typeof {}}"       (Object)\n`;
+            result += `typeof []          → "${typeof []}"       (⚠️ 배열도 object!)\n`;
+            result += `typeof function(){} → "${typeof function(){}}" (Function)\n`;
+
+            result += '\n=== 배열 확인 방법 ===\n';
+            result += `Array.isArray([])  → ${Array.isArray([])}\n`;
+            result += `Array.isArray({})  → ${Array.isArray({})}\n`;
+
+            result += '\n=== 특수한 값 ===\n';
+            result += `NaN === NaN        → ${NaN === NaN}  (⚠️ 자기 자신과도 같지 않음!)\n`;
+            result += `Number.isNaN(NaN)  → ${Number.isNaN(NaN)}\n`;
+            result += `isFinite(Infinity) → ${isFinite(Infinity)}\n`;
+            result += `isFinite(42)       → ${isFinite(42)}\n`;
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 2. 문자열 메소드
+        // ========================================
+        function testStringMethods() {
+            const el = document.getElementById('stringResult');
+            let result = '';
+            const str = "Hello, JavaScript World!";
+
+            result += `원본: "${str}"\n\n`;
+            result += `.length          → ${str.length}\n`;
+            result += `.toUpperCase()   → "${str.toUpperCase()}"\n`;
+            result += `.toLowerCase()   → "${str.toLowerCase()}"\n`;
+            result += `.indexOf("Java") → ${str.indexOf("Java")}\n`;
+            result += `.includes("World") → ${str.includes("World")}\n`;
+            result += `.startsWith("Hello") → ${str.startsWith("Hello")}\n`;
+            result += `.endsWith("!")     → ${str.endsWith("!")}\n`;
+            result += `.slice(7, 17)     → "${str.slice(7, 17)}"\n`;
+            result += `.split(", ")      → [${str.split(", ").map(s => `"${s}"`).join(', ')}]\n`;
+            result += `.replace("World", "세계") → "${str.replace("World", "세계")}"\n`;
+            result += `.repeat(2)        → "${str.repeat(2)}"\n`;
+            result += `.padStart(30, "*") → "${str.padStart(30, "*")}"\n`;
+
+            result += '\n=== 템플릿 리터럴 ===\n';
+            const name = "홍길동";
+            const age = 25;
+            result += '`안녕, ${name}! ${age}세` → ' + `"안녕, ${name}! ${age}세"\n`;
+            result += '`2 + 3 = ${2 + 3}`       → ' + `"2 + 3 = ${2 + 3}"\n`;
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 3. 타입 변환
+        // ========================================
+        function testTypeConversion() {
+            const el = document.getElementById('typeConvResult');
+            let result = '';
+
+            result += '=== 문자열 → 숫자 ===\n';
+            result += `Number("42")      → ${Number("42")}       (typeof: ${typeof Number("42")})\n`;
+            result += `Number("3.14")    → ${Number("3.14")}     \n`;
+            result += `Number("")        → ${Number("")}         (빈 문자열 → 0)\n`;
+            result += `Number("abc")     → ${Number("abc")}      (변환 불가 → NaN)\n`;
+            result += `parseInt("42px")  → ${parseInt("42px")}   (숫자 부분만 추출)\n`;
+            result += `parseFloat("3.14em") → ${parseFloat("3.14em")}\n`;
+            result += `+"42"             → ${+"42"}              (단항 + 연산자)\n`;
+
+            result += '\n=== 숫자 → 문자열 ===\n';
+            result += `String(42)        → "${String(42)}"       (typeof: ${typeof String(42)})\n`;
+            result += `(42).toString()   → "${(42).toString()}"\n`;
+            result += `42 + ""           → "${42 + ""}"\n`;
+
+            result += '\n=== 불리언 변환 ===\n';
+            result += `Boolean(1)        → ${Boolean(1)}\n`;
+            result += `Boolean(0)        → ${Boolean(0)}\n`;
+            result += `Boolean("")       → ${Boolean("")}       (빈 문자열 → false)\n`;
+            result += `Boolean("hello")  → ${Boolean("hello")}\n`;
+            result += `Boolean(null)     → ${Boolean(null)}\n`;
+            result += `Boolean([])       → ${Boolean([])}       (⚠️ 빈 배열 → true!)\n`;
+            result += `Boolean({})       → ${Boolean({})}       (⚠️ 빈 객체 → true!)\n`;
+
+            result += '\n=== 암묵적 타입 변환 (주의!) ===\n';
+            result += `"5" + 3           → "${("5" + 3)}"        (문자열 연결)\n`;
+            result += `"5" - 3           → ${"5" - 3}            (숫자 연산)\n`;
+            result += `"5" * 2           → ${"5" * 2}            (숫자 연산)\n`;
+            result += `true + 1          → ${true + 1}            (true → 1)\n`;
+            result += `false + 1         → ${false + 1}            (false → 0)\n`;
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 4. 산술 연산자
+        // ========================================
+        function testArithmetic() {
+            const el = document.getElementById('arithmeticResult');
+            let result = '';
+
+            result += '=== 기본 산술 연산자 ===\n';
+            result += `10 + 3  → ${10 + 3}   (덧셈)\n`;
+            result += `10 - 3  → ${10 - 3}    (뺄셈)\n`;
+            result += `10 * 3  → ${10 * 3}   (곱셈)\n`;
+            result += `10 / 3  → ${(10 / 3).toFixed(4)}  (나눗셈)\n`;
+            result += `10 % 3  → ${10 % 3}    (나머지)\n`;
+            result += `2 ** 10 → ${2 ** 10}  (거듭제곱)\n`;
+
+            result += '\n=== 증감 연산자 ===\n';
+            let a = 5;
+            result += `let a = 5;\n`;
+            result += `a++     → ${a++} (후위: 현재값 반환 후 증가, 이후 a = ${a})\n`;
+            result += `++a     → ${++a} (전위: 증가 후 반환)\n`;
+            result += `a--     → ${a--} (후위: 현재값 반환 후 감소, 이후 a = ${a})\n`;
+
+            result += '\n=== 할당 연산자 ===\n';
+            let x = 10;
+            result += `let x = 10;\n`;
+            x += 5; result += `x += 5  → ${x}\n`;
+            x -= 3; result += `x -= 3  → ${x}\n`;
+            x *= 2; result += `x *= 2  → ${x}\n`;
+            x /= 4; result += `x /= 4  → ${x}\n`;
+            x %= 4; result += `x %= 4  → ${x}\n`;
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 5. == vs === 비교
+        // ========================================
+        function testEquality() {
+            const el = document.getElementById('equalityResult');
+            let result = '';
+
+            result += '=== == (동등 연산자) - 타입 변환 발생! ===\n';
+            result += `5 == "5"           → ${5 == "5"}    ⚠️ (숫자와 문자열)\n`;
+            result += `0 == false         → ${0 == false}    ⚠️ (0과 false)\n`;
+            result += `"" == false        → ${"" == false}    ⚠️ (빈 문자열과 false)\n`;
+            result += `null == undefined  → ${null == undefined}    ⚠️\n`;
+            result += `"0" == false       → ${"0" == false}    ⚠️ (놀라운 결과!)\n`;
+            result += `[] == false        → ${[] == false}    ⚠️ (빈 배열과 false)\n`;
+
+            result += '\n=== === (일치 연산자) - 타입도 비교! ✅ 항상 이걸 쓰세요 ===\n';
+            result += `5 === "5"          → ${5 === "5"}   ✅ (타입이 다르므로 false)\n`;
+            result += `0 === false        → ${0 === false}   ✅\n`;
+            result += `"" === false       → ${"" === false}   ✅\n`;
+            result += `null === undefined → ${null === undefined}   ✅\n`;
+            result += `"0" === false      → ${"0" === false}   ✅\n`;
+            result += `[] === false       → ${[] === false}   ✅\n`;
+
+            result += '\n=== 정상적인 비교 ===\n';
+            result += `5 === 5            → ${5 === 5}    (같은 타입, 같은 값)\n`;
+            result += `"hello" === "hello" → ${"hello" === "hello"}\n`;
+            result += `true === true      → ${true === true}\n`;
+            result += `null === null      → ${null === null}\n`;
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 6. 논리 연산자
+        // ========================================
+        function testLogical() {
+            const el = document.getElementById('logicalResult');
+            let result = '';
+
+            result += '=== 기본 논리 연산자 ===\n';
+            result += `true && true   → ${true && true}    (AND)\n`;
+            result += `true && false  → ${true && false}   (AND)\n`;
+            result += `false || true  → ${false || true}    (OR)\n`;
+            result += `false || false → ${false || false}   (OR)\n`;
+            result += `!true          → ${!true}            (NOT)\n`;
+            result += `!false         → ${!false}             (NOT)\n`;
+
+            result += '\n=== 단축 평가 (Short-circuit) ===\n';
+            result += `"hello" && "world" → "${"hello" && "world"}" (첫 번째가 true면 두 번째 반환)\n`;
+            result += `"" && "world"      → "${"" && "world"}"            (첫 번째가 false면 첫 번째 반환)\n`;
+            result += `"" || "기본값"      → "${"" || "기본값"}"    (첫 번째가 false면 두 번째 반환)\n`;
+            result += `"hello" || "기본값" → "${"hello" || "기본값"}"      (첫 번째가 true면 첫 번째 반환)\n`;
+
+            result += '\n=== ?? (Nullish Coalescing) ===\n';
+            result += `null ?? "기본값"     → "${null ?? "기본값"}"    (null/undefined일 때만)\n`;
+            result += `undefined ?? "기본값" → "${undefined ?? "기본값"}"\n`;
+            result += `0 ?? "기본값"        → "${0 ?? "기본값"}"              (0은 null이 아님!)\n`;
+            result += `"" ?? "기본값"       → "${"" ?? "기본값"}"              (빈 문자열도 null이 아님!)\n`;
+
+            result += '\n=== || vs ?? 차이 ===\n';
+            result += `0 || "기본값"  → "${0 || "기본값"}"     (||는 falsy면 기본값)\n`;
+            result += `0 ?? "기본값"  → "${0 ?? "기본값"}"              (??는 null/undefined만)\n`;
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 7. Falsy / Truthy
+        // ========================================
+        function testFalsyTruthy() {
+            const el = document.getElementById('falsyResult');
+            let result = '';
+
+            const falsyValues = [false, 0, -0, "", null, undefined, NaN];
+            const truthyValues = ["0", "false", [], {}, function(){}, 42, "hello", -1, Infinity];
+
+            result += '=== Falsy 값 (false로 평가) - 7개 ===\n';
+            falsyValues.forEach(val => {
+                let display = val === "" ? '""(빈문자열)' : String(val);
+                result += `  ${display.padEnd(18)} → Boolean() = ${Boolean(val)}\n`;
+            });
+
+            result += '\n=== Truthy 값 (true로 평가) ===\n';
+            truthyValues.forEach(val => {
+                let display;
+                if (Array.isArray(val)) display = '[] (빈 배열)';
+                else if (typeof val === 'function') display = 'function(){}';
+                else if (typeof val === 'object') display = '{} (빈 객체)';
+                else display = JSON.stringify(val);
+                result += `  ${display.padEnd(18)} → Boolean() = ${Boolean(val)}\n`;
+            });
+
+            result += '\n💡 팁: Falsy 7가지만 외우면 나머지는 모두 Truthy!\n';
+            result += '   false, 0, -0, "", null, undefined, NaN';
+
+            el.textContent = result;
+        }
+    </script>
+</body>
+</html>
+

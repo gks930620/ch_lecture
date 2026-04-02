@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 2: 이벤트 처리와 종합 실습 (Todo List)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+        }
+        .todo-input {
+            padding: 20px;
+            background: #f7fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        #todoInput {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #cbd5e0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #todoInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        #addBtn {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        #addBtn:hover {
+            background: #5568d3;
+        }
+        .filters {
+            padding: 15px 20px;
+            background: #edf2f7;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #cbd5e0;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .todo-list {
+            padding: 20px;
+            min-height: 200px;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f7fafc;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+        .todo-item:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+        .todo-item.completed {
+            opacity: 0.6;
+            border-left-color: #48bb78;
+        }
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: #718096;
+        }
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        .todo-text {
+            flex: 1;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .todo-date {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-right: 10px;
+        }
+        .delete-btn {
+            padding: 5px 15px;
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .delete-btn:hover {
+            background: #e53e3e;
+        }
+        .stats {
+            padding: 15px 20px;
+            background: #edf2f7;
+            border-top: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        .clear-completed {
+            padding: 5px 15px;
+            background: #fc8181;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Todo List</h1>
+            <p>5장 종합 실습: DOM 조작 + 이벤트 처리</p>
+        </div>
+
+        <div class="todo-input">
+            <div class="input-group">
+                <input type="text" id="todoInput" placeholder="할 일을 입력하세요..." />
+                <button id="addBtn">추가</button>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">전체</button>
+            <button class="filter-btn" data-filter="active">진행중</button>
+            <button class="filter-btn" data-filter="completed">완료</button>
+        </div>
+
+        <div id="todoList" class="todo-list"></div>
+
+        <div class="stats">
+            <span id="stats">총 0개</span>
+            <button id="clearCompleted" class="clear-completed">완료된 항목 삭제</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 데이터 관리 ====================
+
+        let todos = [];
+        let currentFilter = 'all';
+
+        // ==================== DOM 요소 선택 ====================
+
+        const todoInput = document.getElementById('todoInput');
+        const addBtn = document.getElementById('addBtn');
+        const todoList = document.getElementById('todoList');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const statsSpan = document.getElementById('stats');
+        const clearCompletedBtn = document.getElementById('clearCompleted');
+
+        // ==================== 이벤트 리스너 ====================
+
+        // 추가 버튼 클릭
+        addBtn.addEventListener('click', addTodo);
+
+        // Enter 키로 추가
+        todoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+
+        // 필터 버튼 (이벤트 위임)
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentFilter = e.target.dataset.filter;
+
+                // active 클래스 변경
+                filterBtns.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+
+                renderTodos();
+            });
+        });
+
+        // 완료된 항목 삭제
+        clearCompletedBtn.addEventListener('click', () => {
+            todos = todos.filter(todo => !todo.completed);
+            saveTodos();
+            renderTodos();
+        });
+
+        // 이벤트 위임으로 Todo 항목 처리
+        todoList.addEventListener('click', (e) => {
+            const todoItem = e.target.closest('.todo-item');
+            if (!todoItem) return;
+
+            const id = parseInt(todoItem.dataset.id);
+
+            // 체크박스 또는 텍스트 클릭 → 완료 토글
+            if (e.target.classList.contains('todo-checkbox') ||
+                e.target.classList.contains('todo-text')) {
+                toggleTodo(id);
+            }
+
+            // 삭제 버튼 클릭
+            if (e.target.classList.contains('delete-btn')) {
+                deleteTodo(id);
+            }
+        });
+
+        // ==================== 기능 함수 ====================
+
+        function addTodo() {
+            const text = todoInput.value.trim();
+
+            if (text === '') {
+                alert('할 일을 입력하세요!');
+                return;
+            }
+
+            const todo = {
+                id: Date.now(),
+                text: text,
+                completed: false,
+                createdAt: new Date().toLocaleString()
+            };
+
+            todos.push(todo);
+            todoInput.value = '';
+            todoInput.focus();
+
+            saveTodos();
+            renderTodos();
+        }
+
+        function toggleTodo(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                saveTodos();
+                renderTodos();
+            }
+        }
+
+        function deleteTodo(id) {
+            todos = todos.filter(t => t.id !== id);
+            saveTodos();
+            renderTodos();
+        }
+
+        function renderTodos() {
+            // 필터링
+            let filteredTodos = todos;
+            if (currentFilter === 'active') {
+                filteredTodos = todos.filter(t => !t.completed);
+            } else if (currentFilter === 'completed') {
+                filteredTodos = todos.filter(t => t.completed);
+            }
+
+            // 화면 렌더링
+            if (filteredTodos.length === 0) {
+                todoList.innerHTML = `
+                    <div class="empty-state">
+                        <h3>🎉</h3>
+                        <p>할 일이 없습니다!</p>
+                    </div>
+                `;
+            } else {
+                todoList.innerHTML = filteredTodos.map(todo => `
+                    <div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
+                        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
+                        <span class="todo-text">${todo.text}</span>
+                        <span class="todo-date">${todo.createdAt}</span>
+                        <button class="delete-btn">삭제</button>
+                    </div>
+                `).join('');
+            }
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = todos.length;
+            const completed = todos.filter(t => t.completed).length;
+            const active = total - completed;
+
+            statsSpan.textContent = `총 ${total}개 | 완료 ${completed}개 | 진행중 ${active}개`;
+        }
+
+        // ==================== 로컬 스토리지 ====================
+
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        function loadTodos() {
+            const saved = localStorage.getItem('todos');
+            if (saved) {
+                todos = JSON.parse(saved);
+            }
+        }
+
+        // ==================== 초기화 ====================
+
+        loadTodos();
+        renderTodos();
+
+        console.log('💡 DOM 조작과 이벤트 처리 종합 실습!');
+        console.log('💡 주요 기능:');
+        console.log('  - querySelector로 요소 선택');
+        console.log('  - addEventListener로 이벤트 처리');
+        console.log('  - 이벤트 위임 (Event Delegation)');
+        console.log('  - innerHTML로 동적 렌더링');
+        console.log('  - LocalStorage로 데이터 저장');
+    </script>
+</body>
+</html>
+```
+

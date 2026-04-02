@@ -1,0 +1,15 @@
+SELECT RPAD( 'private '
+             || DECODE(a.data_type , 'NUMBER', 'int ', 'String ')
+             || SUBSTR(LOWER(a.column_name),1,1) 
+             || SUBSTR(REPLACE(INITCAP(a.column_name),'_',''),2)
+               || ';'
+              , 40)
+       || NVL2(b.comments, '/* ' || b.comments || ' */', '')
+  FROM user_tab_cols a, user_col_comments b
+ WHERE a.table_name  = b.table_name
+   AND a.column_name = b.column_name
+   AND a.table_name = UPPER(:TB)
+ ORDER BY column_id;
+
+
+후 상단 보기-코드조각에서 추가 

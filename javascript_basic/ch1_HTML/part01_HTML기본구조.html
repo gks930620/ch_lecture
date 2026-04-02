@@ -1,0 +1,119 @@
+<!--
+    ==========================================
+    강의명: 1.1-1.2 HTML 기본 구조
+    강의 목표: HTML 문서의 기본 구조를 이해하고 작성할 수 있다
+    소요 시간: 30분
+    ==========================================
+
+    [강의 포인트]
+    1. HTML은 마크업 언어이지 프로그래밍 언어가 아님
+    2. 모든 HTML 문서는 동일한 기본 구조를 가짐
+    3. head는 문서 정보, body는 화면에 보이는 내용
+
+    [학생들이 자주 묻는 질문]
+    Q: <!DOCTYPE html>은 태그인가요?
+    A: 아닙니다. 문서 타입 선언(Document Type Declaration)입니다.
+
+    Q: lang="ko"는 왜 필요한가요?
+    A: 검색 엔진 최적화(SEO)와 스크린 리더 등 보조 기술을 위해 필요합니다.
+-->
+
+<!DOCTYPE html>  <!-- HTML5 문서임을 선언. 이게 없으면 브라우저가 구버전 모드로 작동 -->
+<html lang="ko">  <!-- 문서의 루트 요소. lang="ko"는 한국어 문서임을 명시 -->
+<head>
+    <!--
+        head 영역: 문서의 메타데이터(정보)를 담는 곳
+        화면에는 보이지 않지만 문서에 대한 중요한 정보들을 포함
+    -->
+
+    <!-- 문자 인코딩 설정: UTF-8은 전 세계 모든 언어를 표현 가능 -->
+    <meta charset="UTF-8">
+
+    <!-- 반응형 웹을 위한 viewport 설정 (모바일 대응) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 브라우저 탭에 표시되는 제목 (필수 요소!) -->
+    <title>Part 1: HTML 기본 구조</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .info-box {
+            background-color: #e7f3fe;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>📚 26.1-26.2: HTML이란? & HTML 문서 구조</h1>
+
+    <div class="section">
+        <h2>🔍 HTML이란?</h2>
+        <p><strong>HTML (HyperText Markup Language)</strong>은 웹 페이지의 구조를 만드는 마크업 언어입니다.</p>
+        <ul>
+            <li><strong>HyperText</strong>: 링크를 통해 다른 문서로 이동할 수 있는 텍스트</li>
+            <li><strong>Markup</strong>: 태그를 사용하여 문서의 구조를 표시</li>
+            <li><strong>Language</strong>: 웹 브라우저가 이해할 수 있는 언어</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>📝 HTML 문서의 기본 구조</h2>
+        <div class="info-box">
+            <p><strong>DOCTYPE</strong>: HTML5 문서임을 선언</p>
+            <p><strong>html</strong>: HTML 문서의 루트 요소</p>
+            <p><strong>head</strong>: 메타데이터(문서 정보)를 포함</p>
+            <p><strong>body</strong>: 실제로 화면에 표시되는 콘텐츠</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🎯 주요 메타 태그</h2>
+        <ul>
+            <li><code>&lt;meta charset="UTF-8"&gt;</code> - 문자 인코딩 설정 (한글 깨짐 방지)</li>
+            <li><code>&lt;meta name="viewport"&gt;</code> - 모바일 반응형 설정</li>
+            <li><code>&lt;title&gt;</code> - 브라우저 탭에 표시되는 제목</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>✅ 실습 확인</h2>
+        <p>이 페이지는 올바른 HTML5 구조로 작성되었습니다:</p>
+        <ol>
+            <li>✅ DOCTYPE 선언</li>
+            <li>✅ html 태그 (lang="ko" 속성)</li>
+            <li>✅ head 섹션 (메타 정보, 스타일)</li>
+            <li>✅ body 섹션 (실제 콘텐츠)</li>
+        </ol>
+        <p>브라우저 개발자 도구(F12)를 열어서 HTML 구조를 확인해보세요!</p>
+    </div>
+</body>
+</html>
+

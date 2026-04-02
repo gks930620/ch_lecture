@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 4: 링크 태그</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(to bottom, #e3f2fd, #bbdefb);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #0277bd;
+            border-bottom: 4px solid #0277bd;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #01579b;
+        }
+        .example-box {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 5px solid #0288d1;
+        }
+        a {
+            color: #0277bd;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        a:hover {
+            color: #ff6f00;
+            text-decoration: underline;
+        }
+        .btn-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #0288d1;
+            color: white !important;
+            border-radius: 25px;
+            text-decoration: none;
+            margin: 5px;
+        }
+        .btn-link:hover {
+            background: #0277bd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 26.5: 링크 태그 (&lt;a&gt;)</h1>
+
+        <div class="example-box">
+            <h2>1. 기본 링크</h2>
+            <p><strong>href 속성:</strong> 이동할 URL을 지정</p>
+            <a href="https://www.google.com">구글로 이동</a><br>
+            <a href="https://www.naver.com">네이버로 이동</a>
+        </div>
+
+        <div class="example-box">
+            <h2>2. target 속성</h2>
+            <p><strong>_self (기본값):</strong> 현재 창에서 열기</p>
+            <a href="https://www.google.com" target="_self">현재 창에서 열기</a>
+
+            <p><strong>_blank:</strong> 새 창(탭)에서 열기</p>
+            <a href="https://www.google.com" target="_blank">새 창에서 열기</a>
+
+            <p>💡 <strong>보안 팁:</strong> _blank 사용 시 보안을 위해 rel="noopener noreferrer" 추가 권장</p>
+            <a href="https://www.google.com" target="_blank" rel="noopener noreferrer">안전한 새 창 열기</a>
+        </div>
+
+        <div class="example-box">
+            <h2>3. 상대 경로 vs 절대 경로</h2>
+            <p><strong>절대 경로:</strong> 전체 URL</p>
+            <a href="https://www.example.com/page.html">https://www.example.com/page.html</a>
+
+            <p><strong>상대 경로:</strong> 현재 위치 기준</p>
+            <a href="part01_HTML기본구조.html">Part 1로 이동 (같은 폴더)</a><br>
+            <a href="../질문.txt">상위 폴더의 파일로 이동</a>
+        </div>
+
+        <div class="example-box">
+            <h2>4. 페이지 내 이동 (앵커)</h2>
+            <p><strong>id를 이용한 책갈피 기능</strong></p>
+            <a href="#section1">섹션 1로 이동</a> |
+            <a href="#section2">섹션 2로 이동</a> |
+            <a href="#section3">섹션 3로 이동</a>
+        </div>
+
+        <div class="example-box">
+            <h2>5. 이메일 링크</h2>
+            <a href="mailto:example@example.com">이메일 보내기</a><br>
+            <a href="mailto:example@example.com?subject=문의사항&body=안녕하세요">제목과 본문이 있는 이메일</a>
+        </div>
+
+        <div class="example-box">
+            <h2>6. 전화번호 링크 (모바일)</h2>
+            <a href="tel:010-1234-5678">010-1234-5678로 전화하기</a>
+        </div>
+
+        <div class="example-box">
+            <h2>7. 버튼 스타일 링크</h2>
+            <a href="https://www.google.com" class="btn-link" target="_blank">구글 방문</a>
+            <a href="https://www.github.com" class="btn-link" target="_blank">GitHub 방문</a>
+            <a href="#top" class="btn-link">맨 위로</a>
+        </div>
+
+        <div class="example-box">
+            <h2>8. 다운로드 링크</h2>
+            <p><strong>download 속성:</strong> 클릭 시 다운로드</p>
+            <a href="part01_HTML기본구조.html" download>HTML 파일 다운로드</a>
+        </div>
+
+        <div class="example-box">
+            <h2>9. 링크 비활성화 (JavaScript 방지)</h2>
+            <a href="javascript:void(0)" onclick="alert('클릭되었습니다!')">클릭 이벤트만 실행</a>
+        </div>
+
+        <br><br><br>
+        <h2 id="section1">📌 섹션 1</h2>
+        <p>이것은 섹션 1입니다. 위의 앵커 링크를 통해 여기로 이동했습니다.</p>
+        <a href="#top">맨 위로 돌아가기</a>
+
+        <br><br><br>
+        <h2 id="section2">📌 섹션 2</h2>
+        <p>이것은 섹션 2입니다.</p>
+        <a href="#top">맨 위로 돌아가기</a>
+
+        <br><br><br>
+        <h2 id="section3">📌 섹션 3</h2>
+        <p>이것은 섹션 3입니다.</p>
+        <a href="#top">맨 위로 돌아가기</a>
+
+        <div class="example-box">
+            <h2>✅ 실습 과제</h2>
+            <ol>
+                <li>네비게이션 메뉴를 만들어보세요 (Home, About, Contact 등)</li>
+                <li>페이지 내 이동 메뉴를 만들어보세요</li>
+                <li>SNS 링크 모음을 만들어보세요 (새 창으로 열기)</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>
+

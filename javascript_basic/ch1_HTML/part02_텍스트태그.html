@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 2: 텍스트 태그</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+        }
+        .example {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        .tag-name {
+            color: #e83e8c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 26.3: 텍스트 태그</h1>
+
+        <div class="example">
+            <h3 class="tag-name">&lt;h1&gt; ~ &lt;h6&gt; 제목 태그</h3>
+            <h1>h1 - 가장 큰 제목</h1>
+            <h2>h2 - 두 번째 제목</h2>
+            <h3>h3 - 세 번째 제목</h3>
+            <h4>h4 - 네 번째 제목</h4>
+            <h5>h5 - 다섯 번째 제목</h5>
+            <h6>h6 - 가장 작은 제목</h6>
+            <p><strong>💡 팁:</strong> h1은 페이지당 하나만 사용하는 것이 SEO에 좋습니다!</p>
+        </div>
+
+        <div class="example">
+            <h3 class="tag-name">&lt;p&gt; 문단 태그</h3>
+            <p>이것은 문단(paragraph)입니다. 하나의 문단을 나타낼 때 사용합니다.</p>
+            <p>p 태그는 자동으로 위아래 여백이 생깁니다.</p>
+            <p>문단을 구분하는 가장 기본적인 태그입니다.</p>
+        </div>
+
+        <div class="example">
+            <h3 class="tag-name">&lt;span&gt; 인라인 텍스트 태그</h3>
+            <p>이것은 <span style="color: red;">빨간색 텍스트</span>이고,
+               이것은 <span style="background-color: yellow;">노란 배경</span>입니다.</p>
+            <p><strong>span vs p:</strong> span은 인라인 요소, p는 블록 요소</p>
+        </div>
+
+        <div class="example">
+            <h3 class="tag-name">&lt;br&gt; 줄바꿈 태그</h3>
+            <p>첫 번째 줄<br>
+               두 번째 줄<br>
+               세 번째 줄</p>
+            <p><strong>주의:</strong> br은 닫는 태그가 없습니다! (self-closing tag)</p>
+        </div>
+
+        <div class="example">
+            <h3 class="tag-name">&lt;hr&gt; 수평선 태그</h3>
+            <p>위 내용</p>
+            <hr>
+            <p>아래 내용</p>
+            <p><strong>용도:</strong> 주제 전환이나 섹션 구분에 사용</p>
+        </div>
+
+        <div class="example">
+            <h3 class="tag-name">기타 텍스트 포맷팅 태그</h3>
+            <p><strong>&lt;strong&gt;</strong>: <strong>굵은 텍스트 (중요함을 의미)</strong></p>
+            <p><strong>&lt;b&gt;</strong>: <b>굵은 텍스트 (단순 스타일)</b></p>
+            <p><strong>&lt;em&gt;</strong>: <em>강조 텍스트 (기울임, 의미 있음)</em></p>
+            <p><strong>&lt;i&gt;</strong>: <i>이탤릭 텍스트 (단순 스타일)</i></p>
+            <p><strong>&lt;mark&gt;</strong>: <mark>형광펜 효과</mark></p>
+            <p><strong>&lt;small&gt;</strong>: <small>작은 텍스트</small></p>
+            <p><strong>&lt;del&gt;</strong>: <del>삭제된 텍스트</del></p>
+            <p><strong>&lt;ins&gt;</strong>: <ins>추가된 텍스트</ins></p>
+            <p><strong>&lt;sub&gt;</strong>: H<sub>2</sub>O (아래 첨자)</p>
+            <p><strong>&lt;sup&gt;</strong>: X<sup>2</sup> (위 첨자)</p>
+        </div>
+
+        <div class="example">
+            <h3>✅ 실습 과제</h3>
+            <ol>
+                <li>자기소개 페이지를 만들어보세요 (h1~h3, p 태그 사용)</li>
+                <li>중요한 부분은 strong, 강조할 부분은 em 사용</li>
+                <li>hr로 섹션을 구분하세요</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>
+

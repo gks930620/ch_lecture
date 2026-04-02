@@ -1,0 +1,13 @@
+title: "📚 개발 강의 자료"
+description: "Java · JavaScript · Spring Boot · Git 강의 자료 모음"
+theme: jekyll-theme-minimal
+baseurl: ""
+markdown: kramdown
+
+# 한국어 설정
+lang: ko
+
+# 네비게이션 링크
+header_pages:
+  - index.md
+

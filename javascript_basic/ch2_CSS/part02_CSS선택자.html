@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 2: CSS 선택자</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #f5576c;
+            border-bottom: 3px solid #f5576c;
+            padding-bottom: 10px;
+        }
+        .code {
+            background: #2c3e50;
+            color: #1abc9c;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+        .demo-box {
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            margin: 15px 0;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        /* 태그 선택자 예제 */
+        p {
+            line-height: 1.8;
+        }
+
+        /* 클래스 선택자 예제 */
+        .highlight {
+            background: #ffeb3b;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .blue-text {
+            color: #2196f3;
+        }
+        .large-text {
+            font-size: 20px;
+        }
+
+        /* ID 선택자 예제 */
+        #special {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* 자식 선택자 */
+        .parent > .child {
+            background: #c8e6c9;
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        /* 자손 선택자 */
+        .container .item {
+            border: 2px solid #2196f3;
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+        /* 인접 형제 선택자 */
+        h3 + p {
+            color: #e91e63;
+            font-weight: bold;
+        }
+
+        /* 속성 선택자 */
+        input[type="text"] {
+            border: 2px solid #4caf50;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        input[type="email"] {
+            border: 2px solid #2196f3;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* 전체 선택자 */
+        .reset-box * {
+            margin: 5px;
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* 그룹 선택자 */
+        .btn1, .btn2, .btn3 {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn1 { background: #f44336; color: white; }
+        .btn2 { background: #4caf50; color: white; }
+        .btn3 { background: #2196f3; color: white; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f093fb;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 27.3: CSS 선택자 (Selectors)</h1>
+
+    <div class="section">
+        <h2>선택자란?</h2>
+        <p>CSS를 적용할 <strong>HTML 요소를 선택하는 방법</strong>입니다.</p>
+        <p>선택자를 잘 활용하면 원하는 요소에 정확하게 스타일을 적용할 수 있습니다!</p>
+    </div>
+
+    <div class="section">
+        <h2>1️⃣ 태그 선택자 (Type Selector)</h2>
+        <p>HTML 태그 이름으로 선택합니다.</p>
+
+        <div class="code">
+p { color: blue; }<br>
+h1 { font-size: 32px; }<br>
+div { background: yellow; }
+        </div>
+
+        <div class="demo-box">
+            <p>이 문단은 태그 선택자로 스타일이 적용됩니다.</p>
+            <p>모든 p 태그에 동일한 스타일이 적용됩니다.</p>
+        </div>
+
+        <p><strong>특징:</strong> 해당 태그를 가진 <strong>모든 요소</strong>에 적용됩니다.</p>
+    </div>
+
+    <div class="section">
+        <h2>2️⃣ 클래스 선택자 (Class Selector)</h2>
+        <p><code>.클래스명</code> 형태로 선택합니다.</p>
+
+        <div class="code">
+.highlight { background: yellow; }<br>
+.blue-text { color: blue; }<br>
+.large-text { font-size: 20px; }
+        </div>
+
+        <div class="demo-box">
+            <p class="highlight">이 문단은 .highlight 클래스가 적용되었습니다.</p>
+            <p class="blue-text">이 문단은 .blue-text 클래스가 적용되었습니다.</p>
+            <p class="blue-text large-text">여러 클래스를 동시에 적용할 수 있습니다!</p>
+        </div>
+
+        <p><strong>특징:</strong> <strong>재사용 가능</strong>, 여러 요소에 적용, 하나의 요소에 여러 클래스 사용 가능</p>
+    </div>
+
+    <div class="section">
+        <h2>3️⃣ ID 선택자 (ID Selector)</h2>
+        <p><code>#아이디명</code> 형태로 선택합니다.</p>
+
+        <div class="code">
+#special { background: purple; color: white; }<br>
+#header { padding: 20px; }
+        </div>
+
+        <div class="demo-box">
+            <div id="special">
+                이 div는 #special ID가 적용되었습니다.<br>
+                ID는 페이지당 하나만 사용해야 합니다!
+            </div>
+        </div>
+
+        <p><strong>특징:</strong> <strong>고유함</strong> (페이지당 하나만), 클래스보다 우선순위 높음</p>
+    </div>
+
+    <div class="section">
+        <h2>4️⃣ 전체 선택자 (Universal Selector)</h2>
+        <p><code>*</code> 기호로 <strong>모든 요소</strong>를 선택합니다.</p>
+
+        <div class="code">
+* {<br>
+&nbsp;&nbsp;margin: 0;<br>
+&nbsp;&nbsp;padding: 0;<br>
+&nbsp;&nbsp;box-sizing: border-box;<br>
+}
+        </div>
+
+        <p><strong>용도:</strong> CSS 초기화(reset) 시 주로 사용</p>
+    </div>
+
+    <div class="section">
+        <h2>5️⃣ 그룹 선택자 (Group Selector)</h2>
+        <p>여러 선택자에 동일한 스타일을 적용할 때 <code>,</code>로 구분합니다.</p>
+
+        <div class="code">
+h1, h2, h3 {<br>
+&nbsp;&nbsp;color: navy;<br>
+&nbsp;&nbsp;font-weight: bold;<br>
+}<br><br>
+.btn1, .btn2, .btn3 {<br>
+&nbsp;&nbsp;padding: 10px;<br>
+&nbsp;&nbsp;border-radius: 5px;<br>
+}
+        </div>
+
+        <div class="demo-box">
+            <button class="btn1">버튼 1</button>
+            <button class="btn2">버튼 2</button>
+            <button class="btn3">버튼 3</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>6️⃣ 자손 선택자 (Descendant Selector)</h2>
+        <p><code>A B</code> 형태로, A 요소 <strong>하위의 모든</strong> B 요소를 선택합니다.</p>
+
+        <div class="code">
+.container .item {<br>
+&nbsp;&nbsp;border: 2px solid blue;<br>
+}
+        </div>
+
+        <div class="demo-box">
+            <div class="container">
+                Container
+                <div class="item">Item 1 (직접 자식)</div>
+                <div>
+                    <div class="item">Item 2 (손자)</div>
+                </div>
+            </div>
+        </div>
+
+        <p><strong>특징:</strong> 깊이에 상관없이 하위의 <strong>모든</strong> 요소가 선택됩니다.</p>
+    </div>
+
+    <div class="section">
+        <h2>7️⃣ 자식 선택자 (Child Selector)</h2>
+        <p><code>A &gt; B</code> 형태로, A 요소의 <strong>직접적인 자식</strong> B 요소만 선택합니다.</p>
+
+        <div class="code">
+.parent > .child {<br>
+&nbsp;&nbsp;background: lightgreen;<br>
+}
+        </div>
+
+        <div class="demo-box">
+            <div class="parent">
+                Parent
+                <div class="child">Child (직접 자식 - 스타일 적용 ✅)</div>
+                <div>
+                    <div class="child">Grandchild (손자 - 스타일 미적용 ❌)</div>
+                </div>
+            </div>
+        </div>
+
+        <p><strong>특징:</strong> <strong>바로 아래 자식</strong>만 선택 (손자는 선택 안 됨)</p>
+    </div>
+
+    <div class="section">
+        <h2>8️⃣ 인접 형제 선택자 (Adjacent Sibling)</h2>
+        <p><code>A + B</code> 형태로, A 요소 <strong>바로 다음</strong>의 B 요소를 선택합니다.</p>
+
+        <div class="code">
+h3 + p {<br>
+&nbsp;&nbsp;color: red;<br>
+&nbsp;&nbsp;font-weight: bold;<br>
+}
+        </div>
+
+        <div class="demo-box">
+            <h3>제목</h3>
+            <p>이 문단은 h3 바로 다음이므로 스타일 적용 ✅</p>
+            <p>이 문단은 두 번째이므로 스타일 미적용 ❌</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>9️⃣ 일반 형제 선택자 (General Sibling)</h2>
+        <p><code>A ~ B</code> 형태로, A 요소 다음의 <strong>모든 형제</strong> B 요소를 선택합니다.</p>
+
+        <div class="code">
+h3 ~ p {<br>
+&nbsp;&nbsp;color: green;<br>
+}
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔟 속성 선택자 (Attribute Selector)</h2>
+        <p>HTML 속성을 기반으로 선택합니다.</p>
+
+        <div class="code">
+[type="text"] { border: 2px solid green; }<br>
+[type="email"] { border: 2px solid blue; }<br>
+[href^="https"] { color: green; }    /* https로 시작 */<br>
+[href$=".pdf"] { color: red; }        /* .pdf로 끝남 */<br>
+[class*="btn"] { padding: 10px; }     /* btn 포함 */
+        </div>
+
+        <div class="demo-box">
+            <input type="text" placeholder="텍스트 입력" style="display: block; margin: 10px 0; width: 100%;">
+            <input type="email" placeholder="이메일 입력" style="display: block; margin: 10px 0; width: 100%;">
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📊 선택자 우선순위</h2>
+
+        <table>
+            <tr>
+                <th>선택자</th>
+                <th>점수</th>
+                <th>예시</th>
+            </tr>
+            <tr>
+                <td>인라인 스타일</td>
+                <td>1000점</td>
+                <td>style="color: red;"</td>
+            </tr>
+            <tr>
+                <td>ID 선택자</td>
+                <td>100점</td>
+                <td>#header</td>
+            </tr>
+            <tr>
+                <td>클래스/속성/가상 선택자</td>
+                <td>10점</td>
+                <td>.box, [type="text"], :hover</td>
+            </tr>
+            <tr>
+                <td>태그 선택자</td>
+                <td>1점</td>
+                <td>div, p, h1</td>
+            </tr>
+            <tr>
+                <td>전체 선택자</td>
+                <td>0점</td>
+                <td>*</td>
+            </tr>
+        </table>
+
+        <div style="background: #fff3cd; padding: 15px; border-left: 5px solid #ffc107; border-radius: 5px; margin-top: 15px;">
+            <strong>💡 점수 계산 예시:</strong>
+            <ul>
+                <li><code>#header .nav li</code> = 100 + 10 + 1 = <strong>111점</strong></li>
+                <li><code>.container .box .item</code> = 10 + 10 + 10 = <strong>30점</strong></li>
+                <li><code>div p</code> = 1 + 1 = <strong>2점</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section" style="background: #e8f5e9;">
+        <h2 style="color: #4caf50;">✅ 실습 과제</h2>
+        <ol>
+            <li>태그, 클래스, ID 선택자를 모두 사용하여 페이지 만들기</li>
+            <li>자손 선택자와 자식 선택자의 차이 테스트하기</li>
+            <li>속성 선택자를 사용하여 다양한 input 스타일링하기</li>
+            <li>선택자 우선순위를 직접 테스트해보기</li>
+        </ol>
+    </div>
+
+    <div style="background: #e3f2fd; padding: 20px; border-left: 5px solid #2196f3; border-radius: 5px; margin-top: 20px;">
+        <h3 style="margin-top: 0;">💡 선택자 사용 팁</h3>
+        <ul>
+            <li>✅ 클래스 선택자를 주로 사용하세요 (재사용성 높음)</li>
+            <li>✅ ID 선택자는 JavaScript용으로 남겨두세요</li>
+            <li>✅ 선택자는 가능한 간단하게 작성하세요</li>
+            <li>✅ 의미있는 클래스 이름을 사용하세요</li>
+            <li>❌ 지나치게 복잡한 선택자는 피하세요</li>
+            <li>❌ 전체 선택자(*)의 과도한 사용은 지양하세요</li>
+        </ul>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 3: jQuery 이벤트와 AJAX</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #f5576c;
+            text-align: center;
+            border-bottom: 4px solid #f5576c;
+            padding-bottom: 15px;
+        }
+        h2 {
+            color: #f093fb;
+            border-left: 5px solid #f5576c;
+            padding-left: 15px;
+            margin-top: 30px;
+        }
+        .section {
+            background: #fff0f5;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+        }
+        .code .jquery { color: #9cdcfe; }
+        .code .string { color: #ce9178; }
+        .code .comment { color: #6a9955; }
+        .demo-box {
+            border: 3px solid #f5576c;
+            padding: 25px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+        }
+        button, .btn {
+            background: #f5576c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 15px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover, .btn:hover {
+            background: #f093fb;
+            transform: translateY(-2px);
+        }
+        .demo-item {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .demo-item:hover {
+            background: #ffe0f0;
+            transform: scale(1.02);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f5576c;
+            color: white;
+        }
+        #log {
+            background: #1e1e1e;
+            color: #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            margin: 15px 0;
+        }
+        .ajax-result {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ 32.12-32.15: jQuery 이벤트 & AJAX</h1>
+
+        <div class="section">
+            <h2>1. 이벤트 핸들링</h2>
+
+            <h3>주요 이벤트 메소드</h3>
+            <table>
+                <tr>
+                    <th style="width: 25%;">메소드</th>
+                    <th style="width: 40%;">설명</th>
+                    <th style="width: 35%;">예제</th>
+                </tr>
+                <tr>
+                    <td>click()</td>
+                    <td>클릭 이벤트</td>
+                    <td>$('.btn').click(fn)</td>
+                </tr>
+                <tr>
+                    <td>dblclick()</td>
+                    <td>더블 클릭</td>
+                    <td>$('.item').dblclick(fn)</td>
+                </tr>
+                <tr>
+                    <td>hover()</td>
+                    <td>마우스 호버</td>
+                    <td>$('.box').hover(fn1, fn2)</td>
+                </tr>
+                <tr>
+                    <td>focus()</td>
+                    <td>포커스 받을 때</td>
+                    <td>$('input').focus(fn)</td>
+                </tr>
+                <tr>
+                    <td>blur()</td>
+                    <td>포커스 잃을 때</td>
+                    <td>$('input').blur(fn)</td>
+                </tr>
+                <tr>
+                    <td>keyup()</td>
+                    <td>키를 뗄 때</td>
+                    <td>$('input').keyup(fn)</td>
+                </tr>
+                <tr>
+                    <td>change()</td>
+                    <td>값이 변경될 때</td>
+                    <td>$('select').change(fn)</td>
+                </tr>
+                <tr>
+                    <td>submit()</td>
+                    <td>폼 제출 시</td>
+                    <td>$('form').submit(fn)</td>
+                </tr>
+            </table>
+
+            <div class="demo-box">
+                <h3>이벤트 테스트</h3>
+                <div id="event-log">
+                    <p class="demo-item" id="click-demo">나를 클릭하세요!</p>
+                    <p class="demo-item" id="dblclick-demo">나를 더블클릭하세요!</p>
+                    <p class="demo-item" id="hover-demo">나에게 마우스를 올려보세요!</p>
+                </div>
+                <div id="log"></div>
+            </div>
+
+            <div class="code">
+<span class="comment">// 클릭 이벤트</span><br>
+<span class="jquery">$</span>(<span class="string">'.btn'</span>).<span class="function">click</span>(<span class="function">function</span>() {<br>
+&nbsp;&nbsp;alert(<span class="string">'버튼 클릭!'</span>);<br>
+});<br>
+<br>
+<span class="comment">// 더블 클릭</span><br>
+<span class="jquery">$</span>(<span class="string">'.item'</span>).<span class="function">dblclick</span>(<span class="function">function</span>() {<br>
+&nbsp;&nbsp;<span class="jquery">$</span>(<span class="keyword">this</span>).<span class="function">css</span>(<span class="string">'background'</span>, <span class="string">'yellow'</span>);<br>
+});<br>
+<br>
+<span class="comment">// 호버 (마우스 올릴 때, 벗어날 때)</span><br>
+<span class="jquery">$</span>(<span class="string">'.box'</span>).<span class="function">hover</span>(<br>
+&nbsp;&nbsp;<span class="function">function</span>() { <span class="jquery">$</span>(<span class="keyword">this</span>).<span class="function">addClass</span>(<span class="string">'highlight'</span>); },<br>
+&nbsp;&nbsp;<span class="function">function</span>() { <span class="jquery">$</span>(<span class="keyword">this</span>).<span class="function">removeClass</span>(<span class="string">'highlight'</span>); }<br>
+);
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>2. on() 메소드 - 통합 이벤트 핸들러 ⭐</h2>
+            <p><strong>on()</strong>은 모든 이벤트를 처리할 수 있는 강력한 메소드입니다!</p>
+
+            <div class="code">
+<span class="comment">// 기본 사용법</span><br>
+<span class="jquery">$</span>(<span class="string">'.btn'</span>).<span class="function">on</span>(<span class="string">'click'</span>, <span class="function">function</span>() {<br>
+&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'클릭됨'</span>);<br>
+});<br>
+<br>
+<span class="comment">// 여러 이벤트 동시 처리</span><br>
+<span class="jquery">$</span>(<span class="string">'input'</span>).<span class="function">on</span>(<span class="string">'focus blur'</span>, <span class="function">function</span>(e) {<br>
+&nbsp;&nbsp;console.<span class="function">log</span>(e.type + <span class="string">' 이벤트 발생'</span>);<br>
+});<br>
+<br>
+<span class="comment">// 이벤트 위임 (동적 요소에도 적용)</span><br>
+<span class="jquery">$</span>(<span class="string">'#list'</span>).<span class="function">on</span>(<span class="string">'click'</span>, <span class="string">'li'</span>, <span class="function">function</span>() {<br>
+&nbsp;&nbsp;<span class="jquery">$</span>(<span class="keyword">this</span>).<span class="function">toggleClass</span>(<span class="string">'active'</span>);<br>
+});
+            </div>
+
+            <h3>off() - 이벤트 제거</h3>
+            <div class="code">
+<span class="comment">// 특정 이벤트 제거</span><br>
+<span class="jquery">$</span>(<span class="string">'.btn'</span>).<span class="function">off</span>(<span class="string">'click'</span>);<br>
+<br>
+<span class="comment">// 모든 이벤트 제거</span><br>
+<span class="jquery">$</span>(<span class="string">'.btn'</span>).<span class="function">off</span>();
+            </div>
+
+            <div class="demo-box">
+                <h3>on() / off() 테스트</h3>
+                <button id="attach-event">이벤트 연결</button>
+                <button id="detach-event">이벤트 제거</button>
+                <button id="test-btn">테스트 버튼</button>
+                <p id="event-status" style="margin-top: 15px; font-weight: bold;"></p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>3. 폼 이벤트</h2>
+
+            <div class="demo-box">
+                <h3>폼 이벤트 실습</h3>
+                <form id="demo-form">
+                    <input type="text" id="username" placeholder="이름 입력">
+                    <input type="email" id="email" placeholder="이메일 입력">
+                    <select id="country">
+                        <option value="">국가 선택</option>
+                        <option value="kr">한국</option>
+                        <option value="us">미국</option>
+                        <option value="jp">일본</option>
+                    </select>
+                    <textarea id="message" rows="4" placeholder="메시지 입력"></textarea>
+                    <button type="submit">제출</button>
+                </form>
+                <div id="form-log" style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;"></div>
+            </div>
+
+            <div class="code">
+<span class="comment">// focus 이벤트</span><br>
+<span class="jquery">$</span>(<span class="string">'input'</span>).<span class="function">focus</span>(<span class="function">function</span>() {<br>
+&nbsp;&nbsp;<span class="jquery">$</span>(<span class="keyword">this</span>).<span class="function">css</span>(<span class="string">'border-color'</span>, <span class="string">'blue'</span>);<br>
+});<br>
+<br>
+<span class="comment">// change 이벤트</span><br>
+<span class="jquery">$</span>(<span class="string">'select'</span>).<span class="function">change</span>(<span class="function">function</span>() {<br>
+&nbsp;&nbsp;<span class="keyword">let</span> value = <span class="jquery">$</span>(<span class="keyword">this</span>).<span class="function">val</span>();<br>
+&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'선택: '</span> + value);<br>
+});<br>
+<br>
+<span class="comment">// submit 이벤트 (폼 제출 방지)</span><br>
+<span class="jquery">$</span>(<span class="string">'form'</span>).<span class="function">submit</span>(<span class="function">function</span>(e) {<br>
+&nbsp;&nbsp;e.<span class="function">preventDefault</span>();  <span class="comment">// 기본 동작 방지</span><br>
+&nbsp;&nbsp;alert(<span class="string">'폼 제출 완료!'</span>);<br>
+});
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>4. jQuery AJAX 기초</h2>
+            <p><strong>AJAX (Asynchronous JavaScript And XML)</strong>는 페이지 새로고침 없이 서버와 통신하는 기술입니다.</p>
+
+            <h3>$.ajax() - 가장 강력한 방법</h3>
+            <div class="code">
+<span class="jquery">$</span>.<span class="function">ajax</span>({<br>
+&nbsp;&nbsp;<span class="string">url</span>: <span class="string">'https://api.example.com/data'</span>,<br>
+&nbsp;&nbsp;<span class="string">method</span>: <span class="string">'GET'</span>,  <span class="comment">// 또는 'POST', 'PUT', 'DELETE'</span><br>
+&nbsp;&nbsp;<span class="string">data</span>: { <span class="string">id</span>: 123 },<br>
+&nbsp;&nbsp;<span class="string">dataType</span>: <span class="string">'json'</span>,<br>
+&nbsp;&nbsp;<span class="string">success</span>: <span class="function">function</span>(response) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'성공:'</span>, response);<br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span class="string">error</span>: <span class="function">function</span>(xhr, status, error) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'에러:'</span>, error);<br>
+&nbsp;&nbsp;}<br>
+});
+            </div>
+
+            <h3>$.get() - GET 요청 간편 버전</h3>
+            <div class="code">
+<span class="jquery">$</span>.<span class="function">get</span>(<span class="string">'https://api.example.com/data'</span>, <span class="function">function</span>(data) {<br>
+&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'데이터:'</span>, data);<br>
+});
+            </div>
+
+            <h3>$.post() - POST 요청 간편 버전</h3>
+            <div class="code">
+<span class="jquery">$</span>.<span class="function">post</span>(<span class="string">'https://api.example.com/data'</span>, {<br>
+&nbsp;&nbsp;<span class="string">name</span>: <span class="string">'홍길동'</span>,<br>
+&nbsp;&nbsp;<span class="string">age</span>: <span class="number">25</span><br>
+}, <span class="function">function</span>(response) {<br>
+&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'응답:'</span>, response);<br>
+});
+            </div>
+
+            <div class="demo-box">
+                <h3>AJAX 실습 - 공개 API 호출</h3>
+                <p>JSONPlaceholder API를 사용하여 실제 데이터를 가져옵니다.</p>
+
+                <button id="ajax-get">GET 요청 (게시글 가져오기)</button>
+                <button id="ajax-post">POST 요청 (게시글 작성)</button>
+                <button id="ajax-users">사용자 목록 가져오기</button>
+
+                <div id="ajax-result" class="ajax-result" style="display:none;"></div>
+            </div>
+
+            <h3>실제 예제 코드</h3>
+            <div class="code">
+<span class="comment">// GET 요청</span><br>
+<span class="jquery">$</span>.<span class="function">ajax</span>({<br>
+&nbsp;&nbsp;<span class="string">url</span>: <span class="string">'https://jsonplaceholder.typicode.com/posts/1'</span>,<br>
+&nbsp;&nbsp;<span class="string">method</span>: <span class="string">'GET'</span>,<br>
+&nbsp;&nbsp;<span class="string">success</span>: <span class="function">function</span>(data) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'제목:'</span>, data.title);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'내용:'</span>, data.body);<br>
+&nbsp;&nbsp;}<br>
+});<br>
+<br>
+<span class="comment">// POST 요청</span><br>
+<span class="jquery">$</span>.<span class="function">post</span>(<span class="string">'https://jsonplaceholder.typicode.com/posts'</span>, {<br>
+&nbsp;&nbsp;<span class="string">title</span>: <span class="string">'새 게시글'</span>,<br>
+&nbsp;&nbsp;<span class="string">body</span>: <span class="string">'게시글 내용입니다.'</span>,<br>
+&nbsp;&nbsp;<span class="string">userId</span>: <span class="number">1</span><br>
+}).<span class="function">done</span>(<span class="function">function</span>(response) {<br>
+&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'생성된 ID:'</span>, response.id);<br>
+});
+            </div>
+        </div>
+
+        <div class="section" style="background: #e8f5e9;">
+            <h2 style="color: #4caf50;">✅ 실습 과제</h2>
+            <ol>
+                <li>다양한 이벤트(click, hover, focus 등)를 활용한 인터랙티브 페이지 만들기</li>
+                <li>on()을 사용하여 동적으로 추가된 요소에도 이벤트 적용하기</li>
+                <li>폼 검증 기능 구현하기 (focus, blur, submit 이벤트 활용)</li>
+                <li>AJAX를 사용하여 API 데이터 가져오기</li>
+                <li>할 일 목록 앱 만들기 (이벤트 + DOM 조작 통합)</li>
+            </ol>
+        </div>
+
+        <div style="background: #fff3cd; padding: 20px; border-left: 5px solid #ffc107; border-radius: 5px; margin-top: 20px;">
+            <h3 style="margin-top: 0;">💡 주요 팁</h3>
+            <ul>
+                <li>✅ 이벤트 위임을 활용하면 동적 요소에도 이벤트 적용 가능</li>
+                <li>✅ e.preventDefault()로 기본 동작 방지</li>
+                <li>✅ $(this)로 이벤트가 발생한 요소에 접근</li>
+                <li>✅ AJAX는 Promise 방식(.done, .fail, .always)도 지원</li>
+                <li>✅ 최신 프로젝트에서는 fetch API나 axios 사용 고려</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        $(function() {
+            console.log('✅ jQuery 이벤트 & AJAX 강의 로드 완료!');
+
+            function addLog(message) {
+                const time = new Date().toLocaleTimeString();
+                $('#log').prepend(`[${time}] ${message}<br>`);
+            }
+
+            // 이벤트 데모
+            $('#click-demo').click(function() {
+                addLog('클릭 이벤트 발생!');
+                $(this).css('background', '#4caf50').css('color', 'white');
+            });
+
+            $('#dblclick-demo').dblclick(function() {
+                addLog('더블클릭 이벤트 발생!');
+                $(this).css('background', '#ff9800').css('color', 'white');
+            });
+
+            $('#hover-demo').hover(
+                function() {
+                    addLog('마우스 올림');
+                    $(this).css('background', '#2196f3').css('color', 'white');
+                },
+                function() {
+                    addLog('마우스 벗어남');
+                    $(this).css('background', '#f5f5f5').css('color', 'black');
+                }
+            );
+
+            // on/off 데모
+            function testClick() {
+                addLog('테스트 버튼 클릭됨!');
+                $('#event-status').text('✅ 이벤트가 작동합니다!').css('color', 'green');
+            }
+
+            $('#attach-event').click(function() {
+                $('#test-btn').on('click', testClick);
+                $('#event-status').text('✅ 이벤트가 연결되었습니다.').css('color', 'blue');
+            });
+
+            $('#detach-event').click(function() {
+                $('#test-btn').off('click', testClick);
+                $('#event-status').text('❌ 이벤트가 제거되었습니다.').css('color', 'red');
+            });
+
+            // 폼 이벤트
+            $('#username, #email').focus(function() {
+                $(this).css('border-color', '#2196f3');
+                $('#form-log').html(`<strong>Focus:</strong> ${$(this).attr('placeholder')}`);
+            }).blur(function() {
+                $(this).css('border-color', '#ddd');
+            });
+
+            $('#country').change(function() {
+                const value = $(this).val();
+                const text = $(this).find('option:selected').text();
+                $('#form-log').html(`<strong>선택됨:</strong> ${text} (${value})`);
+            });
+
+            $('#demo-form').submit(function(e) {
+                e.preventDefault();
+                const username = $('#username').val();
+                const email = $('#email').val();
+                const country = $('#country').val();
+                const message = $('#message').val();
+
+                $('#form-log').html(`
+                    <strong>폼 제출!</strong><br>
+                    이름: ${username}<br>
+                    이메일: ${email}<br>
+                    국가: ${country}<br>
+                    메시지: ${message}
+                `);
+            });
+
+            // AJAX 데모
+            $('#ajax-get').click(function() {
+                $('#ajax-result').show().html('<p>로딩 중...</p>');
+
+                $.ajax({
+                    url: 'https://jsonplaceholder.typicode.com/posts/1',
+                    method: 'GET',
+                    success: function(data) {
+                        $('#ajax-result').html(`
+                            <h4>📄 게시글 정보</h4>
+                            <p><strong>ID:</strong> ${data.id}</p>
+                            <p><strong>제목:</strong> ${data.title}</p>
+                            <p><strong>내용:</strong> ${data.body}</p>
+                        `);
+                    },
+                    error: function() {
+                        $('#ajax-result').html('<p style="color: red;">에러 발생!</p>');
+                    }
+                });
+            });
+
+            $('#ajax-post').click(function() {
+                $('#ajax-result').show().html('<p>전송 중...</p>');
+
+                $.post('https://jsonplaceholder.typicode.com/posts', {
+                    title: 'jQuery로 작성한 게시글',
+                    body: '이것은 AJAX POST 요청 테스트입니다.',
+                    userId: 1
+                }).done(function(response) {
+                    $('#ajax-result').html(`
+                        <h4>✅ POST 요청 성공!</h4>
+                        <p><strong>생성된 ID:</strong> ${response.id}</p>
+                        <p><strong>제목:</strong> ${response.title}</p>
+                        <p><strong>내용:</strong> ${response.body}</p>
+                    `);
+                });
+            });
+
+            $('#ajax-users').click(function() {
+                $('#ajax-result').show().html('<p>로딩 중...</p>');
+
+                $.get('https://jsonplaceholder.typicode.com/users', function(users) {
+                    let html = '<h4>👥 사용자 목록</h4><ul style="list-style: none; padding: 0;">';
+                    users.slice(0, 5).forEach(user => {
+                        html += `
+                            <li style="padding: 10px; background: #f5f5f5; margin: 5px 0; border-radius: 5px;">
+                                <strong>${user.name}</strong> (${user.username})<br>
+                                📧 ${user.email} | 🏢 ${user.company.name}
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                    $('#ajax-result').html(html);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

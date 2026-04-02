@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅방 목록</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background-color: #fafafa; min-height: 100vh; }
+        .app-header { background-color: #6200ea; color: white; padding: 0 16px; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 500; text-decoration: none; color: white; }
+        .header-logo .material-icons { font-size: 28px; }
+        .nav-item { padding: 8px 16px; border-radius: 4px; text-decoration: none; color: white; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); }
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .user-info { font-size: 14px; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255,255,255,0.1); border-radius: 20px; }
+        .user-info .material-icons { font-size: 18px; }
+        .btn-header { padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+        .btn-logout { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; }
+
+        .content-wrapper { max-width: 800px; margin: 0 auto; padding: 32px 16px; }
+        .page-title { font-size: 28px; font-weight: 500; color: #212121; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+        .page-title .material-icons { font-size: 32px; color: #6200ea; }
+
+        /* 방 생성 폼 */
+        .create-form { display: flex; gap: 12px; margin-bottom: 32px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .create-form input { flex: 1; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 14px; outline: none; }
+        .create-form input:focus { border-color: #6200ea; }
+        .btn-create { padding: 12px 24px; background-color: #6200ea; color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .btn-create:hover { background-color: #5000ca; }
+
+        /* 채팅방 목록 */
+        .room-list { display: flex; flex-direction: column; gap: 12px; }
+        .room-card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px; display: flex; align-items: center; justify-content: space-between; transition: box-shadow 0.2s; }
+        .room-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+        .room-info { display: flex; align-items: center; gap: 16px; }
+        .room-icon { width: 48px; height: 48px; background-color: #ede7f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .room-icon .material-icons { font-size: 24px; color: #6200ea; }
+        .room-name { font-size: 16px; font-weight: 500; color: #212121; margin-bottom: 4px; }
+        .room-meta { font-size: 13px; color: #9e9e9e; }
+        .btn-enter { padding: 8px 20px; background-color: #6200ea; color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-enter:hover { background-color: #5000ca; }
+
+        .empty-msg { text-align: center; padding: 60px 20px; color: #9e9e9e; font-size: 16px; }
+        .empty-msg .material-icons { font-size: 64px; display: block; margin-bottom: 16px; color: #e0e0e0; }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/" class="header-logo">
+                    <span class="material-icons">code</span>
+                    <span>Boilerplate</span>
+                </a>
+                <a href="/chat/rooms" class="nav-item">
+                    <span class="material-icons">chat</span>
+                    채팅
+                </a>
+            </div>
+            <div class="header-right">
+                <th:block sec:authorize="isAuthenticated()">
+                    <a href="/mypage" class="user-info" style="text-decoration: none;">
+                        <span class="material-icons">account_circle</span>
+                        <span th:text="${user.nickname}">닉네임</span>
+                    </a>
+                    <form action="/logout" method="post" style="display:inline;">
+                        <button type="submit" class="btn-header btn-logout">로그아웃</button>
+                    </form>
+                </th:block>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-wrapper">
+        <h1 class="page-title">
+            <span class="material-icons">chat</span>
+            채팅방 목록
+        </h1>
+
+        <!-- 채팅방 생성 폼 -->
+        <form class="create-form" action="/chat/rooms" method="post">
+            <input type="text" name="roomName" placeholder="새 채팅방 이름을 입력하세요" required maxlength="50">
+            <button type="submit" class="btn-create">
+                <span class="material-icons">add</span>
+                방 만들기
+            </button>
+        </form>
+
+        <!-- 채팅방 목록 -->
+        <div class="room-list">
+            <!-- 채팅방이 없을 때 -->
+            <div class="empty-msg" th:if="${#lists.isEmpty(rooms)}">
+                <span class="material-icons">chat_bubble_outline</span>
+                아직 채팅방이 없습니다. 새로운 채팅방을 만들어보세요!
+            </div>
+
+            <!-- 채팅방 카드 -->
+            <div class="room-card" th:each="room : ${rooms}">
+                <div class="room-info">
+                    <div class="room-icon">
+                        <span class="material-icons">forum</span>
+                    </div>
+                    <div>
+                        <div class="room-name" th:text="${room.roomName}">채팅방 이름</div>
+                        <div class="room-meta">
+                            <span th:text="${room.creatorNickname}">생성자</span> ·
+                            <span th:text="${#temporals.format(room.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</span>
+                        </div>
+                    </div>
+                </div>
+                <a th:href="@{/chat/rooms/{id}(id=${room.id})}" class="btn-enter">
+                    <span class="material-icons">login</span>
+                    입장
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${community.title} + ' - 커뮤니티'">게시글 상세</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background-color: #fafafa; min-height: 100vh; }
+
+        .app-header { background-color: #6200ea; color: white; padding: 0 16px; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 500; text-decoration: none; color: white; }
+        .header-logo .material-icons { font-size: 28px; }
+        .nav-item { padding: 8px 16px; border-radius: 4px; text-decoration: none; color: white; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); }
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .user-info { font-size: 14px; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255,255,255,0.1); border-radius: 20px; }
+        .user-info .material-icons { font-size: 18px; }
+        .btn-header { padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+        .btn-login { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; }
+        .btn-logout { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; }
+
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+        .btn { padding: 10px 16px; border-radius: 4px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background-color: #6200ea; color: white; }
+        .btn-primary:hover { background-color: #5000ca; }
+        .btn-secondary { background-color: #f5f5f5; color: #424242; }
+        .btn-secondary:hover { background-color: #e0e0e0; }
+        .btn-danger { background-color: #d32f2f; color: white; }
+        .btn-danger:hover { background-color: #b71c1c; }
+        .btn .material-icons { font-size: 18px; }
+
+        /* 게시글 */
+        .post-detail { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; }
+        .post-detail-header { padding: 24px; border-bottom: 1px solid #e0e0e0; }
+        .post-detail-title { font-size: 24px; font-weight: 500; color: #212121; margin-bottom: 16px; }
+        .post-detail-meta { display: flex; gap: 24px; font-size: 14px; color: #757575; flex-wrap: wrap; }
+        .post-meta-item { display: flex; align-items: center; gap: 6px; }
+        .post-meta-item .material-icons { font-size: 18px; }
+        .post-detail-stats { display: flex; gap: 16px; padding: 16px 24px; background-color: #f5f5f5; border-bottom: 1px solid #e0e0e0; }
+        .post-stat { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #757575; }
+        .post-stat .material-icons { font-size: 18px; }
+        .post-detail-content { padding: 32px 24px; line-height: 1.8; color: #424242; font-size: 15px; }
+        .post-detail-content img { max-width: 100%; border-radius: 8px; margin: 16px 0; }
+        .post-nav-actions { display: flex; justify-content: space-between; align-items: center; padding: 24px; background-color: #fafafa; }
+        .post-actions { display: flex; gap: 8px; }
+
+        /* 댓글 */
+        .comments-section { background: white; border-radius: 8px; margin-top: 24px; padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .comments-header { font-size: 18px; font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; color: #212121; }
+        .comments-header .material-icons { color: #6200ea; }
+
+        .comment-write { margin-bottom: 24px; border-bottom: 1px solid #e0e0e0; padding-bottom: 24px; }
+        .comment-write form { display: flex; flex-direction: column; gap: 8px; }
+        .comment-textarea { width: 100%; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 14px; font-family: 'Roboto', sans-serif; resize: vertical; min-height: 80px; outline: none; }
+        .comment-textarea:focus { border-color: #6200ea; }
+        .comment-write-actions { display: flex; justify-content: flex-end; }
+
+        .comment-list { padding-top: 8px; }
+        .comment-item { padding: 16px 0; border-bottom: 1px solid #f5f5f5; }
+        .comment-item:last-child { border-bottom: none; }
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .comment-author { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #424242; }
+        .comment-author .material-icons { font-size: 20px; color: #757575; }
+        .comment-date { font-size: 12px; color: #9e9e9e; }
+        .comment-content { font-size: 14px; color: #616161; line-height: 1.6; margin-bottom: 8px; }
+        .comment-actions { display: flex; gap: 8px; }
+        .comment-action-form { display: inline; }
+        .comment-action-btn { background: none; border: none; padding: 4px 8px; font-size: 12px; color: #757575; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+        .comment-action-btn:hover { color: #6200ea; }
+        .comment-action-btn .material-icons { font-size: 16px; }
+
+        /* 댓글 수정 인라인 폼 */
+        .comment-edit-form { display: none; margin-top: 8px; }
+        .comment-edit-form textarea { width: 100%; padding: 8px 12px; border: 1px solid #6200ea; border-radius: 4px; font-size: 14px; resize: vertical; min-height: 60px; outline: none; }
+        .comment-edit-form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        /* 페이징 */
+        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+        .pagination-btn { min-width: 36px; height: 36px; border: 1px solid #e0e0e0; background: white; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; color: #424242; display: inline-flex; align-items: center; justify-content: center; padding: 0 8px; }
+        .pagination-btn:hover { background-color: #f5f5f5; }
+        .pagination-btn.active { background-color: #6200ea; color: white; border-color: #6200ea; }
+        .pagination-btn.disabled { opacity: 0.5; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/" class="header-logo">
+                    <span class="material-icons">code</span>
+                    <span>Boilerplate</span>
+                </a>
+                <a href="/community" class="nav-item">
+                    <span class="material-icons">forum</span>
+                    커뮤니티
+                </a>
+            </div>
+            <div class="header-right">
+                <th:block th:if="${session.loginUser != null}">
+                    <a href="/mypage" class="user-info" style="text-decoration: none;">
+                        <span class="material-icons">account_circle</span>
+                        <span th:text="${session.loginUser.nickname}">닉네임</span>
+                    </a>
+                    <form action="/logout" method="post" style="display:inline;">
+                        <button type="submit" class="btn-header btn-logout">로그아웃</button>
+                    </form>
+                </th:block>
+                <th:block th:if="${session.loginUser == null}">
+                    <a href="/login" class="btn-header btn-login">로그인</a>
+                </th:block>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- 게시글 상세 -->
+        <article class="post-detail">
+            <div class="post-detail-header">
+                <h1 class="post-detail-title" th:text="${community.title}">제목</h1>
+                <div class="post-detail-meta">
+                    <span class="post-meta-item">
+                        <span class="material-icons">person</span>
+                        <span th:text="${community.nickname != null ? community.nickname : (community.username != null ? community.username : '익명')}">작성자</span>
+                    </span>
+                    <span class="post-meta-item">
+                        <span class="material-icons">schedule</span>
+                        <span th:text="${#temporals.format(community.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="post-detail-stats">
+                <span class="post-stat">
+                    <span class="material-icons">visibility</span>
+                    <span th:text="${community.viewCount}">0</span>
+                </span>
+                <span class="post-stat">
+                    <span class="material-icons">comment</span>
+                    <span id="post-comment-count">0</span>
+                </span>
+            </div>
+
+            <!-- 내용 (HTML 그대로 렌더링) -->
+            <div class="post-detail-content" th:utext="${community.content}">내용</div>
+
+            <!-- 첨부파일 섹션 (JavaScript fetch API로 로드) -->
+            <div id="post-attachments"
+                 style="padding: 16px 24px; border-top: 1px solid #e0e0e0; background-color: #f9f9f9; display: none;">
+                <div style="font-size: 14px; font-weight: 500; color: #424242; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-icons" style="font-size: 18px; color: #6200ea;">attach_file</span>
+                    첨부파일
+                </div>
+                <div id="attachment-list"></div>
+            </div>
+
+            <div class="post-nav-actions">
+                <a href="/community" class="btn btn-secondary">
+                    <span class="material-icons">list</span>
+                    목록
+                </a>
+                <div class="post-actions" th:if="${session.loginUser != null and community.username == session.loginUser.username}">
+                    <a th:href="@{/community/{id}/edit(id=${community.id})}" class="btn btn-primary">
+                        <span class="material-icons">edit</span>
+                        수정
+                    </a>
+                    <form th:action="@{/community/{id}/delete(id=${community.id})}" method="post"
+                          onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                        <button type="submit" class="btn btn-danger">
+                            <span class="material-icons">delete</span>
+                            삭제
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </article>
+
+        <!-- 댓글 섹션 (JavaScript fetch로 비동기 처리) -->
+        <section class="comments-section">
+            <div class="comments-header">
+                <span class="material-icons">comment</span>
+                <span>댓글 <span id="comment-count">0</span>개</span>
+            </div>
+
+            <!-- 댓글 작성 (로그인 시에만) -->
+            <div class="comment-write" th:if="${session.loginUser != null}">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <textarea id="comment-input" class="comment-textarea" placeholder="댓글을 입력하세요..."></textarea>
+                    <div class="comment-write-actions">
+                        <button type="button" class="btn btn-primary" onclick="submitComment()">
+                            <span class="material-icons">send</span>
+                            댓글 작성
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="comment-write" th:if="${session.loginUser == null}"
+                 style="text-align: center; color: #9e9e9e; padding: 16px;">
+                <a href="/login" style="color: #6200ea; text-decoration: none;">로그인</a> 후 댓글을 작성할 수 있습니다.
+            </div>
+
+            <!-- 댓글 목록 (JavaScript로 렌더링) -->
+            <div id="comment-list" class="comment-list">
+                <div style="text-align: center; color: #9e9e9e; padding: 40px 0;">
+                    댓글을 불러오는 중...
+                </div>
+            </div>
+
+            <!-- 댓글 페이징 (JavaScript로 렌더링) -->
+            <div id="comment-pagination" class="pagination"></div>
+        </section>
+    </main>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const COMMUNITY_ID = /*[[${community.id}]]*/ 0;
+        const LOGIN_USER = /*[[${session.loginUser != null ? session.loginUser.username : null}]]*/ null;
+        let currentCommentPage = 0;
+
+        // ─── 댓글 목록 로드 ───
+        function loadComments(page = 0) {
+            currentCommentPage = page;
+            fetch(`/api/communities/${COMMUNITY_ID}/comments?page=${page}&size=10`)
+                .then(res => res.json())
+                .then(data => {
+                    renderComments(data);
+                    renderPagination(data);
+                    document.getElementById('comment-count').textContent = data.totalElements;
+                    document.getElementById('post-comment-count').textContent = data.totalElements;
+                })
+                .catch(err => {
+                    console.error('댓글 로드 실패:', err);
+                    document.getElementById('comment-list').innerHTML =
+                        '<div style="text-align:center;color:#d32f2f;padding:40px 0;">댓글을 불러올 수 없습니다.</div>';
+                });
+        }
+
+        // ─── 댓글 목록 렌더링 ───
+        function renderComments(data) {
+            const list = document.getElementById('comment-list');
+
+            if (data.totalElements === 0) {
+                list.innerHTML = '<div style="text-align:center;color:#9e9e9e;padding:40px 0;">첫 댓글을 작성해보세요!</div>';
+                return;
+            }
+
+            list.innerHTML = data.content.map(comment => {
+                const author = comment.nickname || comment.username || '익명';
+                const date = comment.createdAt ? comment.createdAt.replace('T', ' ').substring(0, 16) : '';
+                const isOwner = LOGIN_USER && comment.username === LOGIN_USER;
+
+                return `
+                <div class="comment-item" id="comment-${comment.id}">
+                    <div class="comment-header">
+                        <div class="comment-author">
+                            <span class="material-icons">account_circle</span>
+                            <span>${escapeHtml(author)}</span>
+                        </div>
+                        <span class="comment-date">${date}</span>
+                    </div>
+                    <div class="comment-content" id="content-${comment.id}">${escapeHtml(comment.content)}</div>
+
+                    <!-- 수정 폼 (숨김) -->
+                    <div class="comment-edit-form" id="edit-form-${comment.id}">
+                        <textarea id="edit-textarea-${comment.id}">${escapeHtml(comment.content)}</textarea>
+                        <div class="comment-edit-form-actions">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEdit(${comment.id})">취소</button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="editComment(${comment.id})">수정 완료</button>
+                        </div>
+                    </div>
+
+                    ${isOwner ? `
+                    <div class="comment-actions">
+                        <button class="comment-action-btn" onclick="toggleEdit(${comment.id})">
+                            <span class="material-icons">edit</span> 수정
+                        </button>
+                        <button class="comment-action-btn" onclick="removeComment(${comment.id})">
+                            <span class="material-icons">delete</span> 삭제
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        // ─── 페이징 렌더링 ───
+        function renderPagination(data) {
+            const pagination = document.getElementById('comment-pagination');
+
+            if (data.totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            // 이전
+            html += `<button class="pagination-btn ${data.first ? 'disabled' : ''}"
+                        onclick="loadComments(${data.number - 1})" ${data.first ? 'disabled' : ''}>
+                        <span class="material-icons">chevron_left</span>
+                     </button>`;
+
+            // 페이지 번호
+            const start = Math.max(0, data.number - 2);
+            const end = Math.min(data.totalPages - 1, data.number + 2);
+            for (let i = start; i <= end; i++) {
+                html += `<button class="pagination-btn ${i === data.number ? 'active' : ''}"
+                            onclick="loadComments(${i})">${i + 1}</button>`;
+            }
+
+            // 다음
+            html += `<button class="pagination-btn ${data.last ? 'disabled' : ''}"
+                        onclick="loadComments(${data.number + 1})" ${data.last ? 'disabled' : ''}>
+                        <span class="material-icons">chevron_right</span>
+                     </button>`;
+
+            pagination.innerHTML = html;
+        }
+
+        // ─── 댓글 작성 ───
+        function submitComment() {
+            const textarea = document.getElementById('comment-input');
+            const content = textarea.value.trim();
+            if (!content) { alert('댓글 내용을 입력해주세요.'); return; }
+
+            fetch(`/api/communities/${COMMUNITY_ID}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: content })
+            })
+            .then(res => {
+                if (res.status === 401) { alert('로그인이 필요합니다.'); window.location.href = '/login'; return; }
+                if (!res.ok) return res.json().then(d => { throw new Error(d.message || '작성 실패'); });
+                return res.json();
+            })
+            .then(data => {
+                if (data) {
+                    textarea.value = '';
+                    loadComments(0);  // 첫 페이지로 이동하여 새 댓글 확인
+                }
+            })
+            .catch(err => alert(err.message));
+        }
+
+        // ─── 댓글 수정 ───
+        function editComment(commentId) {
+            const textarea = document.getElementById('edit-textarea-' + commentId);
+            const content = textarea.value.trim();
+            if (!content) { alert('댓글 내용을 입력해주세요.'); return; }
+
+            fetch(`/api/communities/${COMMUNITY_ID}/comments/${commentId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: content })
+            })
+            .then(res => {
+                if (res.status === 401) { alert('로그인이 필요합니다.'); window.location.href = '/login'; return; }
+                if (!res.ok) return res.json().then(d => { throw new Error(d.message || '수정 실패'); });
+                return res.json();
+            })
+            .then(data => {
+                if (data) loadComments(currentCommentPage);
+            })
+            .catch(err => alert(err.message));
+        }
+
+        // ─── 댓글 삭제 ───
+        function removeComment(commentId) {
+            if (!confirm('댓글을 삭제하시겠습니까?')) return;
+
+            fetch(`/api/communities/${COMMUNITY_ID}/comments/${commentId}`, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if (res.status === 401) { alert('로그인이 필요합니다.'); window.location.href = '/login'; return; }
+                if (!res.ok) return res.json().then(d => { throw new Error(d.message || '삭제 실패'); });
+                return res.json();
+            })
+            .then(data => {
+                if (data) loadComments(currentCommentPage);
+            })
+            .catch(err => alert(err.message));
+        }
+
+        // ─── 수정 폼 토글 ───
+        function toggleEdit(commentId) {
+            document.getElementById('content-' + commentId).style.display = 'none';
+            document.getElementById('edit-form-' + commentId).style.display = 'block';
+        }
+        function cancelEdit(commentId) {
+            document.getElementById('content-' + commentId).style.display = 'block';
+            document.getElementById('edit-form-' + commentId).style.display = 'none';
+        }
+
+        // ─── XSS 방지 ───
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ─── 첨부파일 목록 로드 (API 호출) ───
+        function loadAttachments() {
+            fetch(`/api/files?refId=${COMMUNITY_ID}&refType=COMMUNITY&usage=ATTACHMENT`)
+                .then(res => res.json())
+                .then(files => {
+                    if (!files || files.length === 0) return;
+                    const section = document.getElementById('post-attachments');
+                    const list = document.getElementById('attachment-list');
+                    section.style.display = 'block';
+                    list.innerHTML = files.map(file => `
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                            <span class="material-icons" style="font-size: 18px; color: #757575;">description</span>
+                            <a href="/files/download/${file.fileId}"
+                               style="color: #1976d2; text-decoration: none; font-size: 14px;">${escapeHtml(file.originalFileName)}</a>
+                            <span style="font-size: 12px; color: #9e9e9e;">${file.formattedFileSize}</span>
+                        </div>
+                    `).join('');
+                })
+                .catch(err => console.error('첨부파일 로드 실패:', err));
+        }
+
+        // ─── 페이지 로드 시 댓글 + 첨부파일 불러오기 ───
+        document.addEventListener('DOMContentLoaded', () => {
+            loadComments(0);
+            loadAttachments();
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 1: jQuery 소개와 기본 사용법</title>
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #0868ac 0%, #00c6ff 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #0868ac;
+            text-align: center;
+            border-bottom: 4px solid #0868ac;
+            padding-bottom: 15px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #00c6ff;
+            border-left: 5px solid #0868ac;
+            padding-left: 15px;
+            margin-top: 30px;
+        }
+        .section {
+            background: #e3f7ff;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 5px solid #00c6ff;
+        }
+        .code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .code .jquery { color: #9cdcfe; }
+        .code .string { color: #ce9178; }
+        .code .comment { color: #6a9955; }
+        .code .function { color: #dcdcaa; }
+        .demo-box {
+            border: 3px solid #0868ac;
+            padding: 25px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+        }
+        .demo-item {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4caf50;
+        }
+        button {
+            background: #0868ac;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #00c6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .highlight {
+            background: #ffeb3b;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #0868ac;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .jquery-logo {
+            text-align: center;
+            font-size: 4em;
+            color: #0868ac;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="jquery-logo">📘 jQuery</div>
+        <h1>32.1-32.4: jQuery 소개와 기본 사용법</h1>
+
+        <div class="section">
+            <h2>1. jQuery란?</h2>
+            <p><strong>jQuery</strong>는 JavaScript를 더 쉽고 간결하게 사용할 수 있도록 만든 <strong>라이브러리</strong>입니다.</p>
+
+            <h3>jQuery의 특징</h3>
+            <ul>
+                <li>✅ <strong>"Write Less, Do More"</strong> - 적게 쓰고 더 많이 하자!</li>
+                <li>✅ 간결한 문법으로 DOM 조작</li>
+                <li>✅ 크로스 브라우저 호환성 (구형 브라우저 지원)</li>
+                <li>✅ 강력한 선택자 (CSS 선택자 그대로 사용)</li>
+                <li>✅ 애니메이션 효과 쉽게 구현</li>
+                <li>✅ AJAX 쉽게 구현</li>
+            </ul>
+
+            <h3>jQuery의 역사</h3>
+            <ul>
+                <li>2006년 존 레식(John Resig)이 개발</li>
+                <li>한때 웹 개발의 표준 라이브러리</li>
+                <li>현재는 Vanilla JS가 많이 발전했지만, 여전히 많은 프로젝트에서 사용 중</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>2. jQuery 설치 및 사용법</h2>
+
+            <h3>① CDN 방식 (권장) ⭐</h3>
+            <p>HTML 파일에 다음 코드를 추가합니다 (보통 &lt;/body&gt; 태그 직전):</p>
+
+            <div class="code">
+<span class="comment">&lt;!-- jQuery 3.7.1 CDN --&gt;</span><br>
+&lt;script src=<span class="string">"https://code.jquery.com/jquery-3.7.1.min.js"</span>&gt;&lt;/script&gt;
+            </div>
+
+            <h3>② 다운로드 방식</h3>
+            <p>jquery.com에서 파일을 다운로드하여 프로젝트에 포함:</p>
+            <div class="code">
+&lt;script src=<span class="string">"js/jquery-3.7.1.min.js"</span>&gt;&lt;/script&gt;
+            </div>
+
+            <div style="background: #fff3cd; padding: 15px; border-left: 5px solid #ffc107; border-radius: 5px; margin: 15px 0;">
+                <strong>💡 이 페이지는 이미 jQuery를 로드했습니다!</strong><br>
+                콘솔에 <code>typeof jQuery</code>를 입력하면 "function"이 출력됩니다.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>3. $ 기호 - jQuery의 핵심</h2>
+            <p><strong>$</strong>는 jQuery의 별칭(alias)입니다. <code>jQuery</code>와 <code>$</code>는 동일합니다!</p>
+
+            <div class="code">
+<span class="comment">// 두 가지 방법 모두 동일</span><br>
+<span class="jquery">jQuery</span>(<span class="string">'div'</span>).<span class="function">hide</span>();<br>
+<span class="jquery">$</span>(<span class="string">'div'</span>).<span class="function">hide</span>();       <span class="comment">// 주로 이렇게 사용</span>
+            </div>
+
+            <p><code>$</code>는 함수이며, 다음과 같은 용도로 사용됩니다:</p>
+            <ul>
+                <li>요소 선택</li>
+                <li>HTML 생성</li>
+                <li>문서 준비 이벤트</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>4. 문서 준비 이벤트 $(document).ready()</h2>
+            <p>DOM이 완전히 로드된 후에 코드를 실행하도록 보장합니다.</p>
+
+            <h3>전체 버전</h3>
+            <div class="code">
+<span class="jquery">$</span>(document).<span class="function">ready</span>(<span class="function">function</span>() {<br>
+&nbsp;&nbsp;<span class="comment">// DOM이 준비된 후 실행될 코드</span><br>
+&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'문서 준비 완료!'</span>);<br>
+});
+            </div>
+
+            <h3>단축 버전 (많이 사용) ⭐</h3>
+            <div class="code">
+<span class="jquery">$</span>(<span class="function">function</span>() {<br>
+&nbsp;&nbsp;<span class="comment">// DOM이 준비된 후 실행될 코드</span><br>
+&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'문서 준비 완료!'</span>);<br>
+});
+            </div>
+
+            <h3>ES6 화살표 함수 버전</h3>
+            <div class="code">
+<span class="jquery">$</span>(() => {<br>
+&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'문서 준비 완료!'</span>);<br>
+});
+            </div>
+
+            <div style="background: #e3f2fd; padding: 15px; border-left: 5px solid #2196f3; border-radius: 5px; margin: 15px 0;">
+                <strong>💡 $(document).ready() vs window.onload</strong>
+                <ul>
+                    <li><strong>$(document).ready()</strong>: DOM 구조만 로드되면 실행 (빠름) ⚡</li>
+                    <li><strong>window.onload</strong>: 이미지 등 모든 리소스 로드 후 실행 (느림) 🐢</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>5. jQuery 기본 선택자</h2>
+            <p>CSS 선택자와 동일한 방식으로 요소를 선택할 수 있습니다!</p>
+
+            <table>
+                <tr>
+                    <th>선택자</th>
+                    <th>예시</th>
+                    <th>설명</th>
+                </tr>
+                <tr>
+                    <td>태그</td>
+                    <td>$('p')</td>
+                    <td>모든 &lt;p&gt; 태그 선택</td>
+                </tr>
+                <tr>
+                    <td>클래스</td>
+                    <td>$('.box')</td>
+                    <td>class="box"인 모든 요소</td>
+                </tr>
+                <tr>
+                    <td>ID</td>
+                    <td>$('#header')</td>
+                    <td>id="header"인 요소</td>
+                </tr>
+                <tr>
+                    <td>속성</td>
+                    <td>$('[type="text"]')</td>
+                    <td>type이 text인 요소</td>
+                </tr>
+                <tr>
+                    <td>자식</td>
+                    <td>$('ul > li')</td>
+                    <td>ul의 직접 자식 li</td>
+                </tr>
+                <tr>
+                    <td>자손</td>
+                    <td>$('div p')</td>
+                    <td>div 안의 모든 p</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>6. Vanilla JS vs jQuery 비교</h2>
+
+            <h3>예제 1: 요소 선택</h3>
+            <table>
+                <tr>
+                    <th style="width: 50%;">Vanilla JavaScript</th>
+                    <th style="width: 50%;">jQuery</th>
+                </tr>
+                <tr>
+                    <td>
+                        <pre style="margin: 0;">document.getElementById('box')
+document.querySelector('.box')
+document.querySelectorAll('.box')</pre>
+                    </td>
+                    <td>
+                        <pre style="margin: 0;">$('#box')
+$('.box')
+$('.box')</pre>
+                    </td>
+                </tr>
+            </table>
+
+            <h3>예제 2: 텍스트 변경</h3>
+            <table>
+                <tr>
+                    <th style="width: 50%;">Vanilla JavaScript</th>
+                    <th style="width: 50%;">jQuery</th>
+                </tr>
+                <tr>
+                    <td>
+                        <pre style="margin: 0;">document.getElementById('box')
+  .textContent = '새 텍스트';</pre>
+                    </td>
+                    <td>
+                        <pre style="margin: 0;">$('#box').text('새 텍스트');</pre>
+                    </td>
+                </tr>
+            </table>
+
+            <h3>예제 3: 클릭 이벤트</h3>
+            <table>
+                <tr>
+                    <th style="width: 50%;">Vanilla JavaScript</th>
+                    <th style="width: 50%;">jQuery</th>
+                </tr>
+                <tr>
+                    <td>
+                        <pre style="margin: 0;">document.querySelector('.btn')
+  .addEventListener('click',
+    function() {
+      alert('클릭!');
+    });</pre>
+                    </td>
+                    <td>
+                        <pre style="margin: 0;">$('.btn').click(function() {
+  alert('클릭!');
+});</pre>
+                    </td>
+                </tr>
+            </table>
+
+            <p><strong>결론:</strong> jQuery가 훨씬 간결합니다! 🎉</p>
+        </div>
+
+        <div class="section">
+            <h2>7. 실전 예제</h2>
+
+            <div class="demo-box">
+                <h3>텍스트 변경 테스트</h3>
+                <p id="demo-text" class="demo-item">원본 텍스트입니다.</p>
+                <button id="btn-change-text">텍스트 변경</button>
+                <button id="btn-reset-text">원래대로</button>
+            </div>
+
+            <div class="demo-box">
+                <h3>요소 숨기기/보이기</h3>
+                <div id="demo-box" class="demo-item">이 박스를 숨기거나 보일 수 있습니다!</div>
+                <button id="btn-hide">숨기기</button>
+                <button id="btn-show">보이기</button>
+                <button id="btn-toggle">토글</button>
+            </div>
+
+            <div class="demo-box">
+                <h3>클래스 추가/제거</h3>
+                <p id="demo-class" class="demo-item">이 텍스트의 스타일이 변경됩니다.</p>
+                <button id="btn-add-class">강조 추가</button>
+                <button id="btn-remove-class">강조 제거</button>
+            </div>
+
+            <h3>코드</h3>
+            <div class="code">
+<span class="comment">// 문서 준비</span><br>
+<span class="jquery">$</span>(() => {<br>
+&nbsp;&nbsp;<span class="comment">// 텍스트 변경</span><br>
+&nbsp;&nbsp;<span class="jquery">$</span>(<span class="string">'#btn-change-text'</span>).<span class="function">click</span>(() => {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="jquery">$</span>(<span class="string">'#demo-text'</span>).<span class="function">text</span>(<span class="string">'jQuery로 변경된 텍스트!'</span>);<br>
+&nbsp;&nbsp;});<br>
+<br>
+&nbsp;&nbsp;<span class="comment">// 요소 숨기기</span><br>
+&nbsp;&nbsp;<span class="jquery">$</span>(<span class="string">'#btn-hide'</span>).<span class="function">click</span>(() => {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="jquery">$</span>(<span class="string">'#demo-box'</span>).<span class="function">hide</span>();<br>
+&nbsp;&nbsp;});<br>
+<br>
+&nbsp;&nbsp;<span class="comment">// 요소 보이기</span><br>
+&nbsp;&nbsp;<span class="jquery">$</span>(<span class="string">'#btn-show'</span>).<span class="function">click</span>(() => {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="jquery">$</span>(<span class="string">'#demo-box'</span>).<span class="function">show</span>();<br>
+&nbsp;&nbsp;});<br>
+<br>
+&nbsp;&nbsp;<span class="comment">// 클래스 추가</span><br>
+&nbsp;&nbsp;<span class="jquery">$</span>(<span class="string">'#btn-add-class'</span>).<span class="function">click</span>(() => {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="jquery">$</span>(<span class="string">'#demo-class'</span>).<span class="function">css</span>({<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'background'</span>: <span class="string">'yellow'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'font-weight'</span>: <span class="string">'bold'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'color'</span>: <span class="string">'red'</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;});<br>
+&nbsp;&nbsp;});<br>
+});
+            </div>
+        </div>
+
+        <div class="section" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <h2 style="color: #4caf50;">✅ 실습 과제</h2>
+            <ol>
+                <li>jQuery CDN을 포함한 HTML 페이지 만들기</li>
+                <li>$(document).ready()를 사용하여 페이지 로드 완료 메시지 출력</li>
+                <li>버튼 클릭 시 텍스트를 변경하는 기능 구현</li>
+                <li>여러 요소를 선택하여 동시에 스타일 변경하기</li>
+                <li>Vanilla JS와 jQuery 코드를 비교해보기</li>
+            </ol>
+        </div>
+
+        <div style="background: #fff3cd; padding: 20px; border-left: 5px solid #ffc107; border-radius: 5px; margin-top: 20px;">
+            <h3 style="margin-top: 0;">💡 jQuery 사용 팁</h3>
+            <ul>
+                <li>✅ 항상 <strong>$(document).ready()</strong> 안에서 코드 실행</li>
+                <li>✅ <strong>$</strong> 기호에 익숙해지세요</li>
+                <li>✅ 선택자는 CSS 선택자와 동일하게 사용</li>
+                <li>✅ <strong>체이닝</strong>을 활용하면 코드가 더 간결해집니다</li>
+                <li>✅ 공식 문서 참고: <a href="https://api.jquery.com" target="_blank">api.jquery.com</a></li>
+                <li>⚠️ 최신 프로젝트에서는 Vanilla JS 또는 React, Vue 등을 고려하세요</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================
+           강사 노트: 이 부분을 학생들과 함께 작성하세요
+           ========================================== */
+
+        // 1. $(document).ready() - DOM이 준비된 후 실행
+        // $(function() {...})는 $(document).ready(function() {...})의 단축 버전
+        $(function() {
+            // 💡 강의 포인트: 이 코드는 DOM이 완전히 로드된 후 실행됩니다
+            console.log('✅ jQuery가 정상적으로 로드되었습니다!');
+
+            // jQuery 버전 확인 ($.fn.jquery)
+            console.log('jQuery 버전:', $.fn.jquery);
+
+            /* ==========================================
+               강의 TIP:
+               - F12를 눌러 콘솔을 확인하게 하세요
+               - typeof $를 입력하면 "function"이 나옵니다
+               - $ === jQuery 를 입력하면 true가 나옵니다
+               ========================================== */
+
+            // 텍스트 변경
+            $('#btn-change-text').click(function() {
+                $('#demo-text').text('jQuery로 변경된 텍스트! 🎉');
+            });
+
+            $('#btn-reset-text').click(function() {
+                $('#demo-text').text('원본 텍스트입니다.');
+            });
+
+            // 숨기기/보이기
+            $('#btn-hide').click(function() {
+                $('#demo-box').hide('slow');
+            });
+
+            $('#btn-show').click(function() {
+                $('#demo-box').show('slow');
+            });
+
+            $('#btn-toggle').click(function() {
+                $('#demo-box').toggle('slow');
+            });
+
+            // 클래스 추가/제거
+            $('#btn-add-class').click(function() {
+                $('#demo-class').css({
+                    'background': 'yellow',
+                    'font-weight': 'bold',
+                    'color': 'red',
+                    'transform': 'scale(1.1)',
+                    'transition': 'all 0.3s'
+                });
+            });
+
+            $('#btn-remove-class').click(function() {
+                $('#demo-class').css({
+                    'background': '#f5f5f5',
+                    'font-weight': 'normal',
+                    'color': 'black',
+                    'transform': 'scale(1)'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

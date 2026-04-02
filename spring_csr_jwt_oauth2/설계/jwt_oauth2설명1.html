@@ -1,0 +1,127 @@
+<div class="tt_article_useless_p_margin contents_style"><p data-ke-size="size18">※전체코드 : <a href="https://github.com/gks930620/spring_securty_all" target="_blank" rel="noopener&nbsp;noreferrer">https://github.com/gks930620/spring_securty_all</a></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><a href="https://brilliantdevelop.tistory.com/226" target="_blank" rel="noopener&nbsp;noreferrer">https://brilliantdevelop.tistory.com/226</a>에 이어 jwt방식에 oauth2로그인을 적용해보겠다.&nbsp;</p>
+  <p data-ke-size="size18">백엔드서버인 spring boot를 기준으로 설명한다.&nbsp;</p>
+  <p data-ke-size="size18">예시는 카카오 로그인이다.&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 style="color: #000000;" data-ke-size="size26">세션/JWT 방식과 Oauth 이해.&nbsp;</h2>
+  <p data-ke-size="size18">세션과 JWT는 사용자 정보를 어디다 저장하느냐의 대한 차이인거고,&nbsp;</p>
+  <p data-ke-size="size18">Oauth는 이 사용자 정보를 어떻게 얻냐에 대한 거다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">전통적인 SSR 방식 :&nbsp; &nbsp; Oauth를 사용하면 인가코드 방식으로 카카오의 사용자정보를 얻고, 이 정보를 세션에 저장</p>
+  <p data-ke-size="size18">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 굳이 SSR방식에서 JWT를 사용할 필요는 없다.&nbsp;</p>
+  <p data-ke-size="size18">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;서버가 여러개여도 세션클러스터링을 통해 해당 세션을 얻으면&nbsp; 되기때문에 JWT 필요없다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">프론트/ 백엔드 분리 :&nbsp; &nbsp;Oauth를&nbsp; 사용하면 역시 인가코드 방식으로&nbsp; 사용자정보를 얻고, 이 정보를 JWT에 저장</p>
+  <p data-ke-size="size18">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 이 때 oauth를 통해 oauth서버(카카오)에서 사용자정보를 얻는건 백엔드.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">이게 일반적인 상황이다.&nbsp;&nbsp;</p>
+  <p data-ke-size="size18">다만 프론트/백엔드 분리가 된 상황에서도(또는 백엔드 프로젝트가 따로 없는)</p>
+  <p data-ke-size="size18">프론트가 만약 모바일 앱이라면&nbsp; &nbsp;Oauth를 백엔드가 아니라 모바일앱에서 직접 access_token을</p>
+  <p data-ke-size="size18">발급 받을 수 있다.&nbsp; 이건 인가코드 방식이 아니라 access_token 직접 방식.&nbsp;</p>
+  <p data-ke-size="size18"><s>(사실 이게 더 간단하다..)</s></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">여기서는 프론트가 모바일앱에 한정되지 않고 CSR방식의 웹이든 모바일 앱이든 상관없이</p>
+  <p data-ke-size="size18">프론트/백엔드가 분리된 상황에서&nbsp; &nbsp;백엔드가 Oauth를 인가코드 방식으로 사용자정보를 얻고,&nbsp;</p>
+  <p data-ke-size="size18">이 정보를 JWT에 저장하는 방식에 대해 설명한다.&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">책임분배&nbsp;</h2>
+  <p data-ke-size="size18">Oauth2&nbsp; 로그인에서 프론트와 백엔드가 어떤 역할까지 수행할 건지에 문제이다.&nbsp;</p>
+  <p data-ke-size="size18"><b>프론트에서 인가코드만 백엔드로 전달할 것인지</b>,&nbsp;&nbsp;</p>
+  <p data-ke-size="size18">프론트가 access_token까지 얻은 후 백엔드로 전달할 것인지 등이다.&nbsp;</p>
+  <p data-ke-size="size18">이전 글에서 했던 웹 seesion방식의 Oauth2 기능은 인가코드만 백엔드로 전달하는 형태였다.&nbsp;</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/DAPuL/btsMMBsfODd/AAAAAAAAAAAAAAAAAAAAADu_jUUOKPCN6v2JbFTdS-oNI3V3EKAocUd9AcvOBKLN/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=hDNx5fgWW72BQB%2Bi%2BvLv827BBaM%3D" data-phocus="https://blog.kakaocdn.net/dna/DAPuL/btsMMBsfODd/AAAAAAAAAAAAAAAAAAAAADu_jUUOKPCN6v2JbFTdS-oNI3V3EKAocUd9AcvOBKLN/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=hDNx5fgWW72BQB%2Bi%2BvLv827BBaM%3D" data-alt="웹 session방식"><img src="https://blog.kakaocdn.net/dna/DAPuL/btsMMBsfODd/AAAAAAAAAAAAAAAAAAAAADu_jUUOKPCN6v2JbFTdS-oNI3V3EKAocUd9AcvOBKLN/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=hDNx5fgWW72BQB%2Bi%2BvLv827BBaM%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FDAPuL%2FbtsMMBsfODd%2FAAAAAAAAAAAAAAAAAAAAADu_jUUOKPCN6v2JbFTdS-oNI3V3EKAocUd9AcvOBKLN%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DhDNx5fgWW72BQB%252Bi%252BvLv827BBaM%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="0"></span><figcaption>웹 session방식</figcaption>
+  </figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">보시다시피 웹 session방식에서는 백엔드가 인가코드-access token - 리소스서버 과정을&nbsp;</p>
+  <p data-ke-size="size18">전부 담당하고 있다.</p>
+  <p data-ke-size="size18">이런식으로 프론트가 인가코드만 백엔드에 전달하는 방식은 다음과 같은 장점이 있다.</p>
+  <ul style="list-style-type: disc;" data-ke-list-type="disc">
+    <li data-end="445" data-start="394"><b>보안성 증가</b>: Access Token이 외부(클라이언트)에 노출되지 않음.</li>
+    <li data-end="507" data-start="446"><b>클라이언트의 부담 감소</b>: 클라이언트는 인가 코드만 받아서 서버로 넘기면 되므로 구현이 단순해짐.</li>
+    <li data-end="537" data-start="508"><b>토큰 관리가 서버에서 일관되게 이루어짐</b></li>
+  </ul>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">동작방식</h2>
+  <h3 data-ke-size="size23">클라이언트가 로그인버튼 클릭</h3>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/VbbA0/btsMM6k80Me/AAAAAAAAAAAAAAAAAAAAAJz2Ez95ZS9YdorBmvHGvbWhn2mxyhL-4oyBCInq1sDo/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=iFBYEolvi%2FBWXM2vJMn2cVgheXE%3D" data-phocus="https://blog.kakaocdn.net/dna/VbbA0/btsMM6k80Me/AAAAAAAAAAAAAAAAAAAAAJz2Ez95ZS9YdorBmvHGvbWhn2mxyhL-4oyBCInq1sDo/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=iFBYEolvi%2FBWXM2vJMn2cVgheXE%3D"><img src="https://blog.kakaocdn.net/dna/VbbA0/btsMM6k80Me/AAAAAAAAAAAAAAAAAAAAAJz2Ez95ZS9YdorBmvHGvbWhn2mxyhL-4oyBCInq1sDo/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=iFBYEolvi%2FBWXM2vJMn2cVgheXE%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FVbbA0%2FbtsMM6k80Me%2FAAAAAAAAAAAAAAAAAAAAAJz2Ez95ZS9YdorBmvHGvbWhn2mxyhL-4oyBCInq1sDo%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DiFBYEolvi%252FBWXM2vJMn2cVgheXE%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="1"></span></figure>
+  <p></p>
+  <p data-ke-size="size18"><span style="color: #000000; text-align: center;">먼저 클라이언트가 localhost:8080/custom-oauth2/login/kakao에 요청한다.&nbsp;</span></p>
+  <p data-ke-size="size18"><span style="color: #000000; text-align: center;">웹 세션방식에서는 /oauth2/authorization/kakao주소인데 이는 security가 기본적으로 인식하는 URL이다.</span></p>
+  <p data-ke-size="size18"><span style="color: #000000; text-align: center;">/oauth2/authorization/kakao로 요청을 하면 security는 클라이언트에게&nbsp;</span></p>
+  <p data-ke-size="size18"><span style="color: #000000; text-align: center;">authorization-uri : https://kauth.kakao.com/oauth/authorize&nbsp;로 redirect하는게 기본 동작이지만</span></p>
+  <p data-ke-size="size18"><span style="color: #000000;">브라우저가 아닌 JWT방식에서는 클라이언트에게 redirect 를 하게 할 수는 없다.&nbsp;</span></p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><span style="color: #000000;">그래서 security 기본동작이 실행되지 않게&nbsp; <span style="color: #000000; text-align: center;">/custom-oauth2/login/kakao로 요청하고&nbsp;</span></span></p>
+  <p data-ke-size="size18"><span style="color: #000000;"><span style="color: #000000; text-align: center;">Controller에서 원하는 동작을 작성해야 한다. </span></span></p>
+  <p data-ke-size="size18"><span style="color: #000000;">이 Controller에서 해야 할 일들이</span></p>
+  <p style="text-align: left;" data-ke-size="size18"><span style="color: #000000;">OAuth2AuthorizationRequest객체 저장하기 + 클라이언트한테 URL전달하기이다.</span><span style="color: #000000;"></span></p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18"><span style="color: #000000;">※ Oauth2AuthorizationRequest객체는 </span><span style="color: #000000;"></span><span style="color: #000000;">ID,pw 입력한 클라이언트,</span></p>
+  <p style="text-align: left;" data-ke-size="size18"><span style="color: #000000;">인가코드로 로그인요청하는 클라이언트 등을 백엔드에서 확인하는 객체이다.</span></p>
+  <p style="text-align: left;" data-ke-size="size18"><span style="color: #000000;">(A는 ID,pw를 입력했고, 카카오로부터 인가코드를 얻었는데 , B가 A의 인가코드를 얻어서 로그인신청하는상황 등)</span></p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <h3 style="text-align: left;" data-ke-size="size23">클라이언트가 카카오서버 로그인페이지 요청</h3>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/zQTNR/btsMM6k9yH3/AAAAAAAAAAAAAAAAAAAAAKkA_aa3O0pfxyiW632s0hASMd6apEgfj452UwEJjYYh/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=WuhzTzbwkDqbCt2Do3m7iy9zYd8%3D" data-phocus="https://blog.kakaocdn.net/dna/zQTNR/btsMM6k9yH3/AAAAAAAAAAAAAAAAAAAAAKkA_aa3O0pfxyiW632s0hASMd6apEgfj452UwEJjYYh/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=WuhzTzbwkDqbCt2Do3m7iy9zYd8%3D"><img src="https://blog.kakaocdn.net/dna/zQTNR/btsMM6k9yH3/AAAAAAAAAAAAAAAAAAAAAKkA_aa3O0pfxyiW632s0hASMd6apEgfj452UwEJjYYh/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=WuhzTzbwkDqbCt2Do3m7iy9zYd8%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FzQTNR%2FbtsMM6k9yH3%2FAAAAAAAAAAAAAAAAAAAAAKkA_aa3O0pfxyiW632s0hASMd6apEgfj452UwEJjYYh%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DWuhzTzbwkDqbCt2Do3m7iy9zYd8%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="2"></span></figure>
+  <p></p>
+  <p style="text-align: left;" data-ke-size="size18">서버로부터 받은 authorizationURL로 카카오서버에 로그인페이지를 요청한다.</p>
+  <p style="text-align: left;" data-ke-size="size18">이 부분은 클라이언트가 알아서 하면 된다.&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <h3 style="text-align: left;" data-ke-size="size23">클라이언트가 ID,PW입력 후 카카오서버로부터 인가코드 받기</h3>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/duf6hO/btsMK70g6MC/AAAAAAAAAAAAAAAAAAAAAEhcEpXy_-qTaSpBYQC2Fk__GjsPWNzvm5WyAZ5zdrvH/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Eqq%2FIgUm%2BFlAdl17w%2FcvukaGEAA%3D" data-phocus="https://blog.kakaocdn.net/dna/duf6hO/btsMK70g6MC/AAAAAAAAAAAAAAAAAAAAAEhcEpXy_-qTaSpBYQC2Fk__GjsPWNzvm5WyAZ5zdrvH/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Eqq%2FIgUm%2BFlAdl17w%2FcvukaGEAA%3D"><img src="https://blog.kakaocdn.net/dna/duf6hO/btsMK70g6MC/AAAAAAAAAAAAAAAAAAAAAEhcEpXy_-qTaSpBYQC2Fk__GjsPWNzvm5WyAZ5zdrvH/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Eqq%2FIgUm%2BFlAdl17w%2FcvukaGEAA%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fduf6hO%2FbtsMK70g6MC%2FAAAAAAAAAAAAAAAAAAAAAEhcEpXy_-qTaSpBYQC2Fk__GjsPWNzvm5WyAZ5zdrvH%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DEqq%252FIgUm%252BFlAdl17w%252FcvukaGEAA%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="3"></span></figure>
+  <p></p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <h3 style="text-align: left;" data-ke-size="size23">클라이언트가 redirect -uri로&nbsp; 백엔드서버에 요청&nbsp;</h3>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/pUF0C/btsMMbU2JDT/AAAAAAAAAAAAAAAAAAAAAD8C9NsIaLdOuaYQJC0bZ52jph0fkylZbdQFhmN0B4Yf/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=a2EnaCUDJaNtFwcw8I56aM5YkhI%3D" data-phocus="https://blog.kakaocdn.net/dna/pUF0C/btsMMbU2JDT/AAAAAAAAAAAAAAAAAAAAAD8C9NsIaLdOuaYQJC0bZ52jph0fkylZbdQFhmN0B4Yf/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=a2EnaCUDJaNtFwcw8I56aM5YkhI%3D"><img src="https://blog.kakaocdn.net/dna/pUF0C/btsMMbU2JDT/AAAAAAAAAAAAAAAAAAAAAD8C9NsIaLdOuaYQJC0bZ52jph0fkylZbdQFhmN0B4Yf/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=a2EnaCUDJaNtFwcw8I56aM5YkhI%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FpUF0C%2FbtsMMbU2JDT%2FAAAAAAAAAAAAAAAAAAAAAD8C9NsIaLdOuaYQJC0bZ52jph0fkylZbdQFhmN0B4Yf%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3Da2EnaCUDJaNtFwcw8I56aM5YkhI%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="4"></span></figure>
+  <p></p>
+  <p style="text-align: left;" data-ke-size="size18">이 때 클라이언트는 인가코드, state등을 포함해서 요청해야 한다.&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">이 state 값이&nbsp; 처음의 저장한 Oauth2AuthorizationRequest를 식별하는데 쓰임&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">이제 본격적인 백엔드과정에서 로그인과정이 진행된다</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <h2 style="text-align: left;" data-ke-size="size26">백엔드서버에서 카카오 Oauth2 로그인과정</h2>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/drHbx2/btsMOdD7Ins/AAAAAAAAAAAAAAAAAAAAALZl1oCT0sULW1PsupP5P6bzkqLEQg9nT7qj3dfs8AsU/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=btOrBoXUapABNdM9z6vjAuISiP0%3D" data-phocus="https://blog.kakaocdn.net/dna/drHbx2/btsMOdD7Ins/AAAAAAAAAAAAAAAAAAAAALZl1oCT0sULW1PsupP5P6bzkqLEQg9nT7qj3dfs8AsU/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=btOrBoXUapABNdM9z6vjAuISiP0%3D"><img src="https://blog.kakaocdn.net/dna/drHbx2/btsMOdD7Ins/AAAAAAAAAAAAAAAAAAAAALZl1oCT0sULW1PsupP5P6bzkqLEQg9nT7qj3dfs8AsU/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=btOrBoXUapABNdM9z6vjAuISiP0%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FdrHbx2%2FbtsMOdD7Ins%2FAAAAAAAAAAAAAAAAAAAAALZl1oCT0sULW1PsupP5P6bzkqLEQg9nT7qj3dfs8AsU%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DbtOrBoXUapABNdM9z6vjAuISiP0%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="5"></span></figure>
+  <p></p>
+  <p style="text-align: left;" data-ke-size="size18">그림과 같이 Oauth2AuthorizationRequest를 검사 (같은 클라이언트인지 검사)를 했다면</p>
+  <p style="text-align: left;" data-ke-size="size18">인가코드로 토큰요청 -&gt; access token 획득 -&gt;UserRequest요청 -&gt; 유저정보 획득</p>
+  <p style="text-align: left;" data-ke-size="size18">-&gt; CustomOauth2UserDetailsService 실행&nbsp; 및 로그인정보객체 return 까지.</p>
+  <p style="text-align: left;" data-ke-size="size18">웹 session방식의 Oauth2로그인방식과 차이가 없다.&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">결국 카카오서버로부터 유저정보 얻어서 우리서버DB에 저장을 하게 될 뿐이다.&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/lD0kN/btsMMHTGSIc/AAAAAAAAAAAAAAAAAAAAAH7FtllIxiRDYH-ldZ7ijloJdZ6mtbJht6X_IsFVrFFV/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=i9eBtprPWAf80PgedCXhU%2BAGa6Q%3D" data-phocus="https://blog.kakaocdn.net/dna/lD0kN/btsMMHTGSIc/AAAAAAAAAAAAAAAAAAAAAH7FtllIxiRDYH-ldZ7ijloJdZ6mtbJht6X_IsFVrFFV/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=i9eBtprPWAf80PgedCXhU%2BAGa6Q%3D"><img src="https://blog.kakaocdn.net/dna/lD0kN/btsMMHTGSIc/AAAAAAAAAAAAAAAAAAAAAH7FtllIxiRDYH-ldZ7ijloJdZ6mtbJht6X_IsFVrFFV/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=i9eBtprPWAf80PgedCXhU%2BAGa6Q%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FlD0kN%2FbtsMMHTGSIc%2FAAAAAAAAAAAAAAAAAAAAAH7FtllIxiRDYH-ldZ7ijloJdZ6mtbJht6X_IsFVrFFV%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3Di9eBtprPWAf80PgedCXhU%252BAGa6Q%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="6"></span></figure>
+  <p></p>
+  <p style="text-align: left;" data-ke-size="size18">이후 successHandler에 의해 로그인성공에 관한 jwt발급을 해주면 된다.&nbsp;&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <h2 style="text-align: left;" data-ke-size="size26">로그인성공 후 access token을 이용한 로그인</h2>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/7WPoV/btsMNQoNomh/AAAAAAAAAAAAAAAAAAAAANQ9-7GDF-VKr568ftjljJXm-7_cDoZqt1-uovk29hVv/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=5d7t9YiSbtM6i33%2FNK40jFTeeEg%3D" data-phocus="https://blog.kakaocdn.net/dna/7WPoV/btsMNQoNomh/AAAAAAAAAAAAAAAAAAAAANQ9-7GDF-VKr568ftjljJXm-7_cDoZqt1-uovk29hVv/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=5d7t9YiSbtM6i33%2FNK40jFTeeEg%3D"><img src="https://blog.kakaocdn.net/dna/7WPoV/btsMNQoNomh/AAAAAAAAAAAAAAAAAAAAANQ9-7GDF-VKr568ftjljJXm-7_cDoZqt1-uovk29hVv/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=5d7t9YiSbtM6i33%2FNK40jFTeeEg%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2F7WPoV%2FbtsMNQoNomh%2FAAAAAAAAAAAAAAAAAAAAANQ9-7GDF-VKr568ftjljJXm-7_cDoZqt1-uovk29hVv%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D5d7t9YiSbtM6i33%252FNK40jFTeeEg%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="7"></span></figure>
+  <p></p>
+  <p style="text-align: left;" data-ke-size="size18">로그인 성공 이후라면 어차피 카카오로 로그인한 유저정보가 우리서버DB에 저장되어있다.&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">그래서 이후에는&nbsp; <a href="https://brilliantdevelop.tistory.com/226" target="_blank" rel="noopener&nbsp;noreferrer">https://brilliantdevelop.tistory.com/226</a> 와 같이 똑같이</p>
+  <p style="text-align: left;" data-ke-size="size18">access token, refresh토큰을&nbsp;보내면 된다.&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p>
+  <p style="text-align: left;" data-ke-size="size18">&nbsp;</p></div>

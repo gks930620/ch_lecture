@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 1: 스코프와 호이스팅</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #3498db;
+            margin-top: 30px;
+        }
+        .example {
+            background: #ecf0f1;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .output {
+            background: #2c3e50;
+            color: #2ecc71;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .result {
+            background: #e8f5e9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 4장 Part 1: 스코프와 호이스팅</h1>
+
+        <!-- 스코프 예제 -->
+        <h2>1. 스코프 (Scope)</h2>
+
+        <div class="example">
+            <h3>전역 스코프 vs 지역 스코프</h3>
+            <button onclick="testScope()">스코프 테스트</button>
+            <div id="scopeResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>var vs let vs const 스코프</h3>
+            <button onclick="testVarLetConst()">var/let/const 비교</button>
+            <div id="varLetConstResult" class="result"></div>
+        </div>
+
+        <!-- 호이스팅 예제 -->
+        <h2>2. 호이스팅 (Hoisting)</h2>
+
+        <div class="example">
+            <h3>var 호이스팅</h3>
+            <button onclick="testVarHoisting()">var 호이스팅 확인</button>
+            <div id="varHoistResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>let/const 호이스팅</h3>
+            <button onclick="testLetHoisting()">let/const 호이스팅 확인</button>
+            <div id="letHoistResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>함수 호이스팅</h3>
+            <button onclick="testFunctionHoisting()">함수 호이스팅 확인</button>
+            <div id="funcHoistResult" class="result"></div>
+        </div>
+
+        <!-- 콘솔 출력 영역 -->
+        <h2>📋 실행 로그</h2>
+        <div id="console" class="output"></div>
+    </div>
+
+    <script>
+        // 콘솔 출력 함수
+        function log(message) {
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.innerHTML += message + '<br>';
+        }
+
+        function clearLog() {
+            document.getElementById('console').innerHTML = '';
+        }
+
+        // ==================== 스코프 테스트 ====================
+
+        // 전역 변수
+        let globalVar = '전역 변수';
+
+        function testScope() {
+            clearLog();
+            const result = document.getElementById('scopeResult');
+            result.innerHTML = '';
+
+            log('=== 스코프 테스트 시작 ===');
+
+            // 전역 스코프
+            log('1. 전역 변수: ' + globalVar);
+
+            // 함수 스코프
+            function outerFunction() {
+                let outerVar = '외부 함수 변수';
+                log('2. 외부 함수 변수: ' + outerVar);
+
+                function innerFunction() {
+                    let innerVar = '내부 함수 변수';
+                    log('3. 내부 함수에서 외부 변수 접근: ' + outerVar);
+                    log('4. 내부 함수 변수: ' + innerVar);
+                }
+
+                innerFunction();
+
+                // 내부 함수 변수는 접근 불가
+                try {
+                    log('5. 외부에서 내부 변수 접근: ' + innerVar);
+                } catch(e) {
+                    log('5. ❌ 에러: 내부 변수에 접근할 수 없습니다!');
+                }
+            }
+
+            outerFunction();
+
+            result.innerHTML = '✅ 스코프 테스트 완료! 콘솔을 확인하세요.';
+        }
+
+        // ==================== var/let/const 비교 ====================
+
+        function testVarLetConst() {
+            clearLog();
+            const result = document.getElementById('varLetConstResult');
+            result.innerHTML = '';
+
+            log('=== var vs let vs const 비교 ===');
+
+            // var는 함수 스코프
+            log('--- var (함수 스코프) ---');
+            if (true) {
+                var x = 10;
+            }
+            log('블록 밖에서 var 접근: ' + x); // 접근 가능!
+
+            // let은 블록 스코프
+            log('--- let (블록 스코프) ---');
+            if (true) {
+                let y = 20;
+                log('블록 안에서 let: ' + y);
+            }
+            try {
+                log('블록 밖에서 let 접근: ' + y);
+            } catch(e) {
+                log('❌ 에러: let은 블록 밖에서 접근 불가!');
+            }
+
+            // const도 블록 스코프
+            log('--- const (블록 스코프 + 재할당 불가) ---');
+            const z = 30;
+            log('const 값: ' + z);
+            try {
+                z = 40;
+            } catch(e) {
+                log('❌ 에러: const는 재할당 불가!');
+            }
+
+            result.innerHTML = '✅ 비교 완료! var는 함수 스코프, let/const는 블록 스코프입니다.';
+        }
+
+        // ==================== 호이스팅 테스트 ====================
+
+        function testVarHoisting() {
+            clearLog();
+            const result = document.getElementById('varHoistResult');
+            result.innerHTML = '';
+
+            log('=== var 호이스팅 ===');
+
+            log('선언 전 출력: ' + typeof varTest); // undefined
+            var varTest = '호이스팅 테스트';
+            log('선언 후 출력: ' + varTest);
+
+            log('');
+            log('실제 동작 순서:');
+            log('1. var varTest; (선언이 먼저 올라감)');
+            log('2. console.log(varTest); (undefined)');
+            log('3. varTest = "호이스팅 테스트"; (할당)');
+
+            result.innerHTML = '✅ var는 선언이 최상단으로 호이스팅됩니다!';
+        }
+
+        function testLetHoisting() {
+            clearLog();
+            const result = document.getElementById('letHoistResult');
+            result.innerHTML = '';
+
+            log('=== let/const 호이스팅 ===');
+
+            try {
+                log('선언 전 출력: ' + letTest); // ReferenceError
+            } catch(e) {
+                log('❌ ReferenceError: TDZ(Temporal Dead Zone) 상태!');
+            }
+
+            let letTest = 'let 테스트';
+            log('선언 후 출력: ' + letTest);
+
+            log('');
+            log('let/const도 호이스팅되지만 TDZ에 있어 접근 불가!');
+
+            result.innerHTML = '✅ let/const는 선언 전 접근 시 에러 발생!';
+        }
+
+        function testFunctionHoisting() {
+            clearLog();
+            const result = document.getElementById('funcHoistResult');
+            result.innerHTML = '';
+
+            log('=== 함수 호이스팅 ===');
+
+            // 함수 선언문 - 호이스팅 됨
+            log('--- 함수 선언문 ---');
+            try {
+                log('선언 전 호출: ' + declaredFunction());
+            } catch(e) {
+                log('❌ 에러: ' + e.message);
+            }
+
+            function declaredFunction() {
+                return '호이스팅된 함수!';
+            }
+
+            // 함수 표현식 - 호이스팅 안 됨
+            log('--- 함수 표현식 ---');
+            try {
+                log('선언 전 호출: ' + expressionFunction());
+            } catch(e) {
+                log('❌ 에러: 함수 표현식은 호이스팅 안 됨!');
+            }
+
+            const expressionFunction = function() {
+                return '표현식 함수';
+            };
+
+            log('선언 후 호출: ' + expressionFunction());
+
+            result.innerHTML = '✅ 함수 선언문은 호이스팅, 함수 표현식은 호이스팅 안 됨!';
+        }
+
+        // 페이지 로드 시 안내 메시지
+        window.onload = function() {
+            log('💡 각 버튼을 클릭하여 예제를 실행해보세요!');
+            log('💡 개발자 도구(F12)를 열면 더 자세한 정보를 볼 수 있습니다.');
+        };
+    </script>
+</body>
+</html>
+```
+

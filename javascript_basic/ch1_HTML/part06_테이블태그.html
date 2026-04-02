@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 6: 테이블 태그</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+        }
+        h2 {
+            color: #764ba2;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        .code-box {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 26.7: 테이블 태그</h1>
+
+        <div class="section">
+            <h2>1. 기본 테이블 구조</h2>
+            <p><strong>주요 태그:</strong></p>
+            <ul>
+                <li><strong>&lt;table&gt;</strong>: 테이블 전체를 감싸는 태그</li>
+                <li><strong>&lt;tr&gt;</strong>: 테이블 행 (Table Row)</li>
+                <li><strong>&lt;td&gt;</strong>: 테이블 데이터 셀 (Table Data)</li>
+                <li><strong>&lt;th&gt;</strong>: 테이블 헤더 셀 (Table Header)</li>
+            </ul>
+
+            <div class="code-box">
+&lt;table&gt;<br>
+&nbsp;&nbsp;&lt;tr&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;th&gt;이름&lt;/th&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;th&gt;나이&lt;/th&gt;<br>
+&nbsp;&nbsp;&lt;/tr&gt;<br>
+&nbsp;&nbsp;&lt;tr&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;홍길동&lt;/td&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;25&lt;/td&gt;<br>
+&nbsp;&nbsp;&lt;/tr&gt;<br>
+&lt;/table&gt;
+            </div>
+
+            <h3>예제: 간단한 테이블</h3>
+            <table>
+                <tr>
+                    <th>이름</th>
+                    <th>나이</th>
+                    <th>직업</th>
+                </tr>
+                <tr>
+                    <td>홍길동</td>
+                    <td>25</td>
+                    <td>개발자</td>
+                </tr>
+                <tr>
+                    <td>김철수</td>
+                    <td>30</td>
+                    <td>디자이너</td>
+                </tr>
+                <tr>
+                    <td>이영희</td>
+                    <td>28</td>
+                    <td>기획자</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>2. thead, tbody, tfoot</h2>
+            <p>테이블을 논리적으로 구분하는 태그 (선택사항이지만 권장)</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>상품명</th>
+                        <th>가격</th>
+                        <th>수량</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>노트북</td>
+                        <td>1,200,000원</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <td>마우스</td>
+                        <td>30,000원</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>키보드</td>
+                        <td>80,000원</td>
+                        <td>3</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2">합계</th>
+                        <th>10개</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>3. colspan - 열 병합</h2>
+            <p>여러 열을 하나로 합칠 때 사용</p>
+
+            <table>
+                <tr>
+                    <th colspan="3">학생 정보</th>
+                </tr>
+                <tr>
+                    <th>이름</th>
+                    <th>학년</th>
+                    <th>반</th>
+                </tr>
+                <tr>
+                    <td>홍길동</td>
+                    <td>3</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td colspan="3">colspan="3"으로 3개 열을 병합</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>4. rowspan - 행 병합</h2>
+            <p>여러 행을 하나로 합칠 때 사용</p>
+
+            <table>
+                <tr>
+                    <th>과목</th>
+                    <th>교수님</th>
+                    <th>시간</th>
+                </tr>
+                <tr>
+                    <td rowspan="2">컴퓨터공학</td>
+                    <td>김교수</td>
+                    <td>월 1-2교시</td>
+                </tr>
+                <tr>
+                    <td>이교수</td>
+                    <td>수 3-4교시</td>
+                </tr>
+                <tr>
+                    <td>수학</td>
+                    <td>박교수</td>
+                    <td>화 1-2교시</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>5. 시간표 예제 (colspan + rowspan)</h2>
+
+            <table style="text-align: center;">
+                <thead>
+                    <tr>
+                        <th>시간</th>
+                        <th>월요일</th>
+                        <th>화요일</th>
+                        <th>수요일</th>
+                        <th>목요일</th>
+                        <th>금요일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1교시<br>09:00</td>
+                        <td rowspan="2">프로그래밍<br>기초</td>
+                        <td>수학</td>
+                        <td>영어</td>
+                        <td>체육</td>
+                        <td>음악</td>
+                    </tr>
+                    <tr>
+                        <td>2교시<br>10:00</td>
+                        <td rowspan="2">과학</td>
+                        <td>국어</td>
+                        <td>미술</td>
+                        <td>역사</td>
+                    </tr>
+                    <tr>
+                        <td>3교시<br>11:00</td>
+                        <td>영어</td>
+                        <td>수학</td>
+                        <td>음악</td>
+                        <td>체육</td>
+                    </tr>
+                    <tr>
+                        <td>점심<br>12:00</td>
+                        <td colspan="5" style="background-color: #ffeb3b;">점심시간</td>
+                    </tr>
+                    <tr>
+                        <td>4교시<br>13:00</td>
+                        <td>국어</td>
+                        <td>체육</td>
+                        <td>수학</td>
+                        <td>영어</td>
+                        <td>과학</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>6. 성적표 예제</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">학생명</th>
+                        <th colspan="3">1학기</th>
+                        <th colspan="3">2학기</th>
+                        <th rowspan="2">평균</th>
+                    </tr>
+                    <tr>
+                        <th>중간</th>
+                        <th>기말</th>
+                        <th>평균</th>
+                        <th>중간</th>
+                        <th>기말</th>
+                        <th>평균</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>홍길동</td>
+                        <td>85</td>
+                        <td>90</td>
+                        <td>87.5</td>
+                        <td>88</td>
+                        <td>92</td>
+                        <td>90</td>
+                        <td><strong>88.75</strong></td>
+                    </tr>
+                    <tr>
+                        <td>김철수</td>
+                        <td>90</td>
+                        <td>88</td>
+                        <td>89</td>
+                        <td>85</td>
+                        <td>87</td>
+                        <td>86</td>
+                        <td><strong>87.5</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>7. caption - 테이블 제목</h2>
+
+            <table>
+                <caption style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #667eea;">
+                    📋 2024년 매출 현황
+                </caption>
+                <thead>
+                    <tr>
+                        <th>월</th>
+                        <th>매출</th>
+                        <th>비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1월</td>
+                        <td>5,000,000원</td>
+                        <td>양호</td>
+                    </tr>
+                    <tr>
+                        <td>2월</td>
+                        <td>6,500,000원</td>
+                        <td>증가</td>
+                    </tr>
+                    <tr>
+                        <td>3월</td>
+                        <td>7,200,000원</td>
+                        <td>최고</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>8. 테이블 스타일링 (CSS)</h2>
+
+            <table style="border: 3px solid #667eea;">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <th style="color: white;">제품</th>
+                        <th style="color: white;">재고</th>
+                        <th style="color: white;">상태</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background-color: #e8eaf6;">
+                        <td>노트북</td>
+                        <td>15</td>
+                        <td style="color: green; font-weight: bold;">충분</td>
+                    </tr>
+                    <tr style="background-color: #f3e5f5;">
+                        <td>마우스</td>
+                        <td>3</td>
+                        <td style="color: orange; font-weight: bold;">부족</td>
+                    </tr>
+                    <tr style="background-color: #e8eaf6;">
+                        <td>키보드</td>
+                        <td>0</td>
+                        <td style="color: red; font-weight: bold;">없음</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>✅ 실습 과제</h2>
+            <ol>
+                <li>본인의 주간 시간표를 만들어보세요 (rowspan, colspan 활용)</li>
+                <li>가계부 테이블을 만들어보세요 (수입/지출, 합계 포함)</li>
+                <li>상품 목록 테이블을 만들고 스타일링 해보세요</li>
+                <li>thead, tbody, tfoot를 모두 사용한 테이블 만들기</li>
+            </ol>
+        </div>
+
+        <div style="background: #fff3cd; padding: 15px; border-left: 5px solid #ffc107; border-radius: 5px; margin-top: 20px;">
+            <strong>💡 테이블 사용 시 주의사항</strong>
+            <ul>
+                <li>레이아웃 목적으로 테이블 사용 금지 (CSS Flexbox/Grid 사용)</li>
+                <li>표 형태의 데이터를 표현할 때만 사용</li>
+                <li>반응형 웹에서는 테이블이 잘 안 보일 수 있으므로 모바일 대응 필요</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 2: jQuery 선택자와 DOM 조작</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+        }
+        h2 {
+            color: #764ba2;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+            margin-top: 30px;
+        }
+        .section {
+            background: #f3f0ff;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+        }
+        .code .jquery { color: #9cdcfe; }
+        .code .string { color: #ce9178; }
+        .code .comment { color: #6a9955; }
+        .demo-box {
+            border: 3px solid #667eea;
+            padding: 25px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+        }
+        .demo-item {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+        }
+        .demo-item:hover {
+            border-color: #667eea;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 15px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        .highlight {
+            background: #ffeb3b !important;
+            font-weight: bold;
+            border-color: #ffc107 !important;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #667eea;
+            color: white;
+        }
+        .list-item {
+            padding: 10px;
+            background: #e3f2fd;
+            margin: 5px 0;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 32.5-32.9: jQuery 선택자와 DOM 조작</h1>
+
+        <div class="section">
+            <h2>1. jQuery 선택자 완벽 정리</h2>
+
+            <h3>기본 선택자</h3>
+            <table>
+                <tr>
+                    <th style="width: 30%;">선택자</th>
+                    <th style="width: 35%;">예제</th>
+                    <th style="width: 35%;">설명</th>
+                </tr>
+                <tr>
+                    <td>태그</td>
+                    <td>$('div')</td>
+                    <td>모든 div 선택</td>
+                </tr>
+                <tr>
+                    <td>클래스</td>
+                    <td>$('.box')</td>
+                    <td>class="box" 선택</td>
+                </tr>
+                <tr>
+                    <td>ID</td>
+                    <td>$('#header')</td>
+                    <td>id="header" 선택</td>
+                </tr>
+                <tr>
+                    <td>전체</td>
+                    <td>$('*')</td>
+                    <td>모든 요소 선택</td>
+                </tr>
+                <tr>
+                    <td>다중</td>
+                    <td>$('div, .box, #header')</td>
+                    <td>여러 선택자를 동시에</td>
+                </tr>
+            </table>
+
+            <h3>필터 선택자</h3>
+            <table>
+                <tr>
+                    <th>선택자</th>
+                    <th>예제</th>
+                    <th>설명</th>
+                </tr>
+                <tr>
+                    <td>:first</td>
+                    <td>$('li:first')</td>
+                    <td>첫 번째 li</td>
+                </tr>
+                <tr>
+                    <td>:last</td>
+                    <td>$('li:last')</td>
+                    <td>마지막 li</td>
+                </tr>
+                <tr>
+                    <td>:even</td>
+                    <td>$('tr:even')</td>
+                    <td>짝수 번째 (0,2,4...)</td>
+                </tr>
+                <tr>
+                    <td>:odd</td>
+                    <td>$('tr:odd')</td>
+                    <td>홀수 번째 (1,3,5...)</td>
+                </tr>
+                <tr>
+                    <td>:eq(n)</td>
+                    <td>$('li:eq(2)')</td>
+                    <td>3번째 li (0부터 시작)</td>
+                </tr>
+                <tr>
+                    <td>:gt(n)</td>
+                    <td>$('li:gt(2)')</td>
+                    <td>3번째보다 큰 인덱스</td>
+                </tr>
+                <tr>
+                    <td>:lt(n)</td>
+                    <td>$('li:lt(2)')</td>
+                    <td>3번째보다 작은 인덱스</td>
+                </tr>
+                <tr>
+                    <td>:not()</td>
+                    <td>$('li:not(.active)')</td>
+                    <td>제외하기</td>
+                </tr>
+            </table>
+
+            <div class="demo-box">
+                <h3>필터 선택자 테스트</h3>
+                <ul id="filter-list">
+                    <li class="list-item">항목 1</li>
+                    <li class="list-item">항목 2</li>
+                    <li class="list-item">항목 3</li>
+                    <li class="list-item">항목 4</li>
+                    <li class="list-item">항목 5</li>
+                    <li class="list-item">항목 6</li>
+                </ul>
+                <button onclick="selectFirst()">:first 선택</button>
+                <button onclick="selectLast()">:last 선택</button>
+                <button onclick="selectEven()">:even 선택</button>
+                <button onclick="selectOdd()">:odd 선택</button>
+                <button onclick="resetSelection()">초기화</button>
+            </div>
+
+            <div class="code">
+<span class="comment">// 필터 선택자 예제</span><br>
+<span class="jquery">$</span>(<span class="string">'li:first'</span>).<span class="function">css</span>(<span class="string">'background'</span>, <span class="string">'yellow'</span>);  <span class="comment">// 첫 번째</span><br>
+<span class="jquery">$</span>(<span class="string">'li:last'</span>).<span class="function">css</span>(<span class="string">'background'</span>, <span class="string">'yellow'</span>);   <span class="comment">// 마지막</span><br>
+<span class="jquery">$</span>(<span class="string">'li:even'</span>).<span class="function">css</span>(<span class="string">'background'</span>, <span class="string">'lightblue'</span>); <span class="comment">// 짝수</span><br>
+<span class="jquery">$</span>(<span class="string">'li:odd'</span>).<span class="function">css</span>(<span class="string">'background'</span>, <span class="string">'pink'</span>);      <span class="comment">// 홀수</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>2. 계층 선택자</h2>
+
+            <table>
+                <tr>
+                    <th>선택자</th>
+                    <th>예제</th>
+                    <th>설명</th>
+                </tr>
+                <tr>
+                    <td>자손</td>
+                    <td>$('div p')</td>
+                    <td>div 안의 모든 p</td>
+                </tr>
+                <tr>
+                    <td>자식</td>
+                    <td>$('div > p')</td>
+                    <td>div의 직접 자식 p만</td>
+                </tr>
+                <tr>
+                    <td>형제</td>
+                    <td>$('.box').siblings()</td>
+                    <td>형제 요소들</td>
+                </tr>
+                <tr>
+                    <td>다음 형제</td>
+                    <td>$('.box').next()</td>
+                    <td>바로 다음 형제</td>
+                </tr>
+                <tr>
+                    <td>이전 형제</td>
+                    <td>$('.box').prev()</td>
+                    <td>바로 이전 형제</td>
+                </tr>
+                <tr>
+                    <td>부모</td>
+                    <td>$('.box').parent()</td>
+                    <td>부모 요소</td>
+                </tr>
+                <tr>
+                    <td>조상</td>
+                    <td>$('.box').parents()</td>
+                    <td>모든 조상 요소</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>3. DOM 조작 - 텍스트/HTML</h2>
+
+            <h3>text() - 텍스트 내용</h3>
+            <div class="code">
+<span class="comment">// 텍스트 가져오기</span><br>
+<span class="keyword">let</span> txt = <span class="jquery">$</span>(<span class="string">'#demo'</span>).<span class="function">text</span>();<br>
+<br>
+<span class="comment">// 텍스트 설정하기</span><br>
+<span class="jquery">$</span>(<span class="string">'#demo'</span>).<span class="function">text</span>(<span class="string">'새로운 텍스트'</span>);
+            </div>
+
+            <h3>html() - HTML 내용</h3>
+            <div class="code">
+<span class="comment">// HTML 가져오기</span><br>
+<span class="keyword">let</span> html = <span class="jquery">$</span>(<span class="string">'#demo'</span>).<span class="function">html</span>();<br>
+<br>
+<span class="comment">// HTML 설정하기</span><br>
+<span class="jquery">$</span>(<span class="string">'#demo'</span>).<span class="function">html</span>(<span class="string">'&lt;strong&gt;굵은 텍스트&lt;/strong&gt;'</span>);
+            </div>
+
+            <h3>val() - 입력 값</h3>
+            <div class="code">
+<span class="comment">// input 값 가져오기</span><br>
+<span class="keyword">let</span> value = <span class="jquery">$</span>(<span class="string">'#name'</span>).<span class="function">val</span>();<br>
+<br>
+<span class="comment">// input 값 설정하기</span><br>
+<span class="jquery">$</span>(<span class="string">'#name'</span>).<span class="function">val</span>(<span class="string">'홍길동'</span>);
+            </div>
+
+            <div class="demo-box">
+                <h3>텍스트/HTML 조작 테스트</h3>
+                <p id="text-demo" class="demo-item">원본 텍스트입니다.</p>
+                <button onclick="changeText()">text() 변경</button>
+                <button onclick="changeHTML()">html() 변경</button>
+                <button onclick="resetText()">초기화</button>
+
+                <h3 style="margin-top: 30px;">입력값 조작 테스트</h3>
+                <input type="text" id="input-demo" placeholder="값을 입력하세요" style="padding: 10px; width: 300px; border: 2px solid #667eea; border-radius: 5px;">
+                <br><br>
+                <button onclick="getValue()">val() 가져오기</button>
+                <button onclick="setValue()">val() 설정</button>
+                <button onclick="clearValue()">val() 초기화</button>
+                <p id="value-display" style="margin-top: 10px;"></p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>4. DOM 조작 - 요소 추가/제거</h2>
+
+            <table>
+                <tr>
+                    <th style="width: 25%;">메소드</th>
+                    <th style="width: 40%;">설명</th>
+                    <th style="width: 35%;">예제</th>
+                </tr>
+                <tr>
+                    <td>append()</td>
+                    <td>마지막 자식으로 추가</td>
+                    <td>$('div').append('&lt;p&gt;끝&lt;/p&gt;')</td>
+                </tr>
+                <tr>
+                    <td>prepend()</td>
+                    <td>첫 번째 자식으로 추가</td>
+                    <td>$('div').prepend('&lt;p&gt;처음&lt;/p&gt;')</td>
+                </tr>
+                <tr>
+                    <td>after()</td>
+                    <td>요소 뒤에 추가</td>
+                    <td>$('p').after('&lt;span&gt;뒤&lt;/span&gt;')</td>
+                </tr>
+                <tr>
+                    <td>before()</td>
+                    <td>요소 앞에 추가</td>
+                    <td>$('p').before('&lt;span&gt;앞&lt;/span&gt;')</td>
+                </tr>
+                <tr>
+                    <td>remove()</td>
+                    <td>요소 제거</td>
+                    <td>$('.box').remove()</td>
+                </tr>
+                <tr>
+                    <td>empty()</td>
+                    <td>자식 요소만 제거</td>
+                    <td>$('div').empty()</td>
+                </tr>
+            </table>
+
+            <div class="demo-box">
+                <h3>요소 추가 테스트</h3>
+                <div id="append-demo" style="border: 2px solid #667eea; padding: 20px; border-radius: 8px;">
+                    <p class="demo-item">기존 내용</p>
+                </div>
+                <br>
+                <button onclick="appendItem()">append() - 끝에 추가</button>
+                <button onclick="prependItem()">prepend() - 처음에 추가</button>
+                <button onclick="afterItem()">after() - 뒤에 추가</button>
+                <button onclick="beforeItem()">before() - 앞에 추가</button>
+                <button onclick="removeItems()">remove() - 제거</button>
+                <button onclick="emptyItems()">empty() - 비우기</button>
+            </div>
+
+            <div class="code">
+<span class="comment">// 요소 추가 예제</span><br>
+<span class="jquery">$</span>(<span class="string">'#list'</span>).<span class="function">append</span>(<span class="string">'&lt;li&gt;새 항목&lt;/li&gt;'</span>);      <span class="comment">// 마지막 추가</span><br>
+<span class="jquery">$</span>(<span class="string">'#list'</span>).<span class="function">prepend</span>(<span class="string">'&lt;li&gt;새 항목&lt;/li&gt;'</span>);     <span class="comment">// 처음 추가</span><br>
+<span class="jquery">$</span>(<span class="string">'.box'</span>).<span class="function">after</span>(<span class="string">'&lt;div&gt;뒤에&lt;/div&gt;'</span>);          <span class="comment">// 뒤에 추가</span><br>
+<span class="jquery">$</span>(<span class="string">'.box'</span>).<span class="function">before</span>(<span class="string">'&lt;div&gt;앞에&lt;/div&gt;'</span>);        <span class="comment">// 앞에 추가</span><br>
+<span class="jquery">$</span>(<span class="string">'.box'</span>).<span class="function">remove</span>();                         <span class="comment">// 요소 제거</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>5. 속성 조작</h2>
+
+            <h3>attr() - 속성 가져오기/설정</h3>
+            <div class="code">
+<span class="comment">// 속성 가져오기</span><br>
+<span class="keyword">let</span> src = <span class="jquery">$</span>(<span class="string">'img'</span>).<span class="function">attr</span>(<span class="string">'src'</span>);<br>
+<br>
+<span class="comment">// 속성 설정</span><br>
+<span class="jquery">$</span>(<span class="string">'img'</span>).<span class="function">attr</span>(<span class="string">'src'</span>, <span class="string">'new-image.jpg'</span>);<br>
+<span class="jquery">$</span>(<span class="string">'a'</span>).<span class="function">attr</span>(<span class="string">'href'</span>, <span class="string">'https://www.google.com'</span>);<br>
+<br>
+<span class="comment">// 여러 속성 동시 설정</span><br>
+<span class="jquery">$</span>(<span class="string">'img'</span>).<span class="function">attr</span>({<br>
+&nbsp;&nbsp;<span class="string">'src'</span>: <span class="string">'image.jpg'</span>,<br>
+&nbsp;&nbsp;<span class="string">'alt'</span>: <span class="string">'이미지 설명'</span>,<br>
+&nbsp;&nbsp;<span class="string">'width'</span>: <span class="string">'300'</span><br>
+});
+            </div>
+
+            <h3>removeAttr() - 속성 제거</h3>
+            <div class="code">
+<span class="jquery">$</span>(<span class="string">'img'</span>).<span class="function">removeAttr</span>(<span class="string">'width'</span>);
+            </div>
+
+            <div class="demo-box">
+                <h3>속성 조작 테스트</h3>
+                <img id="attr-demo" src="https://via.placeholder.com/200" alt="원본 이미지" width="200" style="border-radius: 10px;">
+                <br><br>
+                <button onclick="changeAttr()">attr() 변경</button>
+                <button onclick="removeAttrDemo()">width 속성 제거</button>
+                <button onclick="resetAttr()">초기화</button>
+            </div>
+        </div>
+
+        <div class="section" style="background: #e8f5e9;">
+            <h2 style="color: #4caf50;">✅ 실습 과제</h2>
+            <ol>
+                <li>필터 선택자(:first, :last, :even, :odd)를 모두 사용해보기</li>
+                <li>text(), html(), val()의 차이 이해하고 활용하기</li>
+                <li>할 일 목록 만들기 (append/prepend/remove 활용)</li>
+                <li>이미지 갤러리 만들기 (attr()로 이미지 변경)</li>
+                <li>동적으로 테이블 행 추가/삭제 구현하기</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        $(function() {
+            console.log('✅ jQuery 선택자와 DOM 조작 강의 로드 완료!');
+
+            // 전역 함수 정의
+            window.selectFirst = function() {
+                resetSelection();
+                $('#filter-list li:first').addClass('highlight');
+            };
+
+            window.selectLast = function() {
+                resetSelection();
+                $('#filter-list li:last').addClass('highlight');
+            };
+
+            window.selectEven = function() {
+                resetSelection();
+                $('#filter-list li:even').addClass('highlight');
+            };
+
+            window.selectOdd = function() {
+                resetSelection();
+                $('#filter-list li:odd').addClass('highlight');
+            };
+
+            window.resetSelection = function() {
+                $('#filter-list li').removeClass('highlight');
+            };
+
+            window.changeText = function() {
+                $('#text-demo').text('text()로 변경된 텍스트입니다!');
+            };
+
+            window.changeHTML = function() {
+                $('#text-demo').html('<strong style="color: red;">html()로 변경된 HTML입니다!</strong>');
+            };
+
+            window.resetText = function() {
+                $('#text-demo').html('원본 텍스트입니다.');
+            };
+
+            window.getValue = function() {
+                const value = $('#input-demo').val();
+                $('#value-display').html(`<strong>입력값:</strong> ${value || '(비어있음)'}`);
+            };
+
+            window.setValue = function() {
+                $('#input-demo').val('jQuery로 설정된 값!');
+            };
+
+            window.clearValue = function() {
+                $('#input-demo').val('');
+                $('#value-display').html('');
+            };
+
+            let itemCount = 1;
+            window.appendItem = function() {
+                $('#append-demo').append(`<p class="demo-item">append() 항목 ${itemCount++}</p>`);
+            };
+
+            window.prependItem = function() {
+                $('#append-demo').prepend(`<p class="demo-item">prepend() 항목 ${itemCount++}</p>`);
+            };
+
+            window.afterItem = function() {
+                $('#append-demo').after(`<p class="demo-item">after() 추가됨</p>`);
+            };
+
+            window.beforeItem = function() {
+                $('#append-demo').before(`<p class="demo-item">before() 추가됨</p>`);
+            };
+
+            window.removeItems = function() {
+                $('#append-demo .demo-item').first().remove();
+            };
+
+            window.emptyItems = function() {
+                $('#append-demo').empty();
+            };
+
+            window.changeAttr = function() {
+                $('#attr-demo').attr({
+                    'src': 'https://via.placeholder.com/300/FF6347/FFFFFF?text=Changed',
+                    'width': '300',
+                    'alt': '변경된 이미지'
+                });
+            };
+
+            window.removeAttrDemo = function() {
+                $('#attr-demo').removeAttr('width');
+            };
+
+            window.resetAttr = function() {
+                $('#attr-demo').attr({
+                    'src': 'https://via.placeholder.com/200',
+                    'width': '200',
+                    'alt': '원본 이미지'
+                });
+            };
+        });
+    </script>
+</body>
+</html>
+

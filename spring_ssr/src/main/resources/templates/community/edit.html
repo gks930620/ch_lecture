@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 수정 - 커뮤니티</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background-color: #fafafa; min-height: 100vh; }
+
+        .app-header { background-color: #6200ea; color: white; padding: 0 16px; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 500; text-decoration: none; color: white; }
+        .header-logo .material-icons { font-size: 28px; }
+        .nav-item { padding: 8px 16px; border-radius: 4px; text-decoration: none; color: white; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); }
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .user-info { font-size: 14px; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255,255,255,0.1); border-radius: 20px; }
+        .user-info .material-icons { font-size: 18px; }
+        .btn-header { padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+        .btn-login { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; }
+        .btn-logout { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; }
+
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+        .page-header { margin-bottom: 24px; }
+        .page-header h1 { font-size: 28px; font-weight: 500; color: #212121; display: flex; align-items: center; gap: 8px; }
+        .page-header .material-icons { font-size: 32px; color: #6200ea; }
+        .write-form { background: white; border-radius: 8px; padding: 32px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; color: #424242; margin-bottom: 8px; }
+        .form-label.required::after { content: ' *'; color: #d32f2f; }
+        .form-input { width: 100%; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 14px; outline: none; }
+        .form-input:focus { border-color: #6200ea; }
+        #editor { height: 400px; background: white; }
+        .ql-container { height: calc(100% - 42px); overflow-y: auto; }
+        .ql-editor { min-height: 100%; }
+        .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px; }
+        .btn { padding: 12px 24px; border-radius: 4px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background-color: #6200ea; color: white; }
+        .btn-primary:hover { background-color: #5000ca; }
+        .btn-secondary { background-color: #f5f5f5; color: #424242; }
+        .btn-secondary:hover { background-color: #e0e0e0; }
+        .btn .material-icons { font-size: 18px; }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/" class="header-logo">
+                    <span class="material-icons">code</span>
+                    <span>Boilerplate</span>
+                </a>
+                <a href="/community" class="nav-item">
+                    <span class="material-icons">forum</span>
+                    커뮤니티
+                </a>
+            </div>
+            <div class="header-right">
+                <th:block th:if="${session.loginUser != null}">
+                    <a href="/mypage" class="user-info" style="text-decoration: none;">
+                        <span class="material-icons">account_circle</span>
+                        <span th:text="${session.loginUser.nickname}">닉네임</span>
+                    </a>
+                    <form action="/logout" method="post" style="display:inline;">
+                        <button type="submit" class="btn-header btn-logout">로그아웃</button>
+                    </form>
+                </th:block>
+                <th:block th:if="${session.loginUser == null}">
+                    <a href="/login" class="btn-header btn-login">로그인</a>
+                </th:block>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>
+                <span class="material-icons">edit</span>
+                게시글 수정
+            </h1>
+        </div>
+
+        <form class="write-form" id="editForm" method="post"
+              th:action="@{/community/{id}/edit(id=${community.id})}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="form-label required" for="title">제목</label>
+                <input type="text" class="form-input" id="title" name="title"
+                       th:value="${communityUpdateDTO.title}"
+                       placeholder="제목을 입력하세요" required maxlength="200">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required">내용</label>
+                <div id="editor"></div>
+                <input type="hidden" name="content" id="contentInput">
+            </div>
+
+            <!-- 기존 첨부파일 (JavaScript fetch API로 로드) -->
+            <div class="form-group" id="existing-attachments-section" style="display: none;">
+                <label class="form-label">기존 첨부파일</label>
+                <div id="existing-attachments"></div>
+            </div>
+
+            <!-- 삭제할 파일 ID를 담는 hidden container -->
+            <div id="deleteFileInputs"></div>
+
+            <!-- 새 첨부파일 -->
+            <div class="form-group">
+                <label class="form-label">첨부파일 추가</label>
+                <div id="attachment-list"></div>
+                <button type="button" onclick="addAttachmentRow()"
+                        style="margin-top: 8px; padding: 6px 14px; border: 1px dashed #9e9e9e; border-radius: 4px; background: #fafafa; color: #616161; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    <span class="material-icons" style="font-size: 18px;">add</span>첨부파일 추가
+                </button>
+                <div style="font-size: 12px; color: #757575; margin-top: 6px;">파일당 최대 10MB</div>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/community/{id}(id=${community.id})}" class="btn btn-secondary">
+                    <span class="material-icons">close</span>
+                    취소
+                </a>
+                <button type="submit" class="btn btn-primary" onclick="return submitEdit()">
+                    <span class="material-icons">check</span>
+                    수정 완료
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script th:inline="javascript">
+        const COMMUNITY_ID = /*[[${community.id}]]*/ 0;
+        const initialContent = /*[[${communityUpdateDTO.content}]]*/ '';
+
+        // 에디터에서 업로드한 파일의 정보를 저장하는 배열 (object: {id, url})
+        // 페이지 로드 시 API로 기존 에디터 이미지를 채움 (아래 loadEditorImages 함수 참조)
+        // previewUrl은 "/uploads/uuid.png" 형태 → 에디터 본문의 <img src="/uploads/..."> URL과 일치해야 함
+        // downloadUrl("/files/download/{id}")을 쓰면 본문 img src와 매칭이 안 되어 동기화 실패
+        const editorFiles = [];
+
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: '내용을 입력하세요...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
+
+
+        // 이미지 업로드 커스텀 핸들러 (본문 이미지 - 즉시 업로드)
+        quill.getModule('toolbar').addHandler('image', function() {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+            input.onchange = async function() {
+                const file = input.files[0];
+                if (!file) return;
+                const formData = new FormData();
+                formData.append('files', file);
+                // 수정 시에도 새 이미지는 임시(0)로 저장 후, 저장 버튼 클릭 시 연결
+                formData.append('refId', '0');
+                formData.append('refType', 'COMMUNITY');
+                formData.append('usage', 'IMAGES');
+                try {
+                    const res = await fetch('/api/files/upload', { method: 'POST', body: formData });
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        // 업로드된 파일의 fileId와 url을 저장
+                        if (data[0].fileId) editorFiles.push({ id: data[0].fileId, url: data[0].url });
+                        const range = quill.getSelection(true);
+                        quill.insertEmbed(range.index, 'image', data[0].url);
+                    }
+                } catch(e) {
+                    alert('이미지 업로드에 실패했습니다.');
+                }
+            };
+        });
+
+        // 기존 내용 로드
+        quill.root.innerHTML = initialContent;
+
+        // ※ 에디터에서 이미지 삭제 시 서버 호출하지 않음 (글 수정 완료 시 최종 목록으로 동기화)
+        // 단, editorFiles 배열은 현재 에디터 상태와 동기화해야 함
+        quill.on('text-change', function() {
+            const html = quill.root.innerHTML;
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            const currentSrcs = Array.from(div.querySelectorAll('img')).map(img => img.getAttribute('src'));
+
+            // editorFiles 배열에서, 현재 에디터 내용에 없는 이미지는 제거
+            for (let i = editorFiles.length - 1; i >= 0; i--) {
+                if (!currentSrcs.includes(editorFiles[i].url)) {
+                    editorFiles.splice(i, 1);
+                }
+            }
+        });
+
+        // ─── 파일 삭제 표시 (화면에서 숨기고 hidden input 추가) ───
+        function markFileForDelete(fileId) {
+            if (!confirm('이 파일을 삭제하시겠습니까?')) return;
+            const row = document.getElementById('file-row-' + fileId);
+            if (row) row.style.display = 'none';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'deleteFileIds';
+            input.value = fileId;
+            document.getElementById('deleteFileInputs').appendChild(input);
+        }
+
+        // ─── 새 첨부파일 행 추가/제거 ───
+        let attachmentSeq = 0;
+        function addAttachmentRow() {
+            const id = 'attachment-row-' + (attachmentSeq++);
+            const list = document.getElementById('attachment-list');
+            const row = document.createElement('div');
+            row.id = id;
+            row.style.cssText = 'display:flex; align-items:center; gap:8px; margin-bottom:6px;';
+            row.innerHTML = `
+                <input type="file" name="files" class="attachment-file"
+                       style="flex:1; padding:6px; border:1px solid #e0e0e0; border-radius:4px; font-size:13px;">
+                <button type="button" onclick="document.getElementById('${id}').remove()"
+                        style="background:none; border:none; color:#d32f2f; cursor:pointer; display:inline-flex; align-items:center; padding:4px;">
+                    <span class="material-icons" style="font-size:20px;">close</span>
+                </button>`;
+            list.appendChild(row);
+        }
+
+        // ─── 수정 완료 (form submit 전 유효성 검사 + 에디터 내용 세팅) ───
+        function submitEdit() {
+            const title = document.getElementById('title').value.trim();
+            const content = quill.root.innerHTML.trim();
+            const text = quill.getText().trim();
+
+            if (!title) { alert('제목을 입력해주세요.'); return false; }
+            if (!text || text.length < 2) { alert('내용을 입력해주세요.'); return false; }
+
+            document.getElementById('contentInput').value = content;
+
+            // editorFiles에서 id들만 추출하여 form에 hidden inputs로 추가
+            const form = document.getElementById('editForm');
+            Array.from(form.querySelectorAll('input[name="editorFileIds"]')).forEach(i => i.remove());
+            editorFiles.map(f => f.id).forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'editorFileIds';
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            return true; // form submit 진행
+        }
+
+        // ─── XSS 방지 ───
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ─── 기존 첨부파일 로드 (API 호출) ───
+        function loadAttachments() {
+            fetch(`/api/files?refId=${COMMUNITY_ID}&refType=COMMUNITY&usage=ATTACHMENT`)
+                .then(res => res.json())
+                .then(files => {
+                    if (!files || files.length === 0) return;
+                    const section = document.getElementById('existing-attachments-section');
+                    const list = document.getElementById('existing-attachments');
+                    section.style.display = 'block';
+                    list.innerHTML = files.map(file => `
+                        <div id="file-row-${file.fileId}"
+                             style="display: flex; align-items: center; gap: 8px; padding: 6px 0;">
+                            <span class="material-icons" style="font-size: 18px; color: #757575;">description</span>
+                            <span style="font-size: 14px;">${escapeHtml(file.originalFileName)}</span>
+                            <span style="font-size: 12px; color: #9e9e9e;">${file.formattedFileSize}</span>
+                            <button type="button" onclick="markFileForDelete(${file.fileId})"
+                                    style="background: none; border: none; color: #d32f2f; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; padding: 0;">
+                                <span class="material-icons" style="font-size: 16px;">close</span>삭제
+                            </button>
+                        </div>
+                    `).join('');
+                })
+                .catch(err => console.error('첨부파일 로드 실패:', err));
+        }
+
+        // ─── 기존 에디터 이미지 로드 (API 호출) ───
+        function loadEditorImages() {
+            fetch(`/api/files?refId=${COMMUNITY_ID}&refType=COMMUNITY&usage=IMAGES`)
+                .then(res => res.json())
+                .then(files => {
+                    if (!files || files.length === 0) return;
+                    files.forEach(file => {
+                        editorFiles.push({ id: file.fileId, url: file.previewUrl });
+                    });
+                })
+                .catch(err => console.error('에디터 이미지 로드 실패:', err));
+        }
+
+        // ─── 페이지 로드 시 첨부파일 + 에디터 이미지 불러오기 ───
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAttachments();
+            loadEditorImages();
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 1: HTTP 실습 - Storage와 Fetch API</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 { color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 10px; text-align: center; }
+        h2 { color: #764ba2; margin-top: 30px; border-left: 5px solid #667eea; padding-left: 15px; }
+        .section {
+            background: #f0f0ff; padding: 20px; margin: 15px 0;
+            border-radius: 8px; border-left: 4px solid #667eea;
+        }
+        .output {
+            background: #1e1e1e; color: #9cdcfe; padding: 15px; margin: 10px 0;
+            border-radius: 8px; font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px; white-space: pre-wrap; min-height: 40px;
+            max-height: 400px; overflow-y: auto;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; border: none; padding: 10px 20px;
+            border-radius: 5px; cursor: pointer; font-size: 15px; margin: 5px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
+        button.danger { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        input, textarea, select {
+            padding: 10px; border: 2px solid #ddd; border-radius: 5px;
+            font-size: 14px; margin: 5px;
+        }
+        textarea { width: 90%; font-family: 'Consolas', monospace; }
+        .status-badge {
+            display: inline-block; padding: 3px 8px; border-radius: 12px;
+            color: white; font-size: 12px; font-weight: bold;
+        }
+        .tip { background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3; margin: 15px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
+        th { background: #667eea; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 8장 Part 1: HTTP 실습 - Storage와 Fetch API</h1>
+
+        <!-- LocalStorage -->
+        <h2>1. LocalStorage (영구 저장)</h2>
+
+        <div class="section">
+            <h3>데이터 저장/조회/삭제</h3>
+            <div class="tip">💡 LocalStorage는 브라우저를 닫아도 데이터가 유지됩니다. (도메인별 5~10MB)</div>
+            <div>
+                <input type="text" id="lsKey" placeholder="키 (key)" value="username">
+                <input type="text" id="lsValue" placeholder="값 (value)" value="홍길동">
+                <button onclick="lsSet()">저장</button>
+                <button onclick="lsGet()">조회</button>
+                <button onclick="lsRemove()">삭제</button>
+                <button class="danger" onclick="lsClear()">전체 삭제</button>
+            </div>
+            <div id="lsResult" class="output"></div>
+        </div>
+
+        <div class="section">
+            <h3>LocalStorage에 객체 저장 (JSON 활용)</h3>
+            <button onclick="lsObjectDemo()">객체 저장/불러오기 테스트</button>
+            <div id="lsObjectResult" class="output"></div>
+        </div>
+
+        <!-- SessionStorage -->
+        <h2>2. SessionStorage (임시 저장)</h2>
+
+        <div class="section">
+            <h3>Session vs Local 비교</h3>
+            <div class="tip">💡 SessionStorage는 브라우저 탭을 닫으면 데이터가 사라집니다.</div>
+            <button onclick="ssDemo()">SessionStorage 테스트</button>
+            <div id="ssResult" class="output"></div>
+        </div>
+
+        <!-- Cookie -->
+        <h2>3. 쿠키 (Cookie)</h2>
+
+        <div class="section">
+            <h3>쿠키 설정/조회</h3>
+            <div class="tip">💡 쿠키는 HTTP 요청마다 서버로 자동 전송됩니다. (최대 4KB)</div>
+            <input type="text" id="cookieKey" placeholder="쿠키 이름" value="theme">
+            <input type="text" id="cookieValue" placeholder="쿠키 값" value="dark">
+            <button onclick="setCookie()">쿠키 설정</button>
+            <button onclick="getCookies()">모든 쿠키 조회</button>
+            <div id="cookieResult" class="output"></div>
+        </div>
+
+        <!-- Fetch API -->
+        <h2>4. Fetch API - GET 요청</h2>
+
+        <div class="section">
+            <h3>JSONPlaceholder API로 데이터 가져오기</h3>
+            <p>무료 REST API (jsonplaceholder.typicode.com)</p>
+            <button onclick="fetchUsers()">👥 사용자 목록</button>
+            <button onclick="fetchPosts()">📝 게시글 목록</button>
+            <button onclick="fetchTodos()">✅ 할 일 목록</button>
+            <div id="fetchGetResult" class="output">버튼을 클릭하면 API를 호출합니다...</div>
+        </div>
+
+        <h2>5. Fetch API - POST/PUT/DELETE 요청</h2>
+
+        <div class="section">
+            <h3>데이터 생성 (POST)</h3>
+            <input type="text" id="postTitle" placeholder="게시글 제목" value="테스트 게시글">
+            <input type="text" id="postBody" placeholder="게시글 내용" value="안녕하세요!">
+            <button onclick="fetchPost()">📤 POST 요청</button>
+            <button onclick="fetchPut()">📝 PUT 요청</button>
+            <button onclick="fetchDelete()">🗑️ DELETE 요청</button>
+            <div id="fetchPostResult" class="output">요청 결과가 여기에 표시됩니다...</div>
+        </div>
+
+        <h2>6. HTTP 상태 코드 확인</h2>
+
+        <div class="section">
+            <h3>다양한 상태 코드 체험</h3>
+            <button onclick="testStatus(200)">200 OK</button>
+            <button onclick="testStatus(404)">404 Not Found</button>
+            <button onclick="testStatus(500)">500 Error (시뮬레이션)</button>
+            <button onclick="testCORS()">CORS 에러 체험</button>
+            <div id="statusResult" class="output">상태 코드 테스트 결과가 여기에 표시됩니다...</div>
+        </div>
+
+        <!-- 비교표 -->
+        <h2>7. 저장소 비교표</h2>
+
+        <div class="section">
+            <table>
+                <tr>
+                    <th>항목</th>
+                    <th>Cookie</th>
+                    <th>LocalStorage</th>
+                    <th>SessionStorage</th>
+                </tr>
+                <tr>
+                    <td><strong>용량</strong></td>
+                    <td>~4KB</td>
+                    <td>5~10MB</td>
+                    <td>5~10MB</td>
+                </tr>
+                <tr>
+                    <td><strong>만료</strong></td>
+                    <td>설정 가능</td>
+                    <td>영구</td>
+                    <td>탭 닫을 때</td>
+                </tr>
+                <tr>
+                    <td><strong>서버 전송</strong></td>
+                    <td>✅ 자동</td>
+                    <td>❌ 수동</td>
+                    <td>❌ 수동</td>
+                </tr>
+                <tr>
+                    <td><strong>용도</strong></td>
+                    <td>인증, 추적</td>
+                    <td>설정, 캐시</td>
+                    <td>임시 데이터</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // 1. LocalStorage
+        // ========================================
+        function lsSet() {
+            const key = document.getElementById('lsKey').value;
+            const value = document.getElementById('lsValue').value;
+            if (!key) { alert('키를 입력하세요'); return; }
+            localStorage.setItem(key, value);
+            showAllLS();
+        }
+
+        function lsGet() {
+            const key = document.getElementById('lsKey').value;
+            const value = localStorage.getItem(key);
+            const el = document.getElementById('lsResult');
+            el.textContent = value !== null
+                ? `✅ "${key}" = "${value}"`
+                : `❌ "${key}" 키가 없습니다.`;
+        }
+
+        function lsRemove() {
+            const key = document.getElementById('lsKey').value;
+            localStorage.removeItem(key);
+            showAllLS();
+        }
+
+        function lsClear() {
+            localStorage.clear();
+            showAllLS();
+        }
+
+        function showAllLS() {
+            const el = document.getElementById('lsResult');
+            let result = '=== 현재 LocalStorage ===\n';
+            if (localStorage.length === 0) {
+                result += '(비어있음)';
+            } else {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    result += `  "${key}" = "${localStorage.getItem(key)}"\n`;
+                }
+            }
+            result += `\n총 ${localStorage.length}개 항목`;
+            el.textContent = result;
+        }
+
+        function lsObjectDemo() {
+            const el = document.getElementById('lsObjectResult');
+            let result = '';
+
+            // 객체 저장
+            const settings = {
+                theme: "dark",
+                fontSize: 16,
+                language: "ko",
+                notifications: true
+            };
+
+            result += '=== 객체 저장 ===\n';
+            result += `원본 객체: ${JSON.stringify(settings, null, 2)}\n\n`;
+
+            localStorage.setItem("demo_settings", JSON.stringify(settings));
+            result += `저장: localStorage.setItem("demo_settings", JSON.stringify(settings))\n\n`;
+
+            // 객체 불러오기
+            const loaded = JSON.parse(localStorage.getItem("demo_settings"));
+            result += '=== 객체 불러오기 ===\n';
+            result += `loaded.theme → "${loaded.theme}"\n`;
+            result += `loaded.fontSize → ${loaded.fontSize}\n`;
+            result += `loaded.language → "${loaded.language}"\n\n`;
+
+            result += '💡 localStorage는 문자열만 저장 가능!\n';
+            result += '   객체 → JSON.stringify() → 저장\n';
+            result += '   불러오기 → JSON.parse() → 객체';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 2. SessionStorage
+        // ========================================
+        function ssDemo() {
+            const el = document.getElementById('ssResult');
+            let result = '';
+
+            sessionStorage.setItem("temp_data", "세션 데이터");
+            sessionStorage.setItem("page_view", String((Number(sessionStorage.getItem("page_view")) || 0) + 1));
+
+            result += '=== SessionStorage 테스트 ===\n';
+            result += `temp_data: "${sessionStorage.getItem("temp_data")}"\n`;
+            result += `page_view: ${sessionStorage.getItem("page_view")} (새로고침하면 증가, 탭 닫으면 초기화)\n\n`;
+
+            result += '=== Local vs Session 차이 ===\n';
+            result += 'LocalStorage:  브라우저 닫아도 유지 (영구)\n';
+            result += 'SessionStorage: 탭 닫으면 삭제 (임시)\n\n';
+            result += '💡 이 페이지를 새로고침하면 page_view가 증가합니다.\n';
+            result += '💡 탭을 닫았다 다시 열면 page_view가 1로 초기화됩니다.';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 3. Cookie
+        // ========================================
+        function setCookie() {
+            const key = document.getElementById('cookieKey').value;
+            const value = document.getElementById('cookieValue').value;
+            document.cookie = `${key}=${value}; max-age=3600; path=/`;
+            getCookies();
+        }
+
+        function getCookies() {
+            const el = document.getElementById('cookieResult');
+            let result = '=== 현재 쿠키 ===\n';
+
+            if (document.cookie) {
+                const cookies = document.cookie.split(';');
+                cookies.forEach(cookie => {
+                    const [key, value] = cookie.trim().split('=');
+                    result += `  ${key} = ${value}\n`;
+                });
+            } else {
+                result += '(쿠키 없음)\n';
+            }
+
+            result += '\n💡 쿠키는 HTTP 요청 시 자동으로 서버에 전송됩니다.\n';
+            result += '💡 HttpOnly 쿠키는 JavaScript로 접근 불가 (보안)';
+
+            el.textContent = result;
+        }
+
+        // ========================================
+        // 4. Fetch GET
+        // ========================================
+        async function fetchUsers() {
+            const el = document.getElementById('fetchGetResult');
+            el.textContent = '⏳ 로딩 중...';
+
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/users');
+                const users = await response.json();
+
+                let result = `=== GET /users (상태: ${response.status} ${response.statusText}) ===\n\n`;
+                users.forEach(user => {
+                    result += `👤 ${user.name} (${user.email})\n`;
+                    result += `   📍 ${user.address.city} | 🏢 ${user.company.name}\n\n`;
+                });
+
+                el.textContent = result;
+            } catch (error) {
+                el.textContent = `❌ 에러: ${error.message}`;
+            }
+        }
+
+        async function fetchPosts() {
+            const el = document.getElementById('fetchGetResult');
+            el.textContent = '⏳ 로딩 중...';
+
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=10');
+                const posts = await response.json();
+
+                let result = `=== GET /posts?_limit=10 (상태: ${response.status}) ===\n\n`;
+                posts.forEach(post => {
+                    result += `📝 [${post.id}] ${post.title}\n`;
+                    result += `   ${post.body.substring(0, 60)}...\n\n`;
+                });
+
+                el.textContent = result;
+            } catch (error) {
+                el.textContent = `❌ 에러: ${error.message}`;
+            }
+        }
+
+        async function fetchTodos() {
+            const el = document.getElementById('fetchGetResult');
+            el.textContent = '⏳ 로딩 중...';
+
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=15');
+                const todos = await response.json();
+
+                let result = `=== GET /todos?_limit=15 (상태: ${response.status}) ===\n\n`;
+                todos.forEach(todo => {
+                    const icon = todo.completed ? '✅' : '⬜';
+                    result += `${icon} [${todo.id}] ${todo.title}\n`;
+                });
+
+                const completed = todos.filter(t => t.completed).length;
+                result += `\n완료: ${completed}/${todos.length}`;
+
+                el.textContent = result;
+            } catch (error) {
+                el.textContent = `❌ 에러: ${error.message}`;
+            }
+        }
+
+        // ========================================
+        // 5. Fetch POST/PUT/DELETE
+        // ========================================
+        async function fetchPost() {
+            const el = document.getElementById('fetchPostResult');
+            el.textContent = '⏳ POST 요청 중...';
+
+            const title = document.getElementById('postTitle').value;
+            const body = document.getElementById('postBody').value;
+
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, body, userId: 1 })
+                });
+
+                const data = await response.json();
+
+                let result = `=== POST /posts ===\n`;
+                result += `상태: ${response.status} ${response.statusText}\n\n`;
+                result += `요청 본문:\n${JSON.stringify({ title, body, userId: 1 }, null, 2)}\n\n`;
+                result += `응답:\n${JSON.stringify(data, null, 2)}\n\n`;
+                result += `💡 201 Created = 리소스가 성공적으로 생성됨`;
+
+                el.textContent = result;
+            } catch (error) {
+                el.textContent = `❌ 에러: ${error.message}`;
+            }
+        }
+
+        async function fetchPut() {
+            const el = document.getElementById('fetchPostResult');
+            el.textContent = '⏳ PUT 요청 중...';
+
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/posts/1', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: 1,
+                        title: '수정된 제목',
+                        body: '수정된 내용',
+                        userId: 1
+                    })
+                });
+
+                const data = await response.json();
+
+                let result = `=== PUT /posts/1 ===\n`;
+                result += `상태: ${response.status} ${response.statusText}\n\n`;
+                result += `응답:\n${JSON.stringify(data, null, 2)}\n\n`;
+                result += `💡 PUT = 전체 수정 (모든 필드 포함해야 함)`;
+
+                el.textContent = result;
+            } catch (error) {
+                el.textContent = `❌ 에러: ${error.message}`;
+            }
+        }
+
+        async function fetchDelete() {
+            const el = document.getElementById('fetchPostResult');
+            el.textContent = '⏳ DELETE 요청 중...';
+
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/posts/1', {
+                    method: 'DELETE'
+                });
+
+                let result = `=== DELETE /posts/1 ===\n`;
+                result += `상태: ${response.status} ${response.statusText}\n\n`;
+                result += `💡 200 OK 또는 204 No Content = 삭제 성공`;
+
+                el.textContent = result;
+            } catch (error) {
+                el.textContent = `❌ 에러: ${error.message}`;
+            }
+        }
+
+        // ========================================
+        // 6. 상태 코드 테스트
+        // ========================================
+        async function testStatus(code) {
+            const el = document.getElementById('statusResult');
+            el.textContent = '⏳ 요청 중...';
+
+            try {
+                let url;
+                if (code === 200) url = 'https://jsonplaceholder.typicode.com/posts/1';
+                else if (code === 404) url = 'https://jsonplaceholder.typicode.com/posts/99999';
+                else url = 'https://jsonplaceholder.typicode.com/posts/1'; // 500은 시뮬레이션
+
+                const response = await fetch(url);
+
+                let result = `=== HTTP 상태 코드 테스트 ===\n`;
+                result += `URL: ${url}\n`;
+                result += `상태: ${response.status} ${response.statusText}\n`;
+                result += `OK: ${response.ok}\n\n`;
+
+                if (code === 200) {
+                    result += '✅ 200 OK - 요청 성공!\n';
+                    const data = await response.json();
+                    result += `데이터: ${JSON.stringify(data).substring(0, 200)}...`;
+                } else if (code === 404) {
+                    result += '❌ 404 Not Found - 리소스를 찾을 수 없음!\n';
+                    result += '존재하지 않는 ID(99999)로 요청했습니다.';
+                } else {
+                    result += '⚠️ 500 Internal Server Error (시뮬레이션)\n\n';
+                    result += '실제로는 서버 코드에 버그가 있을 때 발생합니다.\n';
+                    result += 'JSONPlaceholder는 500 에러를 반환하지 않으므로\n';
+                    result += '실제 프로젝트에서 try-catch로 대비하세요.';
+                }
+
+                el.textContent = result;
+            } catch (error) {
+                el.textContent = `❌ 네트워크 에러: ${error.message}`;
+            }
+        }
+
+        async function testCORS() {
+            const el = document.getElementById('statusResult');
+            el.textContent = '⏳ CORS 테스트 중...';
+
+            try {
+                // CORS를 허용하지 않는 서버에 요청
+                const response = await fetch('https://www.google.com');
+                el.textContent = `응답 받음: ${response.status}`;
+            } catch (error) {
+                let result = '=== CORS 에러 체험 ===\n\n';
+                result += `❌ ${error.message}\n\n`;
+                result += '이것이 CORS 에러입니다!\n\n';
+                result += '원인: 다른 출처(Origin)의 서버가 CORS를 허용하지 않음\n\n';
+                result += '해결 방법 (서버 측):\n';
+                result += '  Access-Control-Allow-Origin: * 또는 특정 도메인\n';
+                result += '  Access-Control-Allow-Methods: GET, POST, PUT, DELETE\n\n';
+                result += '💡 개발 중에는 프록시 서버를 사용하거나\n';
+                result += '   서버 설정에서 CORS를 허용하세요.';
+
+                el.textContent = result;
+            }
+        }
+    </script>
+</body>
+</html>
+

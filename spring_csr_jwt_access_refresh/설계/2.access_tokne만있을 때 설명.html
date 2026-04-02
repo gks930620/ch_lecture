@@ -1,0 +1,794 @@
+<div class="tt_article_useless_p_margin contents_style"><p data-ke-size="size18">전체코드 : <a href="https://github.com/gks930620/spring_securty_all" target="_blank" rel="noopener&nbsp;noreferrer">https://github.com/gks930620/spring_securty_all</a></p>
+  <h2 data-ke-size="size26">&nbsp;</h2>
+  <h2 data-ke-size="size26">프로젝트 세팅</h2>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18"><a href="https://start.spring.io/">https://start.spring.io/</a><span>&nbsp;</span>에서 프로젝트를 생성합니다.&nbsp;</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">필요한 library는<br>Spring Data JDBC,H2 Database,&nbsp; Spring Data JPA,&nbsp; Spring Web, Thymeleaf,</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">Spring Boot Devtools ,&nbsp; Lombok,&nbsp; Spring security <span style="font-size: 1.12em; letter-spacing: 0px;">입니다.</span></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">jwt,&nbsp; dotenv(.env 환경변수 설정)&nbsp; 라이브러리는 buuild.gradle에 직접 추가합니다.</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs">implementation <span class="hljs-string">'io.jsonwebtoken:jjwt-api:0.12.3'</span>
+implementation <span class="hljs-string">'io.jsonwebtoken:jjwt-impl:0.12.3'</span>
+implementation <span class="hljs-string">'io.jsonwebtoken:jjwt-jackson:0.12.3'</span>
+
+implementation <span class="hljs-string">'io.github.cdimascio:dotenv-java:2.2.0'</span></code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">설정파일</h2>
+  <p data-ke-size="size18">application.yml</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs">spring:
+  datasource:
+    url: jdbc:h2:mem:security
+    driver-<span class="hljs-class"><span class="hljs-keyword">class</span>-<span class="hljs-title">name</span>: <span class="hljs-title">org</span>.<span class="hljs-title">h2</span>.<span class="hljs-title">Driver</span>
+    <span class="hljs-title">username</span>: <span class="hljs-title">sa</span>
+    <span class="hljs-title">password</span>:
+  <span class="hljs-title">jpa</span>:
+    <span class="hljs-title">hibernate</span>:
+      <span class="hljs-title">ddl</span>-<span class="hljs-title">auto</span>: <span class="hljs-title">create</span>
+    <span class="hljs-title">properties</span>:
+      <span class="hljs-title">hibernate</span>:
+        <span class="hljs-title">show_sql</span>: <span class="hljs-title">true</span>
+        <span class="hljs-title">format_sql</span>: <span class="hljs-title">true</span>
+        <span class="hljs-title">default_batch_fetch_size</span>: 100
+    <span class="hljs-title">open</span>-<span class="hljs-title">in</span>-<span class="hljs-title">view</span>: <span class="hljs-title">false</span>
+  <span class="hljs-title">devtools</span>:
+    <span class="hljs-title">livereload</span>:
+      <span class="hljs-title">enabled</span>: <span class="hljs-title">true</span>
+    <span class="hljs-title">freemarker</span>:
+      <span class="hljs-title">cache</span>: <span class="hljs-title">false</span>
+    <span class="hljs-title">restart</span>:
+      <span class="hljs-title">enabled</span>: <span class="hljs-title">true</span>
+  <span class="hljs-title">thymeleaf</span>:
+    <span class="hljs-title">cache</span>: <span class="hljs-title">false</span>
+
+
+<span class="hljs-title">jwt</span>:
+  <span class="hljs-title">secret</span> : $</span>{JWT_SECRET_KEY}
+    #키는 길이만 충분하고 노출되지만 않으면 됨. gpt한테 만들어하던가 내가 막 타자 아무렇게 해도됨
+  expiration_access: <span class="hljs-number">60000</span>  #테스트용 <span class="hljs-number">1</span>분
+
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+    org.springframework.security : DEBUG</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">SecurityConfig&nbsp; &nbsp; &nbsp; &nbsp;</p>
+  <p data-ke-size="size18">설명이 필요한 부분은 JWT를 구현하면서&nbsp; 설명할 것이지만,<br>마지막에 exceptionHandling.authenticationEntryPoint는 잠깐 살펴보자.&nbsp;</p>
+  <p data-ke-size="size18">여기는&nbsp; 다음과 같은 상황에 오게된다.</p>
+  <ul style="list-style-type: disc;" data-ke-list-type="disc">
+    <li>인증없이(access token없이) 인증 필요한 url에 접근했을 때&nbsp;</li>
+    <li>토큰만료</li>
+    <li>로그인실패</li>
+  </ul>
+  <p data-ke-size="size18">이후 구현과정에서&nbsp; 이 3가지 상황에 대한 코드부분에서 request.setAttribute를 하게 될 것이다.&nbsp;</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="less"><code class="hljs"><span class="hljs-variable">@Configuration</span>
+<span class="hljs-variable">@EnableWebSecurity</span>
+<span class="hljs-variable">@RequiredArgsConstructor</span>
+public class SecurityConfig {
+
+    <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">final</span> <span class="hljs-selector-tag">JwtUtil</span> <span class="hljs-selector-tag">jwtUtil</span>;
+    <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">final</span> <span class="hljs-selector-tag">CustomUserDetailsService</span> <span class="hljs-selector-tag">customUserDetailsService</span>;  <span class="hljs-comment">//내가 빈으로 등록한것들</span>
+
+    <span class="hljs-selector-tag">private</span> <span class="hljs-selector-tag">final</span> <span class="hljs-selector-tag">AuthenticationConfiguration</span> <span class="hljs-selector-tag">authenticationConfiguration</span>;  <span class="hljs-comment">//authenticationManger를 갖고있는 빈.</span>
+
+    @<span class="hljs-selector-tag">Bean</span>
+    <span class="hljs-selector-tag">public</span> <span class="hljs-selector-tag">PasswordEncoder</span> <span class="hljs-selector-tag">passwordEncoder</span>() {
+        <span class="hljs-selector-tag">return</span> <span class="hljs-selector-tag">new</span> <span class="hljs-selector-tag">BCryptPasswordEncoder</span>();
+    }
+
+
+    @<span class="hljs-selector-tag">Bean</span>
+    <span class="hljs-selector-tag">public</span> <span class="hljs-selector-tag">SecurityFilterChain</span> <span class="hljs-selector-tag">securityFilterChain</span>(HttpSecurity http) <span class="hljs-selector-tag">throws</span> <span class="hljs-selector-tag">Exception</span> {
+        <span class="hljs-selector-tag">http</span>  <span class="hljs-comment">//내부H2DB  확인용.  진짜 1도 안중요함.</span>
+            <span class="hljs-selector-class">.authorizeHttpRequests</span>(auth -&gt; auth
+                .requestMatchers(<span class="hljs-string">"/h2-console/**"</span>).permitAll() <span class="hljs-comment">// H2 콘솔 접근 허용</span>
+            )
+            <span class="hljs-selector-class">.csrf</span>(csrf -&gt; csrf.ignoringRequestMatchers(<span class="hljs-string">"/h2-console/**"</span>)) <span class="hljs-comment">// H2 콘솔 CSRF 비활성화</span>
+            <span class="hljs-selector-class">.headers</span>(
+                headers -&gt; headers.frameOptions(frame -&gt; frame.disable())); <span class="hljs-comment">// H2 콘솔을 iframe에서 허용</span>
+
+        <span class="hljs-selector-tag">http</span>    <span class="hljs-comment">//기본 session방식관련 다 X</span>
+            <span class="hljs-selector-class">.csrf</span>(csrf -&gt; csrf.disable())
+            <span class="hljs-selector-class">.sessionManagement</span>(
+                session -&gt; session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            <span class="hljs-selector-class">.formLogin</span>(form -&gt; form.disable())
+            <span class="hljs-selector-class">.httpBasic</span>(basic -&gt; basic.disable());
+
+        <span class="hljs-selector-tag">http</span>   <span class="hljs-comment">//경로와 인증/인가 설정.</span>
+            <span class="hljs-selector-class">.authorizeHttpRequests</span>(auth -&gt; auth
+                .requestMatchers(<span class="hljs-string">"/login"</span>, <span class="hljs-string">"/api/join"</span>).permitAll() <span class="hljs-comment">//login필터는 기본적으로  /login 일 때 동작</span>
+                .requestMatchers(<span class="hljs-string">"/api/my/info"</span>).authenticated()
+            );
+
+        <span class="hljs-selector-tag">http</span>          <span class="hljs-comment">//필터</span>
+            <span class="hljs-selector-class">.userDetailsService</span>(customUserDetailsService)
+            <span class="hljs-selector-class">.addFilterAt</span>(
+                new JwtLoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil),
+                UsernamePasswordAuthenticationFilter.class)  <span class="hljs-comment">//기존 세션방식의 로그인 검증필터 대체.</span>
+            <span class="hljs-selector-class">.addFilterBefore</span>(
+                new JwtAccessTokenCheckAndSaveUserInfoFilter(jwtUtil, customUserDetailsService),
+                UsernamePasswordAuthenticationFilter.class);
+
+        <span class="hljs-comment">// .authenticated()  url 부분 로그인 안하고 접근하면  기본적으로는 로그인페이지 redirect하기</span>
+        <span class="hljs-comment">//  근데 formLogin을 disable했는데 이러면 security는 기본적으로 403보냄.</span>
+        <span class="hljs-selector-tag">http</span>
+            <span class="hljs-selector-class">.exceptionHandling</span>(ex -&gt; ex
+                .authenticationEntryPoint((request, response, authException) -&gt; {
+                    String errorCause =
+                        request.getAttribute(<span class="hljs-string">"ERROR_CAUSE"</span>) != null ? (String) request.getAttribute(
+                            <span class="hljs-string">"ERROR_CAUSE"</span>) : null;
+                    <span class="hljs-comment">//인증없이(access token없이) 인증필요한 곳에 로그인했을 떄.</span>
+                    if (errorCause == null) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType(<span class="hljs-string">"application/json;charset=UTF-8"</span>);
+                        response.getWriter().write(<span class="hljs-string">"{\"</span>error\<span class="hljs-string">": \"</span>인증이 필요합니다.\<span class="hljs-string">"}"</span>);
+                        return;
+                    }
+
+                    <span class="hljs-comment">// JwtAccessTokenCheckAndSaveUserInfoFilter  토큰체크하는부분</span>
+                    if (errorCause.equals(<span class="hljs-string">"토큰만료"</span>)) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); <span class="hljs-comment">// 401 응답</span>
+                        response.setContentType(<span class="hljs-string">"application/json"</span>);
+                        response.setCharacterEncoding(<span class="hljs-string">"UTF-8"</span>);
+                        response.getWriter().write(<span class="hljs-string">"{\"</span>error\<span class="hljs-string">": \"</span>Access Token expired\<span class="hljs-string">"}"</span>);
+                        return;
+                    }
+
+
+                    if (errorCause.equals(<span class="hljs-string">"로그인실패"</span>)) { <span class="hljs-comment">//jwtLoginFilter 로그인시도부분.</span>
+                        response.setStatus(
+                            HttpServletResponse.SC_UNAUTHORIZED); <span class="hljs-comment">//로그인실패도 401이 보통</span>
+                        response.setContentType(<span class="hljs-string">"application/json;charset=UTF-8"</span>);
+                        response.getWriter().write(<span class="hljs-string">"{\"</span>error\<span class="hljs-string">": \"</span>아이디 비번 틀림.\<span class="hljs-string">"}"</span>);
+                        return;
+                    }
+                })
+            );
+        <span class="hljs-selector-tag">return</span> <span class="hljs-selector-tag">http</span><span class="hljs-selector-class">.build</span>();
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">JWT와 상관없는 회원가입 및 CustomUserAccount 세팅</h2>
+  <p data-ke-size="size18">회원가입,&nbsp; 로그인 판단(CustomUserDetailsService) ,&nbsp;</p>
+  <p data-ke-size="size18">로그인&nbsp; 성공했을 때 security가 사용할 사용자 정보 자체는 기존 security 방식과 똑같다.&nbsp;</p>
+  <p data-ke-size="size18">다른점은 로그인 시도 후 성공이면&nbsp; access token을 클라이언트에 전달,&nbsp;</p>
+  <p data-ke-size="size18">실패하면&nbsp; 로그인실패사실을 클라이언트에 전달하기.</p>
+  <p data-ke-size="size18">또 클라이언트가 access token을 이용해 인증이 필요한 곳에 접근하고 이를 처리하는 부분이다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">JoinDTO</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@Setter</span>
+<span class="hljs-meta">@Getter</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JoinDTO</span> </span>{
+    <span class="hljs-keyword">private</span> String username;
+    <span class="hljs-keyword">private</span> String password;
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">UserEntity</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="typescript"><code class="hljs"><span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Getter</span>
+<span class="hljs-meta">@Setter</span>
+<span class="hljs-meta">@NoArgsConstructor</span>
+<span class="hljs-meta">@AllArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserEntity</span> </span>{
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-meta">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="hljs-keyword">private</span> Long id;
+
+    <span class="hljs-meta">@Column</span>(unique = <span class="hljs-literal">true</span>)
+    <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> username;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> password;
+
+
+    <span class="hljs-keyword">private</span> List&lt;<span class="hljs-built_in">String</span>&gt; roles=<span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">CustomUserAccount&nbsp; (securiy에서 사용자정보로 사용할 객체)</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="aspectj"><code class="hljs typescript"><span class="hljs-meta">@Getter</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomUserAccount</span>  <span class="hljs-title">implements</span> <span class="hljs-title">UserDetails</span> </span>{
+    <span class="hljs-keyword">private</span> UserEntity userEntity;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-title">CustomUserAccount</span>(<span class="hljs-params">UserEntity userEntity</span>)</span> {
+        <span class="hljs-built_in">this</span>.userEntity = userEntity;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span> <span class="hljs-function"><span class="hljs-title">getUsername</span>(<span class="hljs-params"></span>)</span> {
+        <span class="hljs-keyword">return</span> userEntity.getUsername();
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span> <span class="hljs-function"><span class="hljs-title">getPassword</span>(<span class="hljs-params"></span>)</span> {
+        <span class="hljs-keyword">return</span> userEntity.getPassword();
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Collection&lt;? <span class="hljs-keyword">extends</span> GrantedAuthority&gt; <span class="hljs-function"><span class="hljs-title">getAuthorities</span>(<span class="hljs-params"></span>)</span> {
+        <span class="hljs-keyword">return</span> userEntity.getRoles().stream()
+            .map(SimpleGrantedAuthority::<span class="hljs-keyword">new</span>)
+            .toList();
+    }
+}
+</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">JoinController</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="kotlin"><code class="hljs"><span class="hljs-meta">@Controller</span>
+<span class="hljs-meta">@RequestMapping(<span class="hljs-meta-string">"/api/join"</span>)</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JoinController</span> </span>{
+
+    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> JoinService joinService;
+
+    <span class="hljs-meta">@ResponseBody</span>
+    <span class="hljs-meta">@PostMapping</span>
+    <span class="hljs-keyword">public</span>  String joinPost(<span class="hljs-meta">@RequestBody</span> JoinDTO joinDTO){ <span class="hljs-comment">//클라이언트가 body로 보낸다고 가정.</span>
+        joinService.joinProcess(joinDTO);
+        <span class="hljs-keyword">return</span> <span class="hljs-string">"회원가입 완료!"</span>;
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">UserRepository</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">UserRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">JpaRepository</span>&lt;<span class="hljs-title">UserEntity</span>, <span class="hljs-title">Long</span>&gt; </span>{
+    <span class="hljs-function">UserEntity <span class="hljs-title">findByUsername</span><span class="hljs-params">(String username)</span></span>;
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">JoinService</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JoinService</span> </span>{
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> UserRepository userRepository;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> PasswordEncoder passwordEncoder;
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">joinProcess</span><span class="hljs-params">(JoinDTO joinDTO)</span> </span>{
+        <span class="hljs-comment">//db에 이미 동일한 username을 가진 회원이 존재하는지?</span>
+        UserEntity find = userRepository.findByUsername(joinDTO.getUsername());
+        <span class="hljs-keyword">if</span>(find!=<span class="hljs-keyword">null</span>) {
+            System.out.println(<span class="hljs-string">"이미 있는 ID입니다."</span>);
+        }
+        UserEntity user = <span class="hljs-keyword">new</span> UserEntity();
+        user.setUsername(joinDTO.getUsername());
+        user.setPassword(passwordEncoder.encode(joinDTO.getPassword()));  <span class="hljs-comment">//DB에 저장될 때는 반드시 encoding되서 저장되어야한다.</span>
+        user.getRoles().add(<span class="hljs-string">"USER"</span>);     <span class="hljs-comment">//hasAuthority("USER") 에 맞게 USER로 세팅</span>
+
+        userRepository.save(user);
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">CustomUserDetailsService</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java"><code class="hljs"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomUserDetailsService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsService</span> </span>{
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> UserRepository userRepository;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UserDetails <span class="hljs-title">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>{
+        UserEntity userData = userRepository.findByUsername(username);
+        <span class="hljs-keyword">if</span> (userData != <span class="hljs-keyword">null</span>) {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> CustomUserAccount(userData);
+        }
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> UsernameNotFoundException(username+<span class="hljs-string">"에 대한 회원정보가 없습니다."</span>);
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">JoinController&nbsp;</p>
+  <p data-ke-size="size18">(JWT를 사용하는 API서버에서는 보통 파라미터보다는 body에 담겨온다 -&gt; @RequestBody)</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="kotlin"><code class="hljs"><span class="hljs-meta">@Controller</span>
+<span class="hljs-meta">@RequestMapping(<span class="hljs-meta-string">"/api/join"</span>)</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JoinController</span> </span>{
+
+    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> JoinService joinService;
+
+    <span class="hljs-meta">@ResponseBody</span>
+    <span class="hljs-meta">@PostMapping</span>
+    <span class="hljs-keyword">public</span>  String joinPost(<span class="hljs-meta">@RequestBody</span> JoinDTO joinDTO){ <span class="hljs-comment">//클라이언트가 body로 보낸다고 가정.</span>
+        joinService.joinProcess(joinDTO);
+        <span class="hljs-keyword">return</span> <span class="hljs-string">"회원가입 완료!"</span>;
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">MainController</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="kotlin"><code class="hljs"><span class="hljs-meta">@Controller</span>
+<span class="hljs-meta">@RequestMapping(<span class="hljs-meta-string">"/api"</span>)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MainController</span> </span>{
+
+    <span class="hljs-comment">//로그인 후</span>
+    <span class="hljs-meta">@RequestMapping(<span class="hljs-meta-string">"/my/info"</span>)</span>
+    <span class="hljs-meta">@ResponseBody</span>
+    <span class="hljs-keyword">public</span> String  myInfo(<span class="hljs-meta">@AuthenticationPrincipal</span> CustomUserAccount customUserAccount
+        ){
+        StringBuilder sb=new StringBuilder();
+        sb.append(  <span class="hljs-string">"권한 : "</span>+    customUserAccount.getAuthorities().iterator().next().getAuthority() +<span class="hljs-string">"&lt;br&gt;"</span>   );  <span class="hljs-comment">//첫번째권한.</span>
+        sb.append(  <span class="hljs-string">"password : "</span>+  customUserAccount.getPassword()  +<span class="hljs-string">"&lt;br&gt; "</span>);
+        sb.append(  <span class="hljs-string">"username : "</span>+  customUserAccount.getUsername() + <span class="hljs-string">"&lt;br&gt;"</span> );
+        <span class="hljs-keyword">return</span> sb.toString();
+        <span class="hljs-comment">//api서버에서는 보통 DTO로 보내지만..</span>
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">JwtUtil</h2>
+  <p data-ke-size="size18">로그인 성공,&nbsp; 인증필요한 곳 접근등에 사용할 token을 JWT로 만들건데</p>
+  <p data-ke-size="size18">직접 만들면 힘드니까 JwtUtil클래스를 만든다.</p>
+  <p data-ke-size="size18">이 jwtUtil에서는&nbsp; access token 생성,&nbsp; 검증, 추출(username 등) 의 기능을 제공한다.</p>
+  <p data-ke-size="size18">JwtUtil</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="reasonml"><code class="hljs typescript"><span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JwtUtil</span> </span>{
+
+    <span class="hljs-meta">@Value</span>(<span class="hljs-string">"${jwt.secret}"</span>)
+    <span class="hljs-keyword">private</span> <span class="hljs-built_in">String</span> secretKey;
+
+    <span class="hljs-meta">@Value</span>(<span class="hljs-string">"${jwt.expiration_access}"</span>)
+    <span class="hljs-keyword">private</span> long expirationAccess;
+
+
+    <span class="hljs-keyword">private</span> SecretKey <span class="hljs-function"><span class="hljs-title">getSigningKey</span>(<span class="hljs-params"></span>)</span> {
+        <span class="hljs-keyword">return</span> Keys.hmacShaKeyFor(secretKey.getBytes());   <span class="hljs-comment">//HMAC 알고리즘일 때는 SecretKey로 return하기.</span>
+    }
+
+    <span class="hljs-comment">// Access Token 생성</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span> <span class="hljs-function"><span class="hljs-title">createAccessToken</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> username</span>)</span> {
+        <span class="hljs-keyword">return</span> Jwts.builder()
+            .subject(username) <span class="hljs-comment">// ✅ setSubject() -&gt; subject()</span>
+            .claim(<span class="hljs-string">"token_type"</span>, <span class="hljs-string">"access"</span>)
+            .issuedAt(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>())
+            .expiration(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(System.currentTimeMillis() + expirationAccess))
+            .signWith(getSigningKey()) <span class="hljs-comment">// ✅ SignatureAlgorithm.HS256 대신 Jwts.SIG.HS256 사용</span>
+            .compact();
+    }
+
+
+    <span class="hljs-comment">//토큰에서 username 추출.  뭐 subject에 uuid를 넣기도하지만.. 여기서는 subject에 username세팅했었음.</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">String</span> <span class="hljs-function"><span class="hljs-title">extractUsername</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> token</span>)</span> {
+        <span class="hljs-keyword">return</span> Jwts.parser()
+            .verifyWith(getSigningKey())  <span class="hljs-comment">// 0.12.3버전에서는 verifyWith에 Key말고 SecretKey가 와야한다.</span>
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .getSubject();
+    }
+
+    <span class="hljs-comment">//토큰에서 인증여부 확인.  코드상 문제가없다면 보통 만료됐을 때 false</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-built_in">boolean</span> <span class="hljs-function"><span class="hljs-title">validateToken</span>(<span class="hljs-params"><span class="hljs-built_in">String</span> token</span>)</span> {
+        <span class="hljs-keyword">try</span> {
+            Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())  <span class="hljs-comment">// ✅ 서명 검증</span>
+                .build()
+                .parseSignedClaims(token)    <span class="hljs-comment">// ✅ JWT 파싱</span>
+                .getPayload();               <span class="hljs-comment">// ✅ claims(토큰 정보) 추출</span>
+            <span class="hljs-comment">//  토큰 만료 확인</span>
+            <span class="hljs-built_in">Date</span> expiration = claims.getExpiration();
+            <span class="hljs-keyword">return</span> expiration.after(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>()); <span class="hljs-comment">// 현재 시간보다 만료 시간이 뒤에 있어야 유효</span>
+
+        } <span class="hljs-keyword">catch</span> (JwtException | IllegalArgumentException e) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        }
+    }
+
+}
+
+<span class="hljs-comment">//jjwt 버전에 따라 구현방식이 다르다. 현재는 0.12.3 버전.</span></code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">Access token으로 로그인 구현하기&nbsp;</h2>
+  <h3 data-ke-size="size23">로그인시도</h3>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/dmu0aC/btsMHQQCRR3/AAAAAAAAAAAAAAAAAAAAANukyJXgvKNEFJ6fmrFmodIt0RssNRXLAzjm3DSmS7EO/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=HqIZ3X1dpBDAvFp7M59zpc4%2FXFU%3D" data-phocus="https://blog.kakaocdn.net/dna/dmu0aC/btsMHQQCRR3/AAAAAAAAAAAAAAAAAAAAANukyJXgvKNEFJ6fmrFmodIt0RssNRXLAzjm3DSmS7EO/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=HqIZ3X1dpBDAvFp7M59zpc4%2FXFU%3D"><img src="https://blog.kakaocdn.net/dna/dmu0aC/btsMHQQCRR3/AAAAAAAAAAAAAAAAAAAAANukyJXgvKNEFJ6fmrFmodIt0RssNRXLAzjm3DSmS7EO/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=HqIZ3X1dpBDAvFp7M59zpc4%2FXFU%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fdmu0aC%2FbtsMHQQCRR3%2FAAAAAAAAAAAAAAAAAAAAANukyJXgvKNEFJ6fmrFmodIt0RssNRXLAzjm3DSmS7EO%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DHqIZ3X1dpBDAvFp7M59zpc4%252FXFU%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="0"></span></figure>
+  <figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/cGTsuI/btsMF7FTfh4/AAAAAAAAAAAAAAAAAAAAACt-sIY1DoIiOh_oN66mQeuVShWp_1ebq3MIFfYug7FP/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=i1iqhQTJzNBu9GoD4n1IbgQwv%2BM%3D" data-phocus="https://blog.kakaocdn.net/dna/cGTsuI/btsMF7FTfh4/AAAAAAAAAAAAAAAAAAAAACt-sIY1DoIiOh_oN66mQeuVShWp_1ebq3MIFfYug7FP/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=i1iqhQTJzNBu9GoD4n1IbgQwv%2BM%3D"><img src="https://blog.kakaocdn.net/dna/cGTsuI/btsMF7FTfh4/AAAAAAAAAAAAAAAAAAAAACt-sIY1DoIiOh_oN66mQeuVShWp_1ebq3MIFfYug7FP/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=i1iqhQTJzNBu9GoD4n1IbgQwv%2BM%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcGTsuI%2FbtsMF7FTfh4%2FAAAAAAAAAAAAAAAAAAAAACt-sIY1DoIiOh_oN66mQeuVShWp_1ebq3MIFfYug7FP%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3Di1iqhQTJzNBu9GoD4n1IbgQwv%252BM%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="1"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">이런식으로 동작하면 되는데 이 때 로그인url은 security기본설정에 의해&nbsp;<b>/login</b> 이다</p>
+  <p data-ke-size="size18"><b>/login</b>으로 클라이언트가 요청을 했다면 security는 기본적으로 UsernamePasswordAuthenticationFilter가</p>
+  <p data-ke-size="size18">로그인 판단 + 로그인 성공/실패 처리를 하게된다.&nbsp;&nbsp;</p>
+  <p data-ke-size="size18">로그인판단은&nbsp; 우리가 만든 CustomUserDetailsService에서 하는거고,</p>
+  <p data-ke-size="size18">이건 JWT에서도 똑같이 사용할것이라 상관없다.</p>
+  <p data-ke-size="size18">UsernamePasswordAuthenticationFilter의 로그인성공은 session에 사용자정보를 담는다.</p>
+  <p data-ke-size="size18">UsernamePasswordAuthenticationFilter의 로그인실패는 다시 로그인하도록 redirect 된다.</p>
+  <p data-ke-size="size18">이 기본 동작대신에 우리는&nbsp; 성공했을 때 access token만들어서 클라이언트한테 전달.</p>
+  <p data-ke-size="size18">실패했을 때 실패 사실전달을 하도록 하는 필터를 만들어 UsernamePasswordAuthenticationFilter를 대체한다.&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">그래서 SecurityConfig를 보면&nbsp; <span style="color: #333333; text-align: start;">UsernamePasswodAuthentcationFilter<span> 를 대체하는코드가 있다.</span></span></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs">http          <span class="hljs-comment">//필터</span>
+    .userDetailsService(customUserDetailsService)
+    .addFilterAt(
+        <span class="hljs-keyword">new</span> JwtLoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil),
+        UsernamePasswordAuthenticationFilter.class)  <span class="hljs-comment">//기존 세션방식의 로그인 검증필터 대체.</span>
+        <span class="hljs-comment">// 이부분!!!</span>
+
+    .addFilterBefore(
+        <span class="hljs-keyword">new</span> JwtAccessTokenCheckAndSaveUserInfoFilter(jwtUtil, customUserDetailsService),
+        UsernamePasswordAuthenticationFilter.class);</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">JwtLoginFilter</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-comment">//username, password를 이용해 로그인판단을 하는 필터</span>
+<span class="hljs-comment">//  /login URL일 때 동작</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JwtLoginFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">UsernamePasswordAuthenticationFilter</span> </span>{
+
+    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">final</span> AuthenticationManager authenticationManager;  <span class="hljs-comment">//new 로 생성하면 부모의 authenticationManager필드는 null이기 때문에 생성자로 주입.</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> JwtUtil jwtUtil;
+
+    <span class="hljs-comment">// 로그인 시도</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Authentication <span class="hljs-title">attemptAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> AuthenticationException </span>{
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-comment">// 요청에서 username, password 추출</span>
+            <span class="hljs-comment">// jwt는 API서버 분리된방식.  username,password는  body에 포함되서 옴.</span>
+            <span class="hljs-comment">// 파라미터에 포함되서 오지않음 보통.  이것때문에 재정의. UsernamePasswordAuthetnctionFilter는 parameter 를 처리함.</span>
+            Map&lt;String, String&gt; credentials = <span class="hljs-keyword">new</span> ObjectMapper().readValue(request.getInputStream(), HashMap.class);
+            String username = credentials.get(<span class="hljs-string">"username"</span>);
+            String password = credentials.get(<span class="hljs-string">"password"</span>);
+
+
+            <span class="hljs-comment">//이 부분은 UsernamePasswordAuthetnctionFilter 코드 그대로.</span>
+            <span class="hljs-comment">// AuthenticationManger를 통해 확인하는건</span>
+            <span class="hljs-comment">// 결국 username,password를 가지고 CustomUserDetailsService의 return값(CustomUserAccount)이랑 비교.</span>
+            UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
+            <span class="hljs-keyword">this</span>.setDetails(request, authRequest);
+            <span class="hljs-keyword">return</span> authenticationManager.authenticate(authRequest);  <span class="hljs-comment">//여기서 AuthenticationException 발생.</span>
+        } <span class="hljs-keyword">catch</span> (IOException e) {
+            e.printStackTrace();
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> RuntimeException(<span class="hljs-string">"Failed to parse authentication request"</span>, e);  <span class="hljs-comment">//readValue하는과정에서 발생.</span>
+        }
+
+    }
+
+    <span class="hljs-comment">// 로그인 성공 → JWT 토큰 발급,  성공했을 때는 아무 문제없이 필터체인을 통과하게 된다.</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">successfulAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>{
+        CustomUserAccount customUserAccount = (CustomUserAccount) authResult.getPrincipal();
+
+        String accessToken = jwtUtil.createAccessToken(customUserAccount.getUsername());
+        <span class="hljs-comment">// 토큰을 응답에 포함</span>
+        response.setContentType(<span class="hljs-string">"application/json"</span>);
+        response.getWriter().write(<span class="hljs-string">"{\"access_token\": \""</span> + accessToken + <span class="hljs-string">"\"}"</span>);
+
+    }
+
+    <span class="hljs-comment">//실패하면 config의 authenticationEntryPoint로    @Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">unsuccessfulAuthentication</span><span class="hljs-params">(HttpServletRequest request,
+        HttpServletResponse response, AuthenticationException failed)</span>
+        <span class="hljs-keyword">throws</span> IOException, ServletException </span>{
+        request.setAttribute(<span class="hljs-string">"ERROR_CAUSE"</span> , <span class="hljs-string">"로그인실패"</span>); <span class="hljs-comment">//실패 후 config의 entryPoint로</span>
+        <span class="hljs-keyword">super</span>.unsuccessfulAuthentication(request,response,failed);
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">로그인 성공 후 토큰을 가지고 /api/my/info 접근</h2>
+  <p data-ke-size="size18">클라이언트는 받은 토큰을 가지고&nbsp; /api/my/info에 접근합니다.</p>
+  <p data-ke-size="size18">기존 security방식에서는 세션에 사용자정보(를 포함하는 securityContext)가 저장되어있지만,&nbsp;</p>
+  <p data-ke-size="size18">API서버에서는 access token을 이용해 <b>매 요청마다&nbsp; </b></p>
+  <p data-ke-size="size18"><b>securityContext에 CustomUserAccount를&nbsp; 저장</b>해야합니다.&nbsp;</p>
+  <p data-ke-size="size18">참고로 아까 만든 JwtLoginFilter는 <b>/login</b>일 때만 통과하는 필터입니다.&nbsp; 여기서는 사용X&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/bUd3JV/btsMIejxwrp/AAAAAAAAAAAAAAAAAAAAAEYi6wHOcSW69nS36nEEw3SvFEa8xNm_M2SyBgYhVG7V/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Yy6h6s8x5T8sI0Hsto0WJAoHpno%3D" data-phocus="https://blog.kakaocdn.net/dna/bUd3JV/btsMIejxwrp/AAAAAAAAAAAAAAAAAAAAAEYi6wHOcSW69nS36nEEw3SvFEa8xNm_M2SyBgYhVG7V/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Yy6h6s8x5T8sI0Hsto0WJAoHpno%3D"><img src="https://blog.kakaocdn.net/dna/bUd3JV/btsMIejxwrp/AAAAAAAAAAAAAAAAAAAAAEYi6wHOcSW69nS36nEEw3SvFEa8xNm_M2SyBgYhVG7V/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Yy6h6s8x5T8sI0Hsto0WJAoHpno%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbUd3JV%2FbtsMIejxwrp%2FAAAAAAAAAAAAAAAAAAAAAEYi6wHOcSW69nS36nEEw3SvFEa8xNm_M2SyBgYhVG7V%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DYy6h6s8x5T8sI0Hsto0WJAoHpno%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="2"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">매 요청마다 이런과정을 거쳐야하기 때문에 OncePerRequestFilter를 상속받은 필터를 만들어</p>
+  <p data-ke-size="size18">SecurityConfig에서 필터체인에 등록해야합니다.&nbsp;</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs">http          <span class="hljs-comment">//필터</span>
+    .userDetailsService(customUserDetailsService)
+    .addFilterAt(
+        <span class="hljs-keyword">new</span> JwtLoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil),
+        UsernamePasswordAuthenticationFilter.class)  <span class="hljs-comment">//기존 세션방식의 로그인 검증필터 대체.</span>
+
+    <span class="hljs-comment">//이부분!!</span>
+    .addFilterBefore(
+        <span class="hljs-keyword">new</span> JwtAccessTokenCheckAndSaveUserInfoFilter(jwtUtil, customUserDetailsService),
+        UsernamePasswordAuthenticationFilter.class);</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">JwtAccessTokenCheckAndSaverUserInfoFilter</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="scala"><code class="hljs"><span class="hljs-comment">//보통 이름은 JwtAuthorizationFilter를 한다.  </span>
+<span class="hljs-comment">//이름을 잘 못 지어도  jwt관련 필터들이 정확히 무슨처리하는지 알면 덜 헷갈린다. </span>
+<span class="hljs-comment">// access token을 검증하고  CustomUserAccount(UserDetails)를 SecurityContext에 저장하는 필터</span>
+<span class="hljs-meta">@RequiredArgsConstructor</span>
+public <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JwtAccessTokenCheckAndSaveUserInfoFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OncePerRequestFilter</span> </span>{
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">JwtUtil</span> jwtUtil;  <span class="hljs-comment">//단순히  jwt기능제공</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">UserDetailsService</span> userDetailsService;  <span class="hljs-comment">//내가만들고 빈 등록한 CustomUserDetailsService</span>
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">protected</span> void doFilterInternal(<span class="hljs-type">HttpServletRequest</span> request, <span class="hljs-type">HttpServletResponse</span> response,
+        <span class="hljs-type">FilterChain</span> chain)
+        <span class="hljs-keyword">throws</span> <span class="hljs-type">ServletException</span>, <span class="hljs-type">IOException</span> {
+
+        <span class="hljs-type">String</span> token = getTokenFromRequest(request);
+
+        <span class="hljs-keyword">if</span> (token == <span class="hljs-literal">null</span>) {
+            <span class="hljs-comment">//토큰 없을 떄는 그냥 다음필터로</span>
+            <span class="hljs-comment">//인증이 필요없는곳 =&gt; 무사통과</span>
+            <span class="hljs-comment">//인증이  필요한곳  =&gt;  securityConfig의 authentication에 걸림 =&gt; config의  authenticationEntryPoint 에서 처리</span>
+            chain.doFilter(request, response);
+            <span class="hljs-keyword">return</span>;
+        }
+
+        <span class="hljs-keyword">if</span> (!jwtUtil.validateToken(token)) { <span class="hljs-comment">//토큰이 문제 있다면.. 보통 만료돼었을 때</span>
+            request.setAttribute(<span class="hljs-string">"ERROR_CAUSE"</span>, <span class="hljs-string">"토큰만료"</span>);
+            chain.doFilter(request,response);   <span class="hljs-comment">//로그인을 안한거기 때문에 역시 seucirtyConfig의 authetncation에 걸림.</span>
+            <span class="hljs-keyword">return</span>;
+        }
+        <span class="hljs-type">String</span> username = jwtUtil.extractUsername(token);
+
+        <span class="hljs-comment">//토큰도 있고, 토큰도 문제없음.   securityContext에 담아 로그인한걸로 판단!!.</span>
+        <span class="hljs-type">UserDetails</span> userDetails = userDetailsService.loadUserByUsername(
+            username); <span class="hljs-comment">//내가 만든 CustomUserAccount</span>
+        <span class="hljs-type">UsernamePasswordAuthenticationToken</span> authenticationToken =
+            <span class="hljs-keyword">new</span> <span class="hljs-type">UsernamePasswordAuthenticationToken</span>(userDetails, <span class="hljs-literal">null</span>,
+                userDetails.getAuthorities());
+        authenticationToken.setDetails(
+            <span class="hljs-keyword">new</span> <span class="hljs-type">WebAuthenticationDetailsSource</span>().buildDetails(request));
+        <span class="hljs-type">SecurityContextHolder</span>.getContext().setAuthentication(authenticationToken);
+        chain.doFilter(request, response);
+    }
+
+    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> getTokenFromRequest(<span class="hljs-type">HttpServletRequest</span> request) {
+        <span class="hljs-type">String</span> bearerToken = request.getHeader(<span class="hljs-string">"Authorization"</span>);
+        <span class="hljs-keyword">if</span> (<span class="hljs-type">StringUtils</span>.hasText(bearerToken) &amp;&amp; bearerToken.startsWith(<span class="hljs-string">"Bearer "</span>)) {  <span class="hljs-comment">//띄어쓰기 주의</span>
+            <span class="hljs-keyword">return</span> bearerToken.substring(<span class="hljs-number">7</span>);
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+    }
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">실행결과</h2>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>로그인전 /api/my/info.</b></p>
+  <p data-ke-size="size18">(JwtAccessTokenCheckAndSaveUserInfoFilter의&nbsp; &nbsp;이 부분 실행</p>
+  <p data-ke-size="size18">=&gt; 이후 config의 authenticationEntryPoint)</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="reasonml"><code class="hljs kotlin"><span class="hljs-keyword">if</span> (token == <span class="hljs-literal">null</span>) {
+    <span class="hljs-comment">//토큰 없을 떄는 그냥 다음필터로</span>
+    <span class="hljs-comment">//인증이 필요없는곳 =&gt; 무사통과</span>
+    <span class="hljs-comment">//인증이  필요한곳  =&gt;  securityConfig의 authentication에 걸림 =&gt; config의  authenticationEntryPoint 에서 처리</span>
+    chain.doFilter(request, response);
+    <span class="hljs-keyword">return</span>;
+}</code></pre>
+  </div>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1447" data-origin-height="497"><span data-url="https://blog.kakaocdn.net/dna/bES73P/btsMINlyhqu/AAAAAAAAAAAAAAAAAAAAABzLqx9Y8DyNvXREkpUA77WVKeMpLO3UK8WCZP4VfwM4/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=AIHOnX8kJJn7F7nBuqIqaqVyno4%3D" data-phocus="https://blog.kakaocdn.net/dna/bES73P/btsMINlyhqu/AAAAAAAAAAAAAAAAAAAAABzLqx9Y8DyNvXREkpUA77WVKeMpLO3UK8WCZP4VfwM4/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=AIHOnX8kJJn7F7nBuqIqaqVyno4%3D"><img src="https://blog.kakaocdn.net/dna/bES73P/btsMINlyhqu/AAAAAAAAAAAAAAAAAAAAABzLqx9Y8DyNvXREkpUA77WVKeMpLO3UK8WCZP4VfwM4/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=AIHOnX8kJJn7F7nBuqIqaqVyno4%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbES73P%2FbtsMINlyhqu%2FAAAAAAAAAAAAAAAAAAAAABzLqx9Y8DyNvXREkpUA77WVKeMpLO3UK8WCZP4VfwM4%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DAIHOnX8kJJn7F7nBuqIqaqVyno4%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1447" height="497" data-origin-width="1447" data-origin-height="497" data-phocus-index="3"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>회원가입전 로그인 시도 /login</b></p>
+  <p data-ke-size="size18">/login 이기때문에&nbsp; JwtLoginFilter 동작.&nbsp;</p>
+  <p data-ke-size="size18">DB에&nbsp; 아직 회원정보 없기때문에&nbsp;</p>
+  <p data-ke-size="size18">attemptAuthentication()에서 AuthenticationException발생 =&gt; unsuccessfulAuthencation() 실행</p>
+  <p data-ke-size="size18">=&gt; 이후 <span style="color: #333333; text-align: start;"><span>&nbsp;</span>config의 authenticationEntryPoint</span></p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> Authentication <span class="hljs-title">attemptAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> AuthenticationException </span>{
+    <span class="hljs-keyword">try</span> {
+        Map&lt;String, String&gt; credentials = <span class="hljs-keyword">new</span> ObjectMapper().readValue(request.getInputStream(), HashMap.class);
+        String username = credentials.get(<span class="hljs-string">"username"</span>);
+        String password = credentials.get(<span class="hljs-string">"password"</span>);
+        UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
+        <span class="hljs-keyword">this</span>.setDetails(request, authRequest);
+        <span class="hljs-keyword">return</span> authenticationManager.authenticate(authRequest);  <span class="hljs-comment">//여기서 AuthenticationException 발생.</span>
+    } <span class="hljs-keyword">catch</span> (IOException e) {
+        e.printStackTrace();
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> RuntimeException(<span class="hljs-string">"Failed to parse authentication request"</span>, e);  <span class="hljs-comment">//readValue하는과정에서 발생.</span>
+    }
+
+
+ <span class="hljs-comment">//AuthenticationException이 발생해서 여기 코드 실행</span>
+	<span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">unsuccessfulAuthentication</span><span class="hljs-params">(HttpServletRequest request,
+        HttpServletResponse response, AuthenticationException failed)</span>
+        <span class="hljs-keyword">throws</span> IOException, ServletException </span>{
+        request.setAttribute(<span class="hljs-string">"ERROR_CAUSE"</span> , <span class="hljs-string">"로그인실패"</span>); <span class="hljs-comment">//실패 후 config의 entryPoint로</span>
+        <span class="hljs-keyword">super</span>.unsuccessfulAuthentication(request,response,failed);
+    }
+
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p></p><figure class="imageblock alignCenter" data-ke-mobilestyle="widthOrigin" data-origin-width="1175" data-origin-height="593"><span data-url="https://blog.kakaocdn.net/dna/lJQIO/btsMGNmZ331/AAAAAAAAAAAAAAAAAAAAACYnGov-yElrgxMiUoMxvkJxrpW_h0z9ZCd-OAvU5uxi/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=l5gsxGD1OCRt%2FR7iga9cZRpfm2w%3D" data-phocus="https://blog.kakaocdn.net/dna/lJQIO/btsMGNmZ331/AAAAAAAAAAAAAAAAAAAAACYnGov-yElrgxMiUoMxvkJxrpW_h0z9ZCd-OAvU5uxi/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=l5gsxGD1OCRt%2FR7iga9cZRpfm2w%3D"><img src="https://blog.kakaocdn.net/dna/lJQIO/btsMGNmZ331/AAAAAAAAAAAAAAAAAAAAACYnGov-yElrgxMiUoMxvkJxrpW_h0z9ZCd-OAvU5uxi/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=l5gsxGD1OCRt%2FR7iga9cZRpfm2w%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FlJQIO%2FbtsMGNmZ331%2FAAAAAAAAAAAAAAAAAAAAACYnGov-yElrgxMiUoMxvkJxrpW_h0z9ZCd-OAvU5uxi%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3Dl5gsxGD1OCRt%252FR7iga9cZRpfm2w%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1175" height="593" data-origin-width="1175" data-origin-height="593" data-phocus-index="4"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">회원가입</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="775" data-origin-height="638"><span data-url="https://blog.kakaocdn.net/dna/wI6gA/btsMH5f87FA/AAAAAAAAAAAAAAAAAAAAAKef3qQkmGp2CpirSlveEIaHQ02qmuW5Q30WXuAqhgWc/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=wFixIe8n%2FbE2x5EGKrjX5ZpMHsc%3D" data-phocus="https://blog.kakaocdn.net/dna/wI6gA/btsMH5f87FA/AAAAAAAAAAAAAAAAAAAAAKef3qQkmGp2CpirSlveEIaHQ02qmuW5Q30WXuAqhgWc/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=wFixIe8n%2FbE2x5EGKrjX5ZpMHsc%3D"><img src="https://blog.kakaocdn.net/dna/wI6gA/btsMH5f87FA/AAAAAAAAAAAAAAAAAAAAAKef3qQkmGp2CpirSlveEIaHQ02qmuW5Q30WXuAqhgWc/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=wFixIe8n%2FbE2x5EGKrjX5ZpMHsc%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FwI6gA%2FbtsMH5f87FA%2FAAAAAAAAAAAAAAAAAAAAAKef3qQkmGp2CpirSlveEIaHQ02qmuW5Q30WXuAqhgWc%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DwFixIe8n%252FbE2x5EGKrjX5ZpMHsc%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="775" height="638" data-origin-width="775" data-origin-height="638" data-phocus-index="5"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>회원가입 후 로그인시도 =&gt; 로그인성공&nbsp;</b></p>
+  <p data-ke-size="size18">JwtLoginFilter의&nbsp; attemptAuthentcation() =&gt; 문제없음 =&gt; successfulAuthentication()에서 토큰발급&nbsp;</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-comment">// 로그인 시도</span>
+<span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> Authentication <span class="hljs-title">attemptAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> AuthenticationException </span>{
+    <span class="hljs-keyword">try</span> {
+        Map&lt;String, String&gt; credentials = <span class="hljs-keyword">new</span> ObjectMapper().readValue(request.getInputStream(), HashMap.class);
+        String username = credentials.get(<span class="hljs-string">"username"</span>);
+        String password = credentials.get(<span class="hljs-string">"password"</span>);
+
+
+        UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
+        <span class="hljs-keyword">this</span>.setDetails(request, authRequest);
+        <span class="hljs-keyword">return</span> authenticationManager.authenticate(authRequest);
+    } <span class="hljs-keyword">catch</span> (IOException e) {
+        e.printStackTrace();
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> RuntimeException(<span class="hljs-string">"Failed to parse authentication request"</span>, e);  <span class="hljs-comment">//readValue하는과정에서 발생.</span>
+    }
+
+}
+
+<span class="hljs-comment">// 로그인 성공 → JWT 토큰 발급,  성공했을 때는 아무 문제없이 필터체인을 통과하게 된다.</span>
+<span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">successfulAuthentication</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult)</span> <span class="hljs-keyword">throws</span> IOException, ServletException </span>{
+    CustomUserAccount customUserAccount = (CustomUserAccount) authResult.getPrincipal();
+    String accessToken = jwtUtil.createAccessToken(customUserAccount.getUsername());
+    <span class="hljs-comment">// 토큰을 응답에 포함</span>
+    response.setContentType(<span class="hljs-string">"application/json"</span>);
+    response.getWriter().write(<span class="hljs-string">"{\"access_token\": \""</span> + accessToken + <span class="hljs-string">"\"}"</span>);
+}</code></pre>
+  </div>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="1172" data-origin-height="632"><span data-url="https://blog.kakaocdn.net/dna/tT7V4/btsMIumhcZF/AAAAAAAAAAAAAAAAAAAAAOfxmhbb5Yyes-N8wHeowzEHGQ0SaqqouvnC9s6qw5H8/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=kt%2BTxdsm0T3J0VP4kyPzA2JAggw%3D" data-phocus="https://blog.kakaocdn.net/dna/tT7V4/btsMIumhcZF/AAAAAAAAAAAAAAAAAAAAAOfxmhbb5Yyes-N8wHeowzEHGQ0SaqqouvnC9s6qw5H8/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=kt%2BTxdsm0T3J0VP4kyPzA2JAggw%3D"><img src="https://blog.kakaocdn.net/dna/tT7V4/btsMIumhcZF/AAAAAAAAAAAAAAAAAAAAAOfxmhbb5Yyes-N8wHeowzEHGQ0SaqqouvnC9s6qw5H8/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=kt%2BTxdsm0T3J0VP4kyPzA2JAggw%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FtT7V4%2FbtsMIumhcZF%2FAAAAAAAAAAAAAAAAAAAAAOfxmhbb5Yyes-N8wHeowzEHGQ0SaqqouvnC9s6qw5H8%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3Dkt%252BTxdsm0T3J0VP4kyPzA2JAggw%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1172" height="632" data-origin-width="1172" data-origin-height="632" data-phocus-index="6"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>올바른 access token을 가지고 /api/my/info 요청</b></p>
+  <p data-ke-size="size18">JwtAccessTokenCheckAndSaveUserInfoFilter에서&nbsp; &nbsp; securityContext에 사용자 정보 저장</p>
+  <p data-ke-size="size18">=&gt; security가 인증된걸로 판단 =&gt; 컨트롤러까지&nbsp;</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doFilterInternal</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response,
+    FilterChain chain)</span>
+    <span class="hljs-keyword">throws</span> ServletException, IOException </span>{
+
+    String token = getTokenFromRequest(request);
+    <span class="hljs-keyword">if</span> (token == <span class="hljs-keyword">null</span>) {
+        chain.doFilter(request, response);
+        <span class="hljs-keyword">return</span>;
+    }
+
+    <span class="hljs-keyword">if</span> (!jwtUtil.validateToken(token)) { <span class="hljs-comment">//토큰이 문제 있다면.. 보통 만료돼었을 때</span>
+        request.setAttribute(<span class="hljs-string">"ERROR_CAUSE"</span>, <span class="hljs-string">"토큰만료"</span>);
+        chain.doFilter(request,response);   <span class="hljs-comment">//로그인을 안한거기 때문에 역시 seucirtyConfig의 authetncation에 걸림.</span>
+        <span class="hljs-keyword">return</span>;
+    }
+    String username = jwtUtil.extractUsername(token);
+
+    <span class="hljs-comment">//토큰도 있고, 토큰도 문제없음.   securityContext에 담아 로그인한걸로 판단!!.</span>
+    UserDetails userDetails = userDetailsService.loadUserByUsername(
+        username); <span class="hljs-comment">//내가 만든 CustomUserAccount</span>
+    UsernamePasswordAuthenticationToken authenticationToken =
+        <span class="hljs-keyword">new</span> UsernamePasswordAuthenticationToken(userDetails, <span class="hljs-keyword">null</span>,
+            userDetails.getAuthorities());
+    authenticationToken.setDetails(
+        <span class="hljs-keyword">new</span> WebAuthenticationDetailsSource().buildDetails(request));
+    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+    chain.doFilter(request, response);
+}</code></pre>
+  </div>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="957" data-origin-height="598"><span data-url="https://blog.kakaocdn.net/dna/bbA6nf/btsMI57zX3X/AAAAAAAAAAAAAAAAAAAAAKeNFlGAyAEqs1WrkxiG8O9hfNca9g6VddHDqCl7y235/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=7kFD20cMS5CE6faSmM%2B4H2%2FuL64%3D" data-phocus="https://blog.kakaocdn.net/dna/bbA6nf/btsMI57zX3X/AAAAAAAAAAAAAAAAAAAAAKeNFlGAyAEqs1WrkxiG8O9hfNca9g6VddHDqCl7y235/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=7kFD20cMS5CE6faSmM%2B4H2%2FuL64%3D"><img src="https://blog.kakaocdn.net/dna/bbA6nf/btsMI57zX3X/AAAAAAAAAAAAAAAAAAAAAKeNFlGAyAEqs1WrkxiG8O9hfNca9g6VddHDqCl7y235/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=7kFD20cMS5CE6faSmM%2B4H2%2FuL64%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbbA6nf%2FbtsMI57zX3X%2FAAAAAAAAAAAAAAAAAAAAAKeNFlGAyAEqs1WrkxiG8O9hfNca9g6VddHDqCl7y235%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D7kFD20cMS5CE6faSmM%252B4H2%252FuL64%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="957" height="598" data-origin-width="957" data-origin-height="598" data-phocus-index="7"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18"><b>만료된 access token가지고 /api/my/info 요청&nbsp;</b></p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">JwtAccessTokenCheckAndSaveUserInfoFilter에서&nbsp; &nbsp; if문에 걸림. securityContext에 저장안함</p>
+  <p style="color: #333333; text-align: start;" data-ke-size="size18">=&gt; security가 인증안된걸로 판단=&gt; 이후 config의 authenticationEntryPoint로</p>
+  <div style="background-color: #ffffff; color: #000000;">
+<pre class="aspectj"><code class="hljs java"><span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doFilterInternal</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response,
+    FilterChain chain)</span>
+    <span class="hljs-keyword">throws</span> ServletException, IOException </span>{
+
+    String token = getTokenFromRequest(request);
+    <span class="hljs-keyword">if</span> (token == <span class="hljs-keyword">null</span>) {
+        <span class="hljs-comment">//토큰 없을 떄는 그냥 다음필터로</span>
+        <span class="hljs-comment">//인증이 필요없는곳 =&gt; 무사통과</span>
+        <span class="hljs-comment">//인증이  필요한곳  =&gt;  securityConfig의 authentication에 걸림 =&gt; config의  authenticationEntryPoint 에서 처리</span>
+        chain.doFilter(request, response);
+        <span class="hljs-keyword">return</span>;
+    }
+
+    <span class="hljs-keyword">if</span> (!jwtUtil.validateToken(token)) { <span class="hljs-comment">//토큰이 문제 있다면.. 보통 만료돼었을 때</span>
+        request.setAttribute(<span class="hljs-string">"ERROR_CAUSE"</span>, <span class="hljs-string">"토큰만료"</span>);
+        chain.doFilter(request,response);   <span class="hljs-comment">//로그인을 안한거기 때문에 역시 seucirtyConfig의 authetncation에 걸림.</span>
+        <span class="hljs-keyword">return</span>;
+    }
+    String username = jwtUtil.extractUsername(token);
+
+    <span class="hljs-comment">//토큰도 있고, 토큰도 문제없음.   securityContext에 담아 로그인한걸로 판단!!.</span>
+    UserDetails userDetails = userDetailsService.loadUserByUsername(
+        username); <span class="hljs-comment">//내가 만든 CustomUserAccount</span>
+    UsernamePasswordAuthenticationToken authenticationToken =
+        <span class="hljs-keyword">new</span> UsernamePasswordAuthenticationToken(userDetails, <span class="hljs-keyword">null</span>,
+            userDetails.getAuthorities());
+    authenticationToken.setDetails(
+        <span class="hljs-keyword">new</span> WebAuthenticationDetailsSource().buildDetails(request));
+    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+    chain.doFilter(request, response);
+}</code></pre>
+  </div>
+  <p></p><figure class="imageblock alignCenter" data-ke-mobilestyle="widthOrigin" data-origin-width="1140" data-origin-height="636"><span data-url="https://blog.kakaocdn.net/dna/b6b38Q/btsMGth1NME/AAAAAAAAAAAAAAAAAAAAABTSXiClLPbqqeXYlV1XYRADUvQftJT1zRBE-lQxUyYU/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=1xowYjrgou%2Fx3fRTgcLzrQH8o2k%3D" data-phocus="https://blog.kakaocdn.net/dna/b6b38Q/btsMGth1NME/AAAAAAAAAAAAAAAAAAAAABTSXiClLPbqqeXYlV1XYRADUvQftJT1zRBE-lQxUyYU/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=1xowYjrgou%2Fx3fRTgcLzrQH8o2k%3D"><img src="https://blog.kakaocdn.net/dna/b6b38Q/btsMGth1NME/AAAAAAAAAAAAAAAAAAAAABTSXiClLPbqqeXYlV1XYRADUvQftJT1zRBE-lQxUyYU/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=1xowYjrgou%2Fx3fRTgcLzrQH8o2k%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fb6b38Q%2FbtsMGth1NME%2FAAAAAAAAAAAAAAAAAAAAABTSXiClLPbqqeXYlV1XYRADUvQftJT1zRBE-lQxUyYU%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D1xowYjrgou%252Fx3fRTgcLzrQH8o2k%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="1140" height="636" data-origin-width="1140" data-origin-height="636" data-phocus-index="8"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p></div>

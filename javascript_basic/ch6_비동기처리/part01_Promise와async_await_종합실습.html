@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 1: Promise와 async/await 종합 실습</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #f5576c;
+            border-bottom: 3px solid #f5576c;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #f093fb;
+            margin-top: 30px;
+        }
+        .example {
+            background: #fff5f7;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #f5576c;
+        }
+        button {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+        .output {
+            background: #2c3e50;
+            color: #3498db;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .user-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            display: inline-block;
+            min-width: 200px;
+        }
+        .user-card h3 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+        }
+        .user-card p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #a0aec0;
+        }
+        #userDisplay {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 6장 Part 1: 비동기 처리 종합 실습</h1>
+
+        <!-- Promise 기본 -->
+        <h2>1. Promise 기본</h2>
+
+        <div class="example">
+            <h3>Promise 체이닝</h3>
+            <button onclick="testPromiseChain()">Promise 체인 테스트</button>
+            <button onclick="testPromiseAll()">Promise.all 테스트</button>
+            <button onclick="testPromiseRace()">Promise.race 테스트</button>
+            <div id="promiseResult" class="output"></div>
+        </div>
+
+        <!-- async/await -->
+        <h2>2. async/await</h2>
+
+        <div class="example">
+            <h3>async/await 문법</h3>
+            <button onclick="testAsyncAwait()">async/await 테스트</button>
+            <button onclick="testErrorHandling()">에러 처리</button>
+            <button onclick="testSequentialVsParallel()">순차 vs 병렬 비교</button>
+            <div id="asyncResult" class="output"></div>
+        </div>
+
+        <!-- Fetch API 실습 -->
+        <h2>3. Fetch API 실습 (JSONPlaceholder API)</h2>
+
+        <div class="example">
+            <h3>사용자 데이터 가져오기</h3>
+            <button onclick="fetchUsers()">사용자 목록 (GET)</button>
+            <button onclick="createUser()">사용자 생성 (POST)</button>
+            <button onclick="updateUser()">사용자 수정 (PUT)</button>
+            <button onclick="deleteUser()">사용자 삭제 (DELETE)</button>
+
+            <div id="userDisplay"></div>
+            <div id="fetchResult" class="output"></div>
+        </div>
+
+        <!-- 실전 예제 -->
+        <h2>4. 실전 예제: 순차 데이터 로딩</h2>
+
+        <div class="example">
+            <h3>사용자 → 게시글 → 댓글 순차 로딩</h3>
+            <button onclick="loadUserPostsComments()">데이터 로딩</button>
+            <div id="sequentialResult" class="output"></div>
+        </div>
+
+        <!-- 콘솔 출력 -->
+        <h2>📋 실행 로그</h2>
+        <div id="console" class="output"></div>
+    </div>
+
+    <script>
+        // 콘솔 출력
+        function log(message, targetId = 'console') {
+            const div = document.getElementById(targetId);
+            div.innerHTML += message + '<br>';
+            div.scrollTop = div.scrollHeight;
+        }
+
+        function clearLog(targetId = 'console') {
+            document.getElementById(targetId).innerHTML = '';
+        }
+
+        // ==================== 1. Promise 기본 ====================
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function testPromiseChain() {
+            clearLog('promiseResult');
+            log('=== Promise 체이닝 ===', 'promiseResult');
+
+            Promise.resolve(1)
+                .then(result => {
+                    log(`Step 1: ${result}`, 'promiseResult');
+                    return result * 2;
+                })
+                .then(result => {
+                    log(`Step 2: ${result}`, 'promiseResult');
+                    return result * 2;
+                })
+                .then(result => {
+                    log(`Step 3: ${result}`, 'promiseResult');
+                    return result * 2;
+                })
+                .then(result => {
+                    log(`최종 결과: ${result}`, 'promiseResult');
+                })
+                .catch(error => {
+                    log(`에러: ${error}`, 'promiseResult');
+                });
+        }
+
+        async function testPromiseAll() {
+            clearLog('promiseResult');
+            log('=== Promise.all (병렬 실행) ===', 'promiseResult');
+            log('3개의 비동기 작업 동시 실행...', 'promiseResult');
+
+            const start = Date.now();
+
+            Promise.all([
+                delay(1000).then(() => '작업 1 완료'),
+                delay(2000).then(() => '작업 2 완료'),
+                delay(1500).then(() => '작업 3 완료')
+            ]).then(results => {
+                const elapsed = Date.now() - start;
+                log(`소요 시간: ${elapsed}ms`, 'promiseResult');
+                results.forEach(result => log(result, 'promiseResult'));
+                log('→ 가장 긴 작업(2초)만큼 소요됨', 'promiseResult');
+            });
+        }
+
+        async function testPromiseRace() {
+            clearLog('promiseResult');
+            log('=== Promise.race (가장 빠른 것만) ===', 'promiseResult');
+
+            Promise.race([
+                delay(1000).then(() => '1초 작업'),
+                delay(2000).then(() => '2초 작업'),
+                delay(500).then(() => '0.5초 작업')
+            ]).then(result => {
+                log(`가장 빠른 작업: ${result}`, 'promiseResult');
+            });
+        }
+
+        // ==================== 2. async/await ====================
+
+        async function testAsyncAwait() {
+            clearLog('asyncResult');
+            log('=== async/await ===', 'asyncResult');
+
+            async function fetchData() {
+                log('데이터 로딩 시작...', 'asyncResult');
+
+                await delay(1000);
+                log('1초 후...', 'asyncResult');
+
+                await delay(1000);
+                log('2초 후...', 'asyncResult');
+
+                await delay(1000);
+                log('3초 후... 완료!', 'asyncResult');
+
+                return '최종 데이터';
+            }
+
+            const result = await fetchData();
+            log(`결과: ${result}`, 'asyncResult');
+        }
+
+        async function testErrorHandling() {
+            clearLog('asyncResult');
+            log('=== 에러 처리 (try-catch) ===', 'asyncResult');
+
+            async function riskyOperation() {
+                await delay(1000);
+                throw new Error('에러 발생!');
+            }
+
+            try {
+                log('작업 시작...', 'asyncResult');
+                await riskyOperation();
+            } catch (error) {
+                log(`❌ 에러 캐치: ${error.message}`, 'asyncResult');
+            } finally {
+                log('정리 작업 (finally)', 'asyncResult');
+            }
+        }
+
+        async function testSequentialVsParallel() {
+            clearLog('asyncResult');
+            log('=== 순차 vs 병렬 비교 ===', 'asyncResult');
+
+            // 순차 실행
+            log('--- 순차 실행 ---', 'asyncResult');
+            let start = Date.now();
+            await delay(1000);
+            await delay(1000);
+            await delay(1000);
+            log(`소요 시간: ${Date.now() - start}ms (약 3초)`, 'asyncResult');
+
+            // 병렬 실행
+            log('--- 병렬 실행 ---', 'asyncResult');
+            start = Date.now();
+            await Promise.all([
+                delay(1000),
+                delay(1000),
+                delay(1000)
+            ]);
+            log(`소요 시간: ${Date.now() - start}ms (약 1초)`, 'asyncResult');
+        }
+
+        // ==================== 3. Fetch API ====================
+
+        const API_URL = 'https://jsonplaceholder.typicode.com';
+
+        async function fetchUsers() {
+            clearLog('fetchResult');
+            document.getElementById('userDisplay').innerHTML = '<div class="loading">로딩 중...</div>';
+
+            try {
+                log('=== 사용자 목록 가져오기 ===', 'fetchResult');
+
+                const response = await fetch(`${API_URL}/users?_limit=6`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const users = await response.json();
+
+                log(`✅ ${users.length}명의 사용자 로드 성공`, 'fetchResult');
+
+                // 화면에 표시
+                document.getElementById('userDisplay').innerHTML = users.map(user => `
+                    <div class="user-card">
+                        <h3>${user.name}</h3>
+                        <p>📧 ${user.email}</p>
+                        <p>🌐 ${user.website}</p>
+                        <p>🏢 ${user.company.name}</p>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                log(`❌ 에러: ${error.message}`, 'fetchResult');
+                document.getElementById('userDisplay').innerHTML = `<div class="loading">에러 발생</div>`;
+            }
+        }
+
+        async function createUser() {
+            clearLog('fetchResult');
+
+            try {
+                log('=== 사용자 생성 (POST) ===', 'fetchResult');
+
+                const newUser = {
+                    name: '홍길동',
+                    email: 'hong@example.com',
+                    username: 'hong'
+                };
+
+                const response = await fetch(`${API_URL}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newUser)
+                });
+
+                const created = await response.json();
+
+                log(`✅ 사용자 생성 성공`, 'fetchResult');
+                log(`ID: ${created.id}`, 'fetchResult');
+                log(`이름: ${created.name}`, 'fetchResult');
+
+            } catch (error) {
+                log(`❌ 에러: ${error.message}`, 'fetchResult');
+            }
+        }
+
+        async function updateUser() {
+            clearLog('fetchResult');
+
+            try {
+                log('=== 사용자 수정 (PUT) ===', 'fetchResult');
+
+                const updated = {
+                    name: '김철수',
+                    email: 'kim@example.com'
+                };
+
+                const response = await fetch(`${API_URL}/users/1`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updated)
+                });
+
+                const result = await response.json();
+
+                log(`✅ 사용자 수정 성공`, 'fetchResult');
+                log(`새 이름: ${result.name}`, 'fetchResult');
+
+            } catch (error) {
+                log(`❌ 에러: ${error.message}`, 'fetchResult');
+            }
+        }
+
+        async function deleteUser() {
+            clearLog('fetchResult');
+
+            try {
+                log('=== 사용자 삭제 (DELETE) ===', 'fetchResult');
+
+                const response = await fetch(`${API_URL}/users/1`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    log(`✅ 사용자 삭제 성공`, 'fetchResult');
+                }
+
+            } catch (error) {
+                log(`❌ 에러: ${error.message}`, 'fetchResult');
+            }
+        }
+
+        // ==================== 4. 실전 예제 ====================
+
+        async function loadUserPostsComments() {
+            clearLog('sequentialResult');
+
+            try {
+                log('=== 순차 데이터 로딩 ===', 'sequentialResult');
+
+                // 1. 사용자 정보
+                log('1. 사용자 정보 로딩...', 'sequentialResult');
+                const userRes = await fetch(`${API_URL}/users/1`);
+                const user = await userRes.json();
+                log(`✅ 사용자: ${user.name}`, 'sequentialResult');
+
+                // 2. 게시글 목록
+                log('2. 게시글 목록 로딩...', 'sequentialResult');
+                const postsRes = await fetch(`${API_URL}/posts?userId=1&_limit=3`);
+                const posts = await postsRes.json();
+                log(`✅ 게시글 ${posts.length}개`, 'sequentialResult');
+
+                // 3. 첫 번째 게시글의 댓글
+                log('3. 댓글 로딩...', 'sequentialResult');
+                const commentsRes = await fetch(`${API_URL}/posts/1/comments?_limit=3`);
+                const comments = await commentsRes.json();
+                log(`✅ 댓글 ${comments.length}개`, 'sequentialResult');
+
+                log('', 'sequentialResult');
+                log('--- 결과 ---', 'sequentialResult');
+                log(`사용자: ${user.name} (${user.email})`, 'sequentialResult');
+                posts.forEach((post, i) => {
+                    log(`게시글 ${i + 1}: ${post.title.substring(0, 30)}...`, 'sequentialResult');
+                });
+                comments.forEach((comment, i) => {
+                    log(`댓글 ${i + 1}: ${comment.body.substring(0, 40)}...`, 'sequentialResult');
+                });
+
+            } catch (error) {
+                log(`❌ 에러: ${error.message}`, 'sequentialResult');
+            }
+        }
+
+        // 페이지 로드 시
+        window.onload = function() {
+            log('💡 비동기 처리 종합 실습!');
+            log('💡 JSONPlaceholder API를 사용하여 실제 HTTP 통신을 테스트합니다.');
+            log('');
+            log('주요 개념:');
+            log('- Promise 체이닝');
+            log('- async/await');
+            log('- Fetch API (GET, POST, PUT, DELETE)');
+            log('- 에러 처리 (try-catch)');
+        };
+    </script>
+</body>
+</html>
+```
+

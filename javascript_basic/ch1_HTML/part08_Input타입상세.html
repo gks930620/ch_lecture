@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 8: Input 타입 상세</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(to right, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #e91e63;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            background: #f9f9f9;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 5px solid #e91e63;
+        }
+        h2 {
+            color: #e91e63;
+            margin-top: 0;
+        }
+        label {
+            display: block;
+            margin: 15px 0 8px 0;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="url"],
+        input[type="search"],
+        input[type="date"],
+        input[type="time"],
+        input[type="datetime-local"],
+        input[type="month"],
+        input[type="week"],
+        input[type="color"],
+        input[type="range"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #e91e63;
+            box-shadow: 0 0 8px rgba(233, 30, 99, 0.3);
+        }
+        .checkbox-group, .radio-group {
+            margin: 15px 0;
+        }
+        .checkbox-group label, .radio-group label {
+            display: inline-block;
+            margin-right: 20px;
+            font-weight: normal;
+        }
+        .demo-output {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #ff9800;
+        }
+        .code {
+            background: #263238;
+            color: #4dd0e1;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 26.9: Input 타입 완벽 가이드</h1>
+        <p class="subtitle">HTML5에서 제공하는 다양한 Input 타입을 알아봅시다</p>
+
+        <div class="input-section">
+            <h2>1. type="text" - 텍스트</h2>
+            <p>가장 기본적인 텍스트 입력 필드</p>
+            <label>이름</label>
+            <input type="text" placeholder="홍길동" maxlength="20">
+
+            <div class="code">
+&lt;input type="text" placeholder="홍길동" maxlength="20"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>2. type="password" - 비밀번호</h2>
+            <p>입력 내용이 ●●●로 표시됩니다</p>
+            <label>비밀번호</label>
+            <input type="password" placeholder="8자 이상" minlength="8">
+
+            <div class="code">
+&lt;input type="password" minlength="8"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>3. type="email" - 이메일</h2>
+            <p>이메일 형식 자동 검증 (@ 포함 확인)</p>
+            <label>이메일</label>
+            <input type="email" placeholder="example@email.com">
+
+            <div class="code">
+&lt;input type="email" required&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>4. type="number" - 숫자</h2>
+            <p>숫자만 입력 가능 (min, max, step 설정 가능)</p>
+            <label>나이 (18~100)</label>
+            <input type="number" min="18" max="100" step="1" value="25">
+
+            <label>가격 (1000원 단위)</label>
+            <input type="number" min="0" max="1000000" step="1000" value="10000">
+
+            <div class="code">
+&lt;input type="number" min="18" max="100" step="1"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>5. type="tel" - 전화번호</h2>
+            <p>전화번호 입력 (모바일에서 숫자 키패드 자동 표시)</p>
+            <label>전화번호</label>
+            <input type="tel" placeholder="010-1234-5678" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}">
+
+            <div class="code">
+&lt;input type="tel" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>6. type="url" - URL</h2>
+            <p>URL 형식 자동 검증 (http:// 또는 https:// 필요)</p>
+            <label>웹사이트</label>
+            <input type="url" placeholder="https://example.com">
+
+            <div class="code">
+&lt;input type="url" placeholder="https://example.com"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>7. type="search" - 검색</h2>
+            <p>검색창 (X 버튼 자동 생성)</p>
+            <label>검색</label>
+            <input type="search" placeholder="검색어를 입력하세요">
+
+            <div class="code">
+&lt;input type="search" placeholder="검색어를 입력하세요"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>8. type="date" - 날짜</h2>
+            <p>날짜 선택기 (캘린더 자동 표시)</p>
+            <label>생년월일</label>
+            <input type="date" min="1900-01-01" max="2024-12-31">
+
+            <div class="code">
+&lt;input type="date" min="1900-01-01" max="2024-12-31"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>9. type="time" - 시간</h2>
+            <p>시간 선택 (시:분)</p>
+            <label>약속 시간</label>
+            <input type="time" value="14:00">
+
+            <div class="code">
+&lt;input type="time" value="14:00"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>10. type="datetime-local" - 날짜 + 시간</h2>
+            <p>날짜와 시간을 동시에 선택</p>
+            <label>예약 날짜/시간</label>
+            <input type="datetime-local">
+
+            <div class="code">
+&lt;input type="datetime-local"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>11. type="month" - 월</h2>
+            <p>년월 선택</p>
+            <label>입사 년월</label>
+            <input type="month" value="2024-02">
+
+            <div class="code">
+&lt;input type="month"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>12. type="week" - 주</h2>
+            <p>연도와 주차 선택</p>
+            <label>프로젝트 주차</label>
+            <input type="week">
+
+            <div class="code">
+&lt;input type="week"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>13. type="color" - 색상</h2>
+            <p>색상 선택기 (Color Picker)</p>
+            <label>좋아하는 색상</label>
+            <input type="color" value="#e91e63" onchange="document.body.style.background = this.value">
+            <p style="color: #666; font-size: 0.9em;">색상을 선택하면 배경색이 변경됩니다!</p>
+
+            <div class="code">
+&lt;input type="color" value="#e91e63"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>14. type="range" - 범위 슬라이더</h2>
+            <p>슬라이더로 값 선택</p>
+            <label>볼륨: <span id="volumeValue">50</span></label>
+            <input type="range" min="0" max="100" value="50"
+                   oninput="document.getElementById('volumeValue').textContent = this.value">
+
+            <label>밝기: <span id="brightnessValue">75</span>%</label>
+            <input type="range" min="0" max="100" value="75" step="5"
+                   oninput="document.getElementById('brightnessValue').textContent = this.value">
+
+            <div class="code">
+&lt;input type="range" min="0" max="100" value="50"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>15. type="file" - 파일 선택</h2>
+            <p>파일 업로드</p>
+
+            <label>프로필 사진 (단일 파일)</label>
+            <input type="file" accept="image/*">
+
+            <label>문서 파일 (여러 파일)</label>
+            <input type="file" multiple accept=".pdf,.doc,.docx">
+
+            <div class="code">
+&lt;input type="file" accept="image/*"&gt;<br>
+&lt;input type="file" multiple accept=".pdf,.doc"&gt;
+            </div>
+
+            <div class="demo-output">
+                <strong>accept 속성:</strong>
+                <ul>
+                    <li>image/* : 모든 이미지 파일</li>
+                    <li>video/* : 모든 비디오 파일</li>
+                    <li>audio/* : 모든 오디오 파일</li>
+                    <li>.pdf : PDF 파일만</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>16. type="checkbox" - 체크박스</h2>
+            <p>여러 개 선택 가능</p>
+
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="hobby" value="reading"> 독서</label>
+                <label><input type="checkbox" name="hobby" value="music"> 음악감상</label>
+                <label><input type="checkbox" name="hobby" value="sports"> 운동</label>
+                <label><input type="checkbox" name="hobby" value="gaming"> 게임</label>
+                <label><input type="checkbox" name="hobby" value="travel"> 여행</label>
+            </div>
+
+            <div class="code">
+&lt;input type="checkbox" name="hobby" value="reading"&gt; 독서
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>17. type="radio" - 라디오 버튼</h2>
+            <p>하나만 선택 가능 (같은 name 속성 필요)</p>
+
+            <div class="radio-group">
+                <label><input type="radio" name="gender" value="male"> 남성</label>
+                <label><input type="radio" name="gender" value="female"> 여성</label>
+                <label><input type="radio" name="gender" value="other"> 기타</label>
+            </div>
+
+            <div class="code">
+&lt;input type="radio" name="gender" value="male"&gt; 남성
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>18. type="hidden" - 숨겨진 필드</h2>
+            <p>화면에는 보이지 않지만 폼 전송 시 함께 전송됩니다</p>
+            <input type="hidden" name="user_id" value="12345">
+            <p style="color: #666;">위에 숨겨진 input이 있습니다 (개발자 도구로 확인 가능)</p>
+
+            <div class="code">
+&lt;input type="hidden" name="user_id" value="12345"&gt;
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h2>19. type="submit" / type="reset" / type="button"</h2>
+            <p>버튼 타입</p>
+
+            <input type="submit" value="제출하기" style="width: auto; background: #4caf50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+            <input type="reset" value="초기화" style="width: auto; background: #ff9800; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+            <input type="button" value="일반 버튼" onclick="alert('클릭!')" style="width: auto; background: #2196f3; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+
+            <div class="code">
+&lt;input type="submit" value="제출하기"&gt;<br>
+&lt;input type="reset" value="초기화"&gt;<br>
+&lt;input type="button" value="일반 버튼"&gt;
+            </div>
+        </div>
+
+        <div class="input-section" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <h2 style="color: #4caf50;">✅ 실습 과제</h2>
+            <ol>
+                <li>모든 input 타입을 사용한 종합 설문조사 폼 만들기</li>
+                <li>예약 시스템 폼 만들기 (날짜, 시간, 인원 등)</li>
+                <li>상품 등록 폼 만들기 (이름, 가격, 색상, 이미지 등)</li>
+                <li>체크박스와 라디오 버튼을 활용한 선호도 조사 폼 만들기</li>
+            </ol>
+        </div>
+
+        <div class="demo-output">
+            <strong>💡 꿀팁:</strong>
+            <ul>
+                <li>모바일에서는 type에 따라 적절한 키보드가 자동으로 나타납니다</li>
+                <li>required 속성으로 필수 입력 필드를 지정할 수 있습니다</li>
+                <li>pattern 속성으로 정규식을 사용한 검증이 가능합니다</li>
+                <li>autofocus 속성으로 페이지 로드 시 자동 포커스를 줄 수 있습니다</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+

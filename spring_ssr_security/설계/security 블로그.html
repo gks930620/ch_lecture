@@ -1,0 +1,381 @@
+<div class="tt_article_useless_p_margin contents_style"><p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18"><span style="color: #333333; text-align: start;">전체코드 :<span>&nbsp;</span></span><a href="https://github.com/gks930620/spring_securty_all">https://github.com/gks930620/spring_securty_all</a> </p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">현재 SecurityConfig 부분.</p>
+<div style="background-color: #1e1f22; color: #bcbec4;">
+<pre class="less"><code class="hljs"><span class="hljs-variable">@Configuration</span>   <span class="hljs-comment">//Spring에서 설정 파일임을 나타냄.</span>
+<span class="hljs-variable">@EnableWebSecurity</span>
+<span class="hljs-comment">//Spring Security의 보안 설정을 활성화하는 애너테이션(annotation)</span>
+<span class="hljs-comment">// Spring Boot 2에서는 필수였지만, Spring Boot 3에서는 생략가능. but security설정임을 명시</span>
+public class SecurityConfig {
+
+    <span class="hljs-variable">@Bean</span> <span class="hljs-comment">//security는 password를 DB에 저장할 때 인코딩해서 저장.  비교할 때는 디코딩 후 비교.</span>
+    public PasswordEncoder bCryptPasswordEncoder() {
+        <span class="hljs-selector-tag">return</span> <span class="hljs-selector-tag">new</span> <span class="hljs-selector-tag">BCryptPasswordEncoder</span>();
+    }
+
+    @<span class="hljs-selector-tag">Bean</span>
+    <span class="hljs-selector-tag">public</span> <span class="hljs-selector-tag">SecurityFilterChain</span> <span class="hljs-selector-tag">filterChain1</span>(HttpSecurity http) <span class="hljs-selector-tag">throws</span> <span class="hljs-selector-tag">Exception</span>{
+        <span class="hljs-selector-tag">http</span>
+            <span class="hljs-selector-class">.authorizeHttpRequests</span>(auth -&gt; auth
+                .requestMatchers(<span class="hljs-string">"/h2-console/**"</span>).permitAll() <span class="hljs-comment">// H2 콘솔 접근 허용</span>
+            )
+            <span class="hljs-selector-class">.csrf</span>(csrf -&gt; csrf.ignoringRequestMatchers(<span class="hljs-string">"/h2-console/**"</span>)) <span class="hljs-comment">// H2 콘솔 CSRF 비활성화</span>
+            <span class="hljs-selector-class">.headers</span>(headers -&gt; headers.frameOptions(frame -&gt; frame.disable())); <span class="hljs-comment">// H2 콘솔을 iframe에서 허용</span>
+
+        <span class="hljs-selector-tag">http</span><span class="hljs-selector-class">.authorizeHttpRequests</span>((auth) -&gt; auth
+            .requestMatchers(<span class="hljs-string">"/join/**"</span>, <span class="hljs-string">"/login"</span>).permitAll()    <span class="hljs-comment">// 이 url들은 로그인 안해도됨</span>
+            .requestMatchers(<span class="hljs-string">"/admin"</span>).hasAuthority(<span class="hljs-string">"ADMIN"</span>)   <span class="hljs-comment">//ADMIN 권한 사용자만</span>
+            .requestMatchers(<span class="hljs-string">"/my/**"</span>).hasAnyAuthority(<span class="hljs-string">"ADMIN"</span>, <span class="hljs-string">"USER"</span>)  <span class="hljs-comment">// ADMIN, USER 권한 중 하나 가지면 ㅇㅋ</span>
+            .anyRequest().authenticated()   <span class="hljs-comment">// 그 외 요청들은 로그인해야만..</span>
+        );
+
+
+        <span class="hljs-selector-tag">http</span><span class="hljs-selector-class">.formLogin</span>((auth) -&gt; auth.loginPage(<span class="hljs-string">"/login"</span>)   <span class="hljs-comment">// login페이지 URL 지정.  @RequestMapping("/login")을 만들어야한다.  =&gt; login.html</span>
+            .loginProcessingUrl(<span class="hljs-string">"/loginProc"</span>)   <span class="hljs-comment">// login.html에서  form태그의 action URL이  /loginProc여야한다.</span>
+                                                <span class="hljs-comment">// @RequestMapping("/loginProc")는 없다. login과정은 security가 하기때문.</span>
+            .defaultSuccessUrl(<span class="hljs-string">"/"</span>)             <span class="hljs-comment">// 로그인 성공 후 redirect 되는 URL</span>
+            .permitAll()
+        );
+
+        <span class="hljs-selector-tag">http</span><span class="hljs-selector-class">.logout</span>((auth) -&gt; auth.logoutUrl(<span class="hljs-string">"/logout"</span>)   <span class="hljs-comment">//   /logout으로 요청하면 logout이 된다.  @RM은 없다. 로그아웃도 security가 한다.</span>
+            .logoutSuccessUrl(<span class="hljs-string">"/"</span>));                     <span class="hljs-comment">//    로그아웃 성공 후 /로 redirect</span>
+
+
+        <span class="hljs-selector-tag">http</span><span class="hljs-selector-class">.csrf</span>((auth) -&gt; auth.disable());   <span class="hljs-comment">//보안관련설정. 자세한 설명은 csrf 따로.</span>
+        <span class="hljs-selector-tag">return</span> <span class="hljs-selector-tag">http</span><span class="hljs-selector-class">.build</span>();
+    }
+}
+</code></pre>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<h2 data-ke-size="size26">로그인 페이지지정</h2>
+<p data-ke-size="size18">config 로그인페이지 지정 코드</p>
+<div style="background-color: #1e1f22; color: #bcbec4;">
+<pre class="java" data-ke-language="java"><code class="hljs">  http.formLogin((auth) -&gt; auth.loginPage(<span class="hljs-string">"/login"</span>)   <span class="hljs-comment">// login페이지 URL 지정.  @RequestMapping("/login")을 만들어야한다.  =&gt; login.html</span>
+            .loginProcessingUrl(<span class="hljs-string">"/loginProc"</span>)   <span class="hljs-comment">// login.html에서  form태그의 action URL이  /loginProc여야한다.</span>
+                                                <span class="hljs-comment">// @RequestMapping("/loginProc")는 없다. login과정은 security가 하기때문.</span>
+            .defaultSuccessUrl(<span class="hljs-string">"/"</span>)               <span class="hljs-comment">//로그인 성공 후 redirect 되는 url</span>
+            .permitAll()
+        );</code></pre>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">LoginController</p>
+<div style="background-color: #1e1f22; color: #bcbec4;">
+<pre class="kotlin"><code class="hljs"><span class="hljs-meta">@Controller</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LoginController</span> </span>{
+
+    <span class="hljs-meta">@GetMapping(<span class="hljs-meta-string">"/login"</span>)</span>
+    <span class="hljs-keyword">public</span>  String login(){
+        <span class="hljs-keyword">return</span> <span class="hljs-string">"login"</span>;
+    }
+}</code></pre>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">login.html</p>
+<div style="background-color: #1e1f22; color: #bcbec4;">
+<pre class="java" data-ke-language="java"><code class="hljs">&lt;!DOCTYPE html&gt;
+&lt;html lang=<span class="hljs-string">"en"</span> xmlns:th=<span class="hljs-string">"http://www.thymeleaf.org"</span>&gt;
+&lt;head&gt;
+    &lt;meta charset=<span class="hljs-string">"UTF-8"</span>&gt;
+    &lt;title&gt;Title&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+로그인페이지입니다.
+
+&lt;form action=<span class="hljs-string">"/loginProc"</span> method=<span class="hljs-string">"post"</span> name=<span class="hljs-string">"loginForm"</span>&gt;              &lt;!--  securityConfig의  loginProcessingUrl(<span class="hljs-string">"/loginProc"</span>)    --&gt;
+    &lt;input id=<span class="hljs-string">"username"</span> type=<span class="hljs-string">"text"</span> name=<span class="hljs-string">"username"</span> placeholder=<span class="hljs-string">"id(username)"</span>/&gt;   &lt;!-- name이 반드시 username이어야한다.  --&gt;
+    &lt;input id=<span class="hljs-string">"password"</span> type=<span class="hljs-string">"password"</span> name=<span class="hljs-string">"password"</span> placeholder=<span class="hljs-string">"password"</span>/&gt;  &lt;!-- name이 반드시 password이어야한다.  --&gt;
+    &lt;button type=<span class="hljs-string">"submit"</span> &gt;로그인&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="466" data-origin-height="191"><span data-url="https://blog.kakaocdn.net/dna/AmUu2/btsMm1D5KR8/AAAAAAAAAAAAAAAAAAAAAIHpWzeVgZECQGGsntxWjDfIziVdwDPbottHqic1-wm7/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=2fuCsvek9ZLEcgNmBvva37sKKvk%3D" data-phocus="https://blog.kakaocdn.net/dna/AmUu2/btsMm1D5KR8/AAAAAAAAAAAAAAAAAAAAAIHpWzeVgZECQGGsntxWjDfIziVdwDPbottHqic1-wm7/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=2fuCsvek9ZLEcgNmBvva37sKKvk%3D"><img src="https://blog.kakaocdn.net/dna/AmUu2/btsMm1D5KR8/AAAAAAAAAAAAAAAAAAAAAIHpWzeVgZECQGGsntxWjDfIziVdwDPbottHqic1-wm7/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=2fuCsvek9ZLEcgNmBvva37sKKvk%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FAmUu2%2FbtsMm1D5KR8%2FAAAAAAAAAAAAAAAAAAAAAIHpWzeVgZECQGGsntxWjDfIziVdwDPbottHqic1-wm7%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D2fuCsvek9ZLEcgNmBvva37sKKvk%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="466" height="191" data-origin-width="466" data-origin-height="191" data-phocus-index="0"></span></figure>
+<p></p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<h2 data-ke-size="size26">로그인 과정</h2>
+<p data-ke-size="size18">위의 로그인페이지에서 id(username) /password를 입력하고 로그인버튼을 누른다.</p>
+<p data-ke-size="size18">/loginProc로 요청이 오면&nbsp; security가 자동으로 로그인과정을 진행한다.</p>
+<p data-ke-size="size18">( securityConfig에 loginProceessingUrl("/loginProc") )</p>
+<p data-ke-size="size18">security session방식은&nbsp; &nbsp;이 과정에서 security가 로그인하는 과정을 이해하는게 핵심이다.</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">로그인 시 다음과 같은 과정을 거친다.</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/oXx59/btsMC6SCM0p/AAAAAAAAAAAAAAAAAAAAAAgdHWDBEqWF-C9cEkpacvtNqKrkH7ENM2XQbqzueiVk/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=m0JnbfwM%2F7XO6F6vWBkk1%2FH%2B1Cc%3D" data-phocus="https://blog.kakaocdn.net/dna/oXx59/btsMC6SCM0p/AAAAAAAAAAAAAAAAAAAAAAgdHWDBEqWF-C9cEkpacvtNqKrkH7ENM2XQbqzueiVk/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=m0JnbfwM%2F7XO6F6vWBkk1%2FH%2B1Cc%3D"><img src="https://blog.kakaocdn.net/dna/oXx59/btsMC6SCM0p/AAAAAAAAAAAAAAAAAAAAAAgdHWDBEqWF-C9cEkpacvtNqKrkH7ENM2XQbqzueiVk/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=m0JnbfwM%2F7XO6F6vWBkk1%2FH%2B1Cc%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FoXx59%2FbtsMC6SCM0p%2FAAAAAAAAAAAAAAAAAAAAAAgdHWDBEqWF-C9cEkpacvtNqKrkH7ENM2XQbqzueiVk%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3Dm0JnbfwM%252F7XO6F6vWBkk1%252FH%252B1Cc%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="1"></span></figure>
+<p></p>
+<p data-ke-size="size18">&nbsp;</p>
+<p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/bVe7Qs/btsMmnWgrjo/AAAAAAAAAAAAAAAAAAAAABPhOESlGwyzoqnmNH9Ujs2hx2GiJcKyD2zu7T7AtTkG/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=6%2BiZXxQKF1J2qutQsP6vqUDUvOo%3D" data-phocus="https://blog.kakaocdn.net/dna/bVe7Qs/btsMmnWgrjo/AAAAAAAAAAAAAAAAAAAAABPhOESlGwyzoqnmNH9Ujs2hx2GiJcKyD2zu7T7AtTkG/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=6%2BiZXxQKF1J2qutQsP6vqUDUvOo%3D"><img src="https://blog.kakaocdn.net/dna/bVe7Qs/btsMmnWgrjo/AAAAAAAAAAAAAAAAAAAAABPhOESlGwyzoqnmNH9Ujs2hx2GiJcKyD2zu7T7AtTkG/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=6%2BiZXxQKF1J2qutQsP6vqUDUvOo%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbVe7Qs%2FbtsMmnWgrjo%2FAAAAAAAAAAAAAAAAAAAAABPhOESlGwyzoqnmNH9Ujs2hx2GiJcKyD2zu7T7AtTkG%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D6%252BiZXxQKF1J2qutQsP6vqUDUvOo%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="2"></span></figure>
+<p></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">참고 :공식 문서&nbsp; 그림</p>
+<div data-ke-type="moreLess" data-text-more="더보기" data-text-less="닫기" class=""><a class="btn-toggle-moreless">더보기</a>
+<div class="moreless-content"><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="654" data-origin-height="512"><span data-url="https://blog.kakaocdn.net/dna/cvIuWP/btsMnzOAK33/AAAAAAAAAAAAAAAAAAAAAFP9jOyVYYh3qKqD4f70xQ4zDeSvPcPqbVhbXVUA3hif/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=2kA2oSnwStJ0eqYS%2Bdw6kWahJ5I%3D" data-phocus="https://blog.kakaocdn.net/dna/cvIuWP/btsMnzOAK33/AAAAAAAAAAAAAAAAAAAAAFP9jOyVYYh3qKqD4f70xQ4zDeSvPcPqbVhbXVUA3hif/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=2kA2oSnwStJ0eqYS%2Bdw6kWahJ5I%3D"><img src="https://blog.kakaocdn.net/dna/cvIuWP/btsMnzOAK33/AAAAAAAAAAAAAAAAAAAAAFP9jOyVYYh3qKqD4f70xQ4zDeSvPcPqbVhbXVUA3hif/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=2kA2oSnwStJ0eqYS%2Bdw6kWahJ5I%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcvIuWP%2FbtsMnzOAK33%2FAAAAAAAAAAAAAAAAAAAAAFP9jOyVYYh3qKqD4f70xQ4zDeSvPcPqbVhbXVUA3hif%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D2kA2oSnwStJ0eqYS%252Bdw6kWahJ5I%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="654" height="512" data-origin-width="654" data-origin-height="512" data-phocus-index="3"></span></figure>
+</div>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">우리의 목적은 오직&nbsp; 로그인페이지에서 입력한 username, password의 값과&nbsp;</p>
+<p data-ke-size="size18"><span style="color: #333333; text-align: start;">DB에 있는<span>&nbsp;</span></span><span style="color: #333333; text-align: start;">userEntity정보로&nbsp; 로그인 여부를 결정하게 하는&nbsp;</span></p>
+<p data-ke-size="size18">+&nbsp; DB에 있는 UserEntity정보로부터 로그인정보를 저장할 객체를&nbsp; session에 저장하는것이다.</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">하지만 SecurityConfig를 보면&nbsp; DB와 관련된 설정은 보이지 않는다.&nbsp;</p>
+<p data-ke-size="size18">security는 이&nbsp; 2가지 목적을 개발자가 작성하도록 한다.&nbsp;</p>
+<p data-ke-size="size18">UserDetailService과 UserDetails는 interface로서 이를 구현한 클래스를 만들어야한다.</p>
+<p data-ke-size="size18">나머지부분은 신경쓰지 않아도 자동으로 동작한다.</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">CustomUserDetails</p>
+<div style="background-color: #1e1f22; color: #bcbec4;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomUserDetails</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetails</span> </span>{
+    <span class="hljs-keyword">private</span> UserEntity userEntity;  <span class="hljs-comment">//엔티티필드.  사실 UserDTO필드를 만드는게 맞음.</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">CustomUserDetails</span><span class="hljs-params">(UserEntity userEntity)</span> </span>{
+        <span class="hljs-keyword">this</span>.userEntity = userEntity;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getUsername</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> userEntity.getUsername();
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getPassword</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> userEntity.getPassword();
+    }
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
+        Collection&lt;GrantedAuthority&gt; collection = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+        <span class="hljs-keyword">for</span>(String role : userEntity.getRoles()){
+            collection.add(  ()-&gt; role );  <span class="hljs-comment">//new GrantedAuthority</span>
+        }
+        <span class="hljs-keyword">return</span> collection;
+    }
+
+
+    <span class="hljs-comment">//isAccountNonExpired ,  isAccountNonLocked , isCredentialsNonExpired ,  isEnabled</span>
+    <span class="hljs-comment">//spring boot 2 에서는 필수로 구현했지만,  3부터는 userDetials가  default 메소드</span>
+
+}</code></pre>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">CustomUserDetailService</p>
+<div style="background-color: #1e1f22; color: #bcbec4;">
+<pre class="java" data-ke-language="java"><code class="hljs"><span class="hljs-meta">@Service</span>  <span class="hljs-comment">//UserDetailsService의 구현체 빈등록</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomUserDetailsService</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">UserDetailsService</span> </span>{
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> UserRepository userRepository;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> UserDetails <span class="hljs-title">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException </span>{
+        UserEntity userData = userRepository.findByUsername(username);
+        <span class="hljs-keyword">if</span> (userData != <span class="hljs-keyword">null</span>) {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> CustomUserDetails(userData);
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+    }
+}</code></pre>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">다시 로그인과정을 보자.</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/5lPNl/btsMCmBL59p/AAAAAAAAAAAAAAAAAAAAALghYHf3kIQMbTJRhXkKtcpz-Z-KHARACBnVLsw-0-ny/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=jAgcrwnsA7u3%2FX8MQ4M29TVgKSE%3D" data-phocus="https://blog.kakaocdn.net/dna/5lPNl/btsMCmBL59p/AAAAAAAAAAAAAAAAAAAAALghYHf3kIQMbTJRhXkKtcpz-Z-KHARACBnVLsw-0-ny/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=jAgcrwnsA7u3%2FX8MQ4M29TVgKSE%3D"><img src="https://blog.kakaocdn.net/dna/5lPNl/btsMCmBL59p/AAAAAAAAAAAAAAAAAAAAALghYHf3kIQMbTJRhXkKtcpz-Z-KHARACBnVLsw-0-ny/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=jAgcrwnsA7u3%2FX8MQ4M29TVgKSE%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2F5lPNl%2FbtsMCmBL59p%2FAAAAAAAAAAAAAAAAAAAAALghYHf3kIQMbTJRhXkKtcpz-Z-KHARACBnVLsw-0-ny%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DjAgcrwnsA7u3%252FX8MQ4M29TVgKSE%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="4"></span></figure>
+<p></p>
+<p data-ke-size="size18">&nbsp;</p>
+<p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/b5trS5/btsMmrc6dM1/AAAAAAAAAAAAAAAAAAAAAE7N2oA5xeoTFgPN8lDs1tVSfDmI_Ts-tu-Jk-JL3CdD/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Vz1QXWnTCk9XZuHsDZipRMSJaBE%3D" data-phocus="https://blog.kakaocdn.net/dna/b5trS5/btsMmrc6dM1/AAAAAAAAAAAAAAAAAAAAAE7N2oA5xeoTFgPN8lDs1tVSfDmI_Ts-tu-Jk-JL3CdD/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Vz1QXWnTCk9XZuHsDZipRMSJaBE%3D"><img src="https://blog.kakaocdn.net/dna/b5trS5/btsMmrc6dM1/AAAAAAAAAAAAAAAAAAAAAE7N2oA5xeoTFgPN8lDs1tVSfDmI_Ts-tu-Jk-JL3CdD/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=Vz1QXWnTCk9XZuHsDZipRMSJaBE%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fb5trS5%2FbtsMmrc6dM1%2FAAAAAAAAAAAAAAAAAAAAAE7N2oA5xeoTFgPN8lDs1tVSfDmI_Ts-tu-Jk-JL3CdD%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DVz1QXWnTCk9XZuHsDZipRMSJaBE%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="5"></span></figure>
+<p></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size18">이 후&nbsp; 로그인 성공을 한다면&nbsp; 로그인 정보를 저장하게 된다.&nbsp;</p>
+<p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/bJIQ7f/btsMBekpySc/AAAAAAAAAAAAAAAAAAAAAJZ2AxWnendtexQszsZs0oyf0Ss1B2yekt_jMy-fL5LZ/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=cB0LdQGz1SQdRGYFe2BlMxgdTtg%3D" data-phocus="https://blog.kakaocdn.net/dna/bJIQ7f/btsMBekpySc/AAAAAAAAAAAAAAAAAAAAAJZ2AxWnendtexQszsZs0oyf0Ss1B2yekt_jMy-fL5LZ/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=cB0LdQGz1SQdRGYFe2BlMxgdTtg%3D"><img src="https://blog.kakaocdn.net/dna/bJIQ7f/btsMBekpySc/AAAAAAAAAAAAAAAAAAAAAJZ2AxWnendtexQszsZs0oyf0Ss1B2yekt_jMy-fL5LZ/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=cB0LdQGz1SQdRGYFe2BlMxgdTtg%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbJIQ7f%2FbtsMBekpySc%2FAAAAAAAAAAAAAAAAAAAAAJZ2AxWnendtexQszsZs0oyf0Ss1B2yekt_jMy-fL5LZ%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DcB0LdQGz1SQdRGYFe2BlMxgdTtg%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="6"></span></figure>
+<p></p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">로그인을 성공했다면&nbsp; 로그인정보를 저장하는 것도 security가 알아서 저장한다.</p>
+<p data-ke-size="size18">우린 단순히 이 로그인정보를 이제 Controller(+service 등)에서 사용하면 된다.</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">※저장 과정 살펴보기.&nbsp; SecurityContextHolder, SecirtyContext, Authentication 이란.</p>
+<div style="background-color: #fafafa; color: #333333;" data-text-less="닫기" data-text-more="더보기" data-ke-type="moreLess"><a class="btn-toggle-moreless">더보기</a>
+<div class="moreless-content"><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="486" data-origin-height="179"><span data-url="https://blog.kakaocdn.net/dna/HpLm7/btsMmJdf73z/AAAAAAAAAAAAAAAAAAAAAN31fOnvrO9IoAcCNWqnupEwCTvZln_Z1_zdQEh2iCYr/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=IyE%2F6mYqLIAb7jeFSDjqdnH3cgw%3D" data-phocus="https://blog.kakaocdn.net/dna/HpLm7/btsMmJdf73z/AAAAAAAAAAAAAAAAAAAAAN31fOnvrO9IoAcCNWqnupEwCTvZln_Z1_zdQEh2iCYr/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=IyE%2F6mYqLIAb7jeFSDjqdnH3cgw%3D"><img src="https://blog.kakaocdn.net/dna/HpLm7/btsMmJdf73z/AAAAAAAAAAAAAAAAAAAAAN31fOnvrO9IoAcCNWqnupEwCTvZln_Z1_zdQEh2iCYr/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=IyE%2F6mYqLIAb7jeFSDjqdnH3cgw%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FHpLm7%2FbtsMmJdf73z%2FAAAAAAAAAAAAAAAAAAAAAN31fOnvrO9IoAcCNWqnupEwCTvZln_Z1_zdQEh2iCYr%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DIyE%252F6mYqLIAb7jeFSDjqdnH3cgw%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="486" height="179" data-origin-width="486" data-origin-height="179" data-phocus-index="7"></span></figure>
+
+<p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+<p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+<p style="color: #333333; text-align: start;" data-ke-size="size18">SecurityContextHolder는&nbsp; SecurityContext들을 저장하는<span>&nbsp;</span><b>싱글톤(Singleton) 클래스</b>입니다.</p>
+<p style="color: #333333; text-align: start;" data-ke-size="size18">내부적으로 ThreadLocal을 사용하여<span>&nbsp;</span><b>각 요청(Request)마다 인증 정보를 저장 및 관리</b>합니다.</p>
+<p style="color: #333333; text-align: start;" data-ke-size="size18">&nbsp;</p>
+<p style="color: #333333; text-align: start;" data-ke-size="size18">SecurityContext는 매 요청마다 생성되고 요청이 끝난 후 사라집니다.&nbsp;</p>
+<p style="color: #333333; text-align: start;" data-ke-size="size18">Autehnticaion(인증정보= 사용자정보+자격증명+권한+ 기타 등등&nbsp; )는 SecurityContext에 저장됩니다.</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">SecurityContext는 요청 후 사라지지만, 사라지기전에&nbsp;&nbsp;</p>
+<p data-ke-size="size18">Session에&nbsp; &nbsp;SecurityContext가&nbsp; 저장됩니다.&nbsp; (복사)</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">로그인정보를 Controller에서 사용하는 것은</p>
+<p data-ke-size="size18">session에 담긴 SecurityContext 안의 Authentcation(&nbsp; 또는 그 안의 UserDetails외 여러가지)를 말합니다.&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">Principal : 사용자정보&nbsp; 우리가 만든 CustomUserDetails(UserDetails).</p>
+<p data-ke-size="size18">&nbsp; Security 내부적으로는 Object타입.&nbsp;</p>
+<p data-ke-size="size18">&nbsp; 왜 UserDetails타입이 아니라 Object타입인지는&nbsp; Oauth2에서 설명.</p>
+<p data-ke-size="size18"><span style="background-color: #fafafa; color: #333333; text-align: start;">&nbsp; (UserDetails) authentication.getPrincipal()&nbsp;</span></p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">Credentials :&nbsp; 자격증명인증판단에 사용되는 정보</p>
+<p data-ke-size="size18">&nbsp; 사용자를 인증하는 데 사용되는 값 (비밀번호, 토큰, OTP 등)</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">Autrhoties : 권한들</p>
+<p data-ke-size="size18">&nbsp;</p>
+</div>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<h2 data-ke-size="size26">로그인정보 사용하기</h2>
+<p data-ke-size="size18">SecurityContextPersistenceFilter에서 로그인정보를 sesssion에 저장했다.</p>
+<p data-ke-size="size18">spring security에서 로그인정보란 <b>Autehnticaion</b>객체를 말하고 Autehntcation객체안에</p>
+<p data-ke-size="size18">개발자가 만든 UserDetails 객체가 들어있다고 보면된다.&nbsp;</p>
+<p data-ke-size="size18">(실제로 session에 저장되는건 Authentication을 갖고있는 SecurityContext지만&nbsp;</p>
+<p data-ke-size="size18">session에 로그인정보=Autehntcation이 저장됬다고 생각해도 OK)</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">그래서 이 로그인정보를 Contrller 등에서 사용하는 방법은&nbsp; &nbsp;</p>
+<p data-ke-size="size18">Autehntciation을 직접 사용해도되고, 그 안의 담긴 여러가지 정보들을 사용해도 돼서 여러가지이다.</p>
+<p data-ke-size="size18">하지만 사실 로그인정보를 사용할 때 개발자가 직접 로그인정보라고 생각한 UserDetails를 사용하는게 일반적이다.</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">MainController</p>
+<div style="background-color: #1e1f22; color: #bcbec4;">
+<pre class="kotlin"><code class="hljs"><span class="hljs-meta">@Controller</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MainController</span> </span>{
+
+    <span class="hljs-comment">//로그인 후</span>
+    <span class="hljs-meta">@RequestMapping(<span class="hljs-meta-string">"/my/info"</span>)</span>
+    <span class="hljs-meta">@ResponseBody</span>
+    <span class="hljs-keyword">public</span> String  myInfo(<span class="hljs-meta">@AuthenticationPrincipal</span> CustomUserDetails userDetails,  <span class="hljs-comment">//개발자가 직접 만든 로그인 정보. 이거 사용하세요!</span>
+        Principal principal, <span class="hljs-comment">//  username만 가져올 수 있음.</span>
+        Authentication authentication,    <span class="hljs-comment">//spring securiy객체가 실제 사용하는 로그인정보.  userDetails를 포함 + 좀 더 다양한정보</span>
+        HttpSession session,
+        HttpServletRequest request
+        ){
+        StringBuilder sb=new StringBuilder();
+        sb.append(  <span class="hljs-string">"권한 : "</span>+    userDetails.getAuthorities().iterator().next().getAuthority() +<span class="hljs-string">"&lt;br&gt;"</span>   );  <span class="hljs-comment">//첫번째권한.</span>
+        sb.append(  <span class="hljs-string">"password : "</span>+  userDetails.getPassword()  +<span class="hljs-string">"&lt;br&gt; "</span>);
+        sb.append(  <span class="hljs-string">"username : "</span>+  userDetails.getUsername() + <span class="hljs-string">"&lt;br&gt;"</span> );
+        <span class="hljs-comment">//DB에 있는 정보들을 더 원한다면 CusomuserDetails에서 getUserEntity() 메소드를 만들거나 하자.</span>
+
+        <span class="hljs-comment">//SecurityContextHolder.getContext().getAuthentication();   위의 Authentcaton과 동일</span>
+        <span class="hljs-comment">//request.getUserPrincipal()    위의 Principal과 동일</span>
+         <span class="hljs-comment">//session.getAttribute("SPRING_SECURITY_CONTEXT").  SecurityContextHolder.getContext()랑 동일</span>
+
+
+        <span class="hljs-keyword">return</span> sb.toString();
+    }
+
+    <span class="hljs-meta">@RequestMapping(<span class="hljs-meta-string">"/admin"</span>)</span>
+    <span class="hljs-meta">@ResponseBody</span>
+    <span class="hljs-keyword">public</span> String  admin(){
+        <span class="hljs-keyword">return</span> <span class="hljs-string">"권한이없어서 여기에 도달 할 수 없다."</span>;
+    }
+}</code></pre>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">※ 참고&nbsp;</p>
+<div style="background-color: #1e1f22; color: #bcbec4;">
+<pre class="clean"><code class="hljs nginx"><span class="hljs-attribute">implementation</span> <span class="hljs-string">'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'</span>
+</code></pre>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">라이브러리 추가 후 thymeleaf 에서&nbsp; security 관련된 태그를 사용할 수 있다.</p>
+<div style="background-color: #1e1f22; color: #bcbec4;">
+<pre class="java" data-ke-language="java"><code class="hljs">&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th=<span class="hljs-string">"http://www.thymeleaf.org"</span>
+      xmlns:sec=<span class="hljs-string">"http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"</span>&gt;
+&lt;!-- thymeleaf의 th 태그와  security의 sec 태그 사용가능  --&gt;
+&lt;head&gt;
+    &lt;meta charset=<span class="hljs-string">"UTF-8"</span>&gt;
+    &lt;title&gt;Spring Security Test&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Spring Security와 Thymeleaf 테스트&lt;/h1&gt;
+
+&lt;!-- 로그인한 사용자 이름 표시 --&gt;
+&lt;!--Controller에서 Autehntcation authentication의 getName 값.  --&gt;
+&lt;p&gt;현재 사용자: &lt;span sec:authentication=<span class="hljs-string">"name"</span>&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;!--  <span class="hljs-meta">@AutehntcationPrincipal</span> CustomUserDetails userDetails 의 값을 사용하고 싶다면 Controller에서 model에 직접 담아야 함. --&gt;
+
+
+&lt;!-- 역할(ROLE) 출력 --&gt;
+&lt;p&gt;권한: &lt;span sec:authentication=<span class="hljs-string">"authorities"</span>&gt;&lt;/span&gt;&lt;/p&gt;
+
+&lt;!-- 로그인 상태 확인 --&gt;
+&lt;div sec:authorize=<span class="hljs-string">"isAuthenticated()"</span>&gt;
+    &lt;p&gt;로그인한 사용자만 볼 수 있습니다.&lt;/p&gt;
+    &lt;form th:action=<span class="hljs-string">"@{/logout}"</span> method=<span class="hljs-string">"post"</span>&gt;
+        &lt;button type=<span class="hljs-string">"submit"</span>&gt;로그아웃&lt;/button&gt;
+    &lt;/form&gt;
+&lt;/div&gt;
+
+&lt;!-- 비로그인 상태 확인 --&gt;
+&lt;div sec:authorize=<span class="hljs-string">"isAnonymous()"</span>&gt;
+    &lt;p&gt;로그인하지 않은 사용자입니다.&lt;/p&gt;
+    &lt;a th:href=<span class="hljs-string">"@{/login}"</span>&gt;로그인&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;!-- 특정 권한 확인 --&gt;
+&lt;div sec:authorize=<span class="hljs-string">"hasAuthority('ADMIN')"</span>&gt;
+    &lt;p&gt;관리자 전용 페이지&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<h2 data-ke-size="size26">실행결과</h2>
+<p data-ke-size="size16">회원가입 후</p>
+<p data-ke-size="size16">&nbsp;</p>
+<p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="454" data-origin-height="173"><span data-url="https://blog.kakaocdn.net/dna/ch5Sq1/btsMn7c1WmL/AAAAAAAAAAAAAAAAAAAAAHd43ZGZUkJepSdnI8tJWxDuqJYAlA1O9sZp_MrPjSCj/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=50Uh40gAg3u6BCX4yBwkukEpu%2BY%3D" data-phocus="https://blog.kakaocdn.net/dna/ch5Sq1/btsMn7c1WmL/AAAAAAAAAAAAAAAAAAAAAHd43ZGZUkJepSdnI8tJWxDuqJYAlA1O9sZp_MrPjSCj/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=50Uh40gAg3u6BCX4yBwkukEpu%2BY%3D"><img src="https://blog.kakaocdn.net/dna/ch5Sq1/btsMn7c1WmL/AAAAAAAAAAAAAAAAAAAAAHd43ZGZUkJepSdnI8tJWxDuqJYAlA1O9sZp_MrPjSCj/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=50Uh40gAg3u6BCX4yBwkukEpu%2BY%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fch5Sq1%2FbtsMn7c1WmL%2FAAAAAAAAAAAAAAAAAAAAAHd43ZGZUkJepSdnI8tJWxDuqJYAlA1O9sZp_MrPjSCj%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D50Uh40gAg3u6BCX4yBwkukEpu%252BY%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="454" height="173" data-origin-width="454" data-origin-height="173" data-phocus-index="8"></span></figure>
+<p></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="658" data-origin-height="175"><span data-url="https://blog.kakaocdn.net/dna/dAtZdB/btsMnLuz1H7/AAAAAAAAAAAAAAAAAAAAAMb8x2Wc1LFGoI6Y4ir31HyiN_GYWUmf5F6MHqEDYm5D/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=ZlU1M%2BOpdnccfBHYc0daxHusCas%3D" data-phocus="https://blog.kakaocdn.net/dna/dAtZdB/btsMnLuz1H7/AAAAAAAAAAAAAAAAAAAAAMb8x2Wc1LFGoI6Y4ir31HyiN_GYWUmf5F6MHqEDYm5D/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=ZlU1M%2BOpdnccfBHYc0daxHusCas%3D"><img src="https://blog.kakaocdn.net/dna/dAtZdB/btsMnLuz1H7/AAAAAAAAAAAAAAAAAAAAAMb8x2Wc1LFGoI6Y4ir31HyiN_GYWUmf5F6MHqEDYm5D/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=ZlU1M%2BOpdnccfBHYc0daxHusCas%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FdAtZdB%2FbtsMnLuz1H7%2FAAAAAAAAAAAAAAAAAAAAAMb8x2Wc1LFGoI6Y4ir31HyiN_GYWUmf5F6MHqEDYm5D%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DZlU1M%252BOpdnccfBHYc0daxHusCas%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="658" height="175" data-origin-width="658" data-origin-height="175" data-phocus-index="9"></span></figure>
+<p></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">&nbsp;</p>
+<p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="686" data-origin-height="324"><span data-url="https://blog.kakaocdn.net/dna/rZRwN/btsMnX2B8Dj/AAAAAAAAAAAAAAAAAAAAAL8caku6khsmBIn6tonKj-Wy6M8rgW1sqq-T1krMQ58W/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=1AZBUQycUYxeCwMNU3sWr9G88rg%3D" data-phocus="https://blog.kakaocdn.net/dna/rZRwN/btsMnX2B8Dj/AAAAAAAAAAAAAAAAAAAAAL8caku6khsmBIn6tonKj-Wy6M8rgW1sqq-T1krMQ58W/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=1AZBUQycUYxeCwMNU3sWr9G88rg%3D"><img src="https://blog.kakaocdn.net/dna/rZRwN/btsMnX2B8Dj/AAAAAAAAAAAAAAAAAAAAAL8caku6khsmBIn6tonKj-Wy6M8rgW1sqq-T1krMQ58W/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=1AZBUQycUYxeCwMNU3sWr9G88rg%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FrZRwN%2FbtsMnX2B8Dj%2FAAAAAAAAAAAAAAAAAAAAAL8caku6khsmBIn6tonKj-Wy6M8rgW1sqq-T1krMQ58W%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D1AZBUQycUYxeCwMNU3sWr9G88rg%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="686" height="324" data-origin-width="686" data-origin-height="324" data-phocus-index="10"></span></figure>
+<p></p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">&nbsp;</p></div>

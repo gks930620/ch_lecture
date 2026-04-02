@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 5: 이미지 태그</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #fafafa;
+        }
+        h1 {
+            color: #d32f2f;
+            text-align: center;
+            border-bottom: 3px solid #d32f2f;
+            padding-bottom: 15px;
+        }
+        .section {
+            background: white;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #c62828;
+            border-left: 5px solid #d32f2f;
+            padding-left: 15px;
+        }
+        .img-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .code {
+            background: #263238;
+            color: #4fc3f7;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .tip {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🖼️ 26.6: 이미지 태그 (&lt;img&gt;)</h1>
+
+    <div class="section">
+        <h2>1. 기본 이미지 삽입</h2>
+        <p><strong>필수 속성:</strong></p>
+        <ul>
+            <li><strong>src</strong>: 이미지 파일의 경로</li>
+            <li><strong>alt</strong>: 이미지 설명 (이미지가 안 보일 때 표시, 접근성 중요)</li>
+        </ul>
+
+        <div class="code">
+            &lt;img src="이미지경로.jpg" alt="이미지 설명"&gt;
+        </div>
+
+        <div class="img-container">
+            <!-- 실제 사용 시에는 이미지 경로를 지정하세요 -->
+            <img src="https://via.placeholder.com/400x200/4CAF50/FFFFFF?text=Sample+Image" alt="샘플 이미지">
+            <p>샘플 이미지 (400x200)</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. 이미지 크기 조절</h2>
+        <p><strong>width와 height 속성</strong></p>
+
+        <div class="code">
+            &lt;img src="image.jpg" alt="설명" width="300" height="200"&gt;
+        </div>
+
+        <div class="img-container">
+            <img src="https://via.placeholder.com/300x200/2196F3/FFFFFF?text=300x200" alt="300x200 이미지" width="300" height="200">
+            <p>width="300" height="200"</p>
+        </div>
+
+        <div class="tip">
+            <strong>💡 팁:</strong> width나 height 중 하나만 지정하면 비율이 유지됩니다!<br>
+            <strong>추천:</strong> CSS로 크기를 조절하는 것이 더 유연합니다.
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>3. 이미지 경로</h2>
+
+        <h3>📁 상대 경로</h3>
+        <div class="code">
+            &lt;img src="image.jpg" alt="같은 폴더"&gt;<br>
+            &lt;img src="images/photo.jpg" alt="하위 폴더"&gt;<br>
+            &lt;img src="../image.jpg" alt="상위 폴더"&gt;
+        </div>
+
+        <h3>🌐 절대 경로 (URL)</h3>
+        <div class="code">
+            &lt;img src="https://example.com/image.jpg" alt="인터넷 이미지"&gt;
+        </div>
+
+        <div class="img-container">
+            <img src="https://via.placeholder.com/250/FF5722/FFFFFF?text=URL+Image" alt="URL 이미지" width="250">
+            <p>인터넷 URL로 불러온 이미지</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>4. 이미지 스타일링</h2>
+
+        <h3>테두리 추가</h3>
+        <div class="img-container">
+            <img src="https://via.placeholder.com/200/9C27B0/FFFFFF?text=Border"
+                 alt="테두리 이미지"
+                 style="border: 5px solid #9C27B0; border-radius: 10px;">
+        </div>
+
+        <h3>둥근 이미지</h3>
+        <div class="img-container">
+            <img src="https://via.placeholder.com/200/E91E63/FFFFFF?text=Circle"
+                 alt="원형 이미지"
+                 style="border-radius: 50%; width: 200px; height: 200px;">
+        </div>
+
+        <h3>그림자 효과</h3>
+        <div class="img-container">
+            <img src="https://via.placeholder.com/250/00BCD4/FFFFFF?text=Shadow"
+                 alt="그림자 이미지"
+                 style="box-shadow: 0 10px 20px rgba(0,0,0,0.3); border-radius: 8px;">
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>5. 클릭 가능한 이미지 (링크)</h2>
+        <p>a 태그로 img를 감싸면 이미지가 링크가 됩니다.</p>
+
+        <div class="code">
+            &lt;a href="https://www.example.com"&gt;<br>
+            &nbsp;&nbsp;&lt;img src="image.jpg" alt="클릭 이미지"&gt;<br>
+            &lt;/a&gt;
+        </div>
+
+        <div class="img-container">
+            <a href="https://www.google.com" target="_blank">
+                <img src="https://via.placeholder.com/200/4CAF50/FFFFFF?text=Click+Me"
+                     alt="클릭 가능 이미지"
+                     style="cursor: pointer; border: 3px solid #4CAF50; border-radius: 8px;">
+            </a>
+            <p>이미지를 클릭하면 Google로 이동합니다</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>6. figure와 figcaption</h2>
+        <p>이미지에 캡션(설명)을 추가할 때 사용합니다.</p>
+
+        <div class="code">
+            &lt;figure&gt;<br>
+            &nbsp;&nbsp;&lt;img src="image.jpg" alt="설명"&gt;<br>
+            &nbsp;&nbsp;&lt;figcaption&gt;이미지 캡션&lt;/figcaption&gt;<br>
+            &lt;/figure&gt;
+        </div>
+
+        <figure style="text-align: center; background: #f5f5f5; padding: 20px; border-radius: 8px;">
+            <img src="https://via.placeholder.com/300/673AB7/FFFFFF?text=Nature"
+                 alt="자연 이미지"
+                 style="border-radius: 8px;">
+            <figcaption style="margin-top: 10px; color: #666; font-style: italic;">
+                아름다운 자연 풍경
+            </figcaption>
+        </figure>
+    </div>
+
+    <div class="section">
+        <h2>7. 반응형 이미지</h2>
+        <p>화면 크기에 따라 자동으로 조절되는 이미지</p>
+
+        <div class="code">
+            &lt;img src="image.jpg" alt="반응형" style="max-width: 100%; height: auto;"&gt;
+        </div>
+
+        <div class="img-container">
+            <img src="https://via.placeholder.com/800x300/FF9800/FFFFFF?text=Responsive+Image"
+                 alt="반응형 이미지"
+                 style="max-width: 100%; height: auto; border-radius: 8px;">
+            <p>브라우저 창 크기를 조절해보세요!</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>8. 이미지 정렬</h2>
+
+        <h3>좌측 정렬</h3>
+        <img src="https://via.placeholder.com/150/F44336/FFFFFF?text=Left"
+             alt="좌측"
+             style="float: left; margin-right: 15px; margin-bottom: 15px; border-radius: 8px;">
+        <p>이미지가 왼쪽에 정렬되고 텍스트가 오른쪽으로 흐릅니다.
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+           Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <div style="clear: both;"></div>
+
+        <h3>우측 정렬</h3>
+        <img src="https://via.placeholder.com/150/3F51B5/FFFFFF?text=Right"
+             alt="우측"
+             style="float: right; margin-left: 15px; margin-bottom: 15px; border-radius: 8px;">
+        <p>이미지가 오른쪽에 정렬되고 텍스트가 왼쪽으로 흐릅니다.
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+           Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <div style="clear: both;"></div>
+
+        <h3>중앙 정렬</h3>
+        <div style="text-align: center;">
+            <img src="https://via.placeholder.com/200/009688/FFFFFF?text=Center"
+                 alt="중앙"
+                 style="border-radius: 8px;">
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>✅ 실습 과제</h2>
+        <ol>
+            <li>자신의 프로필 사진을 원형으로 만들어보세요 (border-radius: 50%)</li>
+            <li>갤러리 페이지를 만들어보세요 (4~6개 이미지)</li>
+            <li>이미지에 hover 효과를 추가해보세요 (CSS transition 사용)</li>
+            <li>figure와 figcaption을 사용하여 사진첩을 만들어보세요</li>
+        </ol>
+    </div>
+
+    <div class="tip">
+        <strong>🎯 이미지 파일 형식</strong>
+        <ul>
+            <li><strong>JPG/JPEG:</strong> 사진, 풍경 (파일 크기 작음)</li>
+            <li><strong>PNG:</strong> 투명 배경, 로고, 아이콘</li>
+            <li><strong>GIF:</strong> 애니메이션</li>
+            <li><strong>SVG:</strong> 벡터 이미지 (확대해도 깨지지 않음)</li>
+            <li><strong>WebP:</strong> 차세대 이미지 형식 (용량 작고 화질 좋음)</li>
+        </ul>
+    </div>
+</body>
+</html>
+

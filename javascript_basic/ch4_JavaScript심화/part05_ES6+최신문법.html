@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 5: ES6+ 최신 문법</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #764ba2;
+            margin-top: 30px;
+        }
+        .example {
+            background: #f8f9ff;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .output {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .result {
+            background: #e8f5e9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 4장 Part 5: ES6+ 최신 문법</h1>
+
+        <!-- 구조 분해 할당 -->
+        <h2>1. 구조 분해 할당 (Destructuring)</h2>
+
+        <div class="example">
+            <h3>배열 구조 분해</h3>
+            <button onclick="testArrayDestructuring()">배열 구조 분해</button>
+            <div id="arrayResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>객체 구조 분해</h3>
+            <button onclick="testObjectDestructuring()">객체 구조 분해</button>
+            <div id="objectResult" class="result"></div>
+        </div>
+
+        <!-- 스프레드/Rest -->
+        <h2>2. 스프레드/Rest 연산자 (...)</h2>
+
+        <div class="example">
+            <h3>스프레드 연산자</h3>
+            <button onclick="testSpread()">스프레드 테스트</button>
+            <div id="spreadResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>Rest 파라미터</h3>
+            <button onclick="testRest()">Rest 파라미터</button>
+            <div id="restResult" class="result"></div>
+        </div>
+
+        <!-- 템플릿 리터럴 -->
+        <h2>3. 템플릿 리터럴 (Template Literal)</h2>
+
+        <div class="example">
+            <h3>템플릿 리터럴과 태그 함수</h3>
+            <button onclick="testTemplateLiteral()">템플릿 리터럴</button>
+            <div id="templateResult" class="result"></div>
+        </div>
+
+        <!-- 화살표 함수 -->
+        <h2>4. 화살표 함수 (Arrow Function)</h2>
+
+        <div class="example">
+            <h3>다양한 화살표 함수 문법</h3>
+            <button onclick="testArrowFunction()">화살표 함수</button>
+            <div id="arrowFuncResult" class="result"></div>
+        </div>
+
+        <!-- Map과 Set -->
+        <h2>5. Map과 Set</h2>
+
+        <div class="example">
+            <h3>Map (키-값 쌍)</h3>
+            <button onclick="testMap()">Map 테스트</button>
+            <div id="mapResult" class="result"></div>
+        </div>
+
+        <div class="example">
+            <h3>Set (중복 없는 값)</h3>
+            <button onclick="testSet()">Set 테스트</button>
+            <div id="setResult" class="result"></div>
+        </div>
+
+        <!-- 기타 -->
+        <h2>6. 기타 유용한 기능</h2>
+
+        <div class="example">
+            <h3>Optional Chaining (?.)과 Nullish Coalescing (??)</h3>
+            <button onclick="testModernOperators()">최신 연산자</button>
+            <div id="operatorResult" class="result"></div>
+        </div>
+
+        <!-- 콘솔 출력 -->
+        <h2>📋 실행 로그</h2>
+        <div id="console" class="output"></div>
+    </div>
+
+    <script>
+        // 콘솔 출력
+        function log(message) {
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.innerHTML += message + '<br>';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('console').innerHTML = '';
+        }
+
+        // ==================== 1. 구조 분해 할당 ====================
+
+        function testArrayDestructuring() {
+            clearLog();
+            const result = document.getElementById('arrayResult');
+
+            log('=== 배열 구조 분해 ===');
+
+            const numbers = [1, 2, 3, 4, 5];
+
+            // 기본
+            const [first, second] = numbers;
+            log(`첫 번째: ${first}, 두 번째: ${second}`);
+
+            // 건너뛰기
+            const [, , third] = numbers;
+            log(`세 번째: ${third}`);
+
+            // 나머지 요소
+            const [a, b, ...rest] = numbers;
+            log(`a: ${a}, b: ${b}, rest: [${rest}]`);
+
+            // 기본값
+            const [x, y, z = 0] = [1, 2];
+            log(`x: ${x}, y: ${y}, z: ${z} (기본값)`);
+
+            // 값 교환
+            let num1 = 10, num2 = 20;
+            [num1, num2] = [num2, num1];
+            log(`교환 후 - num1: ${num1}, num2: ${num2}`);
+
+            result.innerHTML = '✅ 배열 구조 분해로 값을 쉽게 추출할 수 있습니다!';
+        }
+
+        function testObjectDestructuring() {
+            clearLog();
+            const result = document.getElementById('objectResult');
+
+            log('=== 객체 구조 분해 ===');
+
+            const user = {
+                name: '홍길동',
+                age: 25,
+                email: 'hong@example.com',
+                address: {
+                    city: '서울',
+                    zipcode: '12345'
+                }
+            };
+
+            // 기본
+            const { name, age } = user;
+            log(`이름: ${name}, 나이: ${age}`);
+
+            // 새 변수명
+            const { name: userName, age: userAge } = user;
+            log(`userName: ${userName}, userAge: ${userAge}`);
+
+            // 기본값
+            const { name: n, phone = '없음' } = user;
+            log(`이름: ${n}, 전화: ${phone}`);
+
+            // 중첩 구조
+            const { address: { city, zipcode } } = user;
+            log(`도시: ${city}, 우편번호: ${zipcode}`);
+
+            // 함수 파라미터에서 사용
+            function printUser({ name, age }) {
+                return `${name} (${age}세)`;
+            }
+            log(`함수 사용: ${printUser(user)}`);
+
+            result.innerHTML = '✅ 객체 구조 분해로 필요한 속성만 추출할 수 있습니다!';
+        }
+
+        // ==================== 2. 스프레드/Rest ====================
+
+        function testSpread() {
+            clearLog();
+            const result = document.getElementById('spreadResult');
+
+            log('=== 스프레드 연산자 ===');
+
+            // 배열 복사
+            const arr1 = [1, 2, 3];
+            const arr2 = [...arr1];
+            log(`원본: [${arr1}]`);
+            log(`복사: [${arr2}]`);
+
+            // 배열 합치기
+            const arr3 = [4, 5];
+            const combined = [...arr1, ...arr3];
+            log(`합치기: [${combined}]`);
+
+            // 객체 복사
+            const obj1 = { name: '홍길동', age: 25 };
+            const obj2 = { ...obj1, city: '서울' };
+            log(`객체 복사: ${JSON.stringify(obj2)}`);
+
+            // 함수 인자로 전달
+            const numbers = [5, 2, 8, 1, 9];
+            const max = Math.max(...numbers);
+            log(`최댓값: ${max}`);
+
+            // 문자열 펼치기
+            const str = 'Hello';
+            const chars = [...str];
+            log(`문자 배열: [${chars.join(', ')}]`);
+
+            result.innerHTML = '✅ 스프레드 연산자(...)로 배열/객체를 펼칠 수 있습니다!';
+        }
+
+        function testRest() {
+            clearLog();
+            const result = document.getElementById('restResult');
+
+            log('=== Rest 파라미터 ===');
+
+            // 가변 인자 함수
+            function sum(...numbers) {
+                log(`인자들: [${numbers}]`);
+                return numbers.reduce((a, b) => a + b, 0);
+            }
+
+            log(`sum(1, 2, 3): ${sum(1, 2, 3)}`);
+            log(`sum(1, 2, 3, 4, 5): ${sum(1, 2, 3, 4, 5)}`);
+
+            // 첫 인자와 나머지
+            function introduce(name, ...hobbies) {
+                log(`이름: ${name}`);
+                log(`취미: ${hobbies.join(', ')}`);
+            }
+
+            log('');
+            introduce('홍길동', '독서', '영화', '운동');
+
+            result.innerHTML = '✅ Rest 파라미터로 가변 인자를 처리할 수 있습니다!';
+        }
+
+        // ==================== 3. 템플릿 리터럴 ====================
+
+        function testTemplateLiteral() {
+            clearLog();
+            const result = document.getElementById('templateResult');
+
+            log('=== 템플릿 리터럴 ===');
+
+            const name = '홍길동';
+            const age = 25;
+
+            // 기본 사용
+            const greeting = `안녕하세요, ${name}입니다. ${age}세입니다.`;
+            log(greeting);
+
+            // 여러 줄
+            const multiLine = `
+                이름: ${name}
+                나이: ${age}
+                직업: 개발자
+            `;
+            log(multiLine);
+
+            // 표현식
+            log(`10 + 20 = ${10 + 20}`);
+            log(`현재 시각: ${new Date().toLocaleTimeString()}`);
+
+            // 태그 함수
+            function highlight(strings, ...values) {
+                return strings.reduce((result, str, i) => {
+                    return result + str + (values[i] ? `<strong>${values[i]}</strong>` : '');
+                }, '');
+            }
+
+            const tagged = highlight`이름은 ${name}이고, 나이는 ${age}세입니다.`;
+            log('태그 함수: ' + tagged);
+
+            result.innerHTML = '✅ 템플릿 리터럴로 문자열을 편리하게 다룰 수 있습니다!';
+        }
+
+        // ==================== 4. 화살표 함수 ====================
+
+        function testArrowFunction() {
+            clearLog();
+            const result = document.getElementById('arrowFuncResult');
+
+            log('=== 화살표 함수 ===');
+
+            // 다양한 형태
+            const add1 = (a, b) => a + b;
+            const add2 = (a, b) => { return a + b; };
+            const square = x => x * x; // 인자 하나면 괄호 생략 가능
+            const greet = () => 'Hello!'; // 인자 없으면 빈 괄호
+
+            log(`add1(5, 3): ${add1(5, 3)}`);
+            log(`square(5): ${square(5)}`);
+            log(`greet(): ${greet()}`);
+
+            // 배열 메소드와 함께
+            const numbers = [1, 2, 3, 4, 5];
+            const doubled = numbers.map(n => n * 2);
+            log(`doubled: [${doubled}]`);
+
+            const evens = numbers.filter(n => n % 2 === 0);
+            log(`evens: [${evens}]`);
+
+            const sum = numbers.reduce((acc, n) => acc + n, 0);
+            log(`sum: ${sum}`);
+
+            result.innerHTML = '✅ 화살표 함수는 간결하고 this 바인딩이 다릅니다!';
+        }
+
+        // ==================== 5. Map과 Set ====================
+
+        function testMap() {
+            clearLog();
+            const result = document.getElementById('mapResult');
+
+            log('=== Map ===');
+
+            const map = new Map();
+
+            // 추가
+            map.set('name', '홍길동');
+            map.set('age', 25);
+            map.set('city', '서울');
+
+            log(`name: ${map.get('name')}`);
+            log(`age: ${map.get('age')}`);
+            log(`size: ${map.size}`);
+
+            // 확인
+            log(`has('name'): ${map.has('name')}`);
+            log(`has('email'): ${map.has('email')}`);
+
+            // 순회
+            log('');
+            log('--- 순회 ---');
+            for (const [key, value] of map) {
+                log(`${key}: ${value}`);
+            }
+
+            // 객체도 키로 사용 가능!
+            const obj = { id: 1 };
+            map.set(obj, '객체를 키로!');
+            log(`');
+            log(`객체 키: ${map.get(obj)}`);
+
+            result.innerHTML = '✅ Map은 키-값 쌍을 저장하며, 어떤 타입도 키로 사용 가능합니다!';
+        }
+
+        function testSet() {
+            clearLog();
+            const result = document.getElementById('setResult');
+
+            log('=== Set ===');
+
+            const set = new Set();
+
+            // 추가
+            set.add(1);
+            set.add(2);
+            set.add(3);
+            set.add(2); // 중복, 무시됨
+
+            log(`Set: [${Array.from(set)}]`);
+            log(`size: ${set.size}`);
+            log(`has(2): ${set.has(2)}`);
+
+            // 배열 중복 제거
+            const numbers = [1, 2, 2, 3, 3, 3, 4, 5, 5];
+            const unique = [...new Set(numbers)];
+            log('');
+            log(`원본: [${numbers}]`);
+            log(`중복 제거: [${unique}]`);
+
+            // 순회
+            log('');
+            log('--- 순회 ---');
+            for (const value of set) {
+                log(value);
+            }
+
+            result.innerHTML = '✅ Set은 중복 없는 값들의 집합입니다!';
+        }
+
+        // ==================== 6. 최신 연산자 ====================
+
+        function testModernOperators() {
+            clearLog();
+            const result = document.getElementById('operatorResult');
+
+            log('=== Optional Chaining (?.) ===');
+
+            const user = {
+                name: '홍길동',
+                address: {
+                    city: '서울'
+                }
+            };
+
+            // Optional Chaining
+            log(`city: ${user?.address?.city}`); // '서울'
+            log(`zipcode: ${user?.address?.zipcode}`); // undefined
+            log(`phone: ${user?.phone?.number}`); // undefined (에러 안 남!)
+
+            log('');
+            log('=== Nullish Coalescing (??) ===');
+
+            const value1 = null ?? '기본값';
+            const value2 = undefined ?? '기본값';
+            const value3 = 0 ?? '기본값';
+            const value4 = '' ?? '기본값';
+
+            log(`null ?? '기본값': ${value1}`);
+            log(`undefined ?? '기본값': ${value2}`);
+            log(`0 ?? '기본값': ${value3}`); // 0 (|| 와 다름!)
+            log(`'' ?? '기본값': ${value4}`); // '' (|| 와 다름!)
+
+            // || vs ??
+            log('');
+            log('--- || vs ?? 비교 ---');
+            log(`0 || '기본값': ${0 || '기본값'}`); // '기본값'
+            log(`0 ?? '기본값': ${0 ?? '기본값'}`); // 0
+
+            result.innerHTML = '✅ 최신 연산자로 안전하게 속성에 접근할 수 있습니다!';
+        }
+
+        // 페이지 로드 시
+        window.onload = function() {
+            log('💡 ES6+ 최신 문법 예제가 준비되었습니다!');
+            log('💡 이 문법들은 모던 JavaScript의 필수입니다.');
+        };
+    </script>
+</body>
+</html>
+```
+

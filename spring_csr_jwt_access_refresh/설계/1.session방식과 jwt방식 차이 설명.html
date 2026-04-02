@@ -1,0 +1,117 @@
+<div class="tt_article_useless_p_margin contents_style"><p data-ke-size="size18">전체코드 : <a href="https://github.com/gks930620/spring_securty_all" target="_blank" rel="noopener&nbsp;noreferrer">https://github.com/gks930620/spring_securty_all</a></p>
+  <h2 data-ke-size="size26">&nbsp;</h2>
+  <h2 data-ke-size="size26">JWT 를 이용한 토큰인증방식&nbsp;</h2>
+  <p data-ke-size="size18">JWT라는 거는 JSON Web Token의 약자로서&nbsp; &nbsp;토큰의 하나의 형식 또는 종류라 할 수 있다.</p>
+  <p data-ke-size="size18">토큰인증방식을 꼭 JWT를 쓸 필요는 없지만 JWT가 많이 쓰인다.</p>
+  <p data-ke-size="size18">토큰인증방식은 다음과 같은 방식으로 진행된다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">1. 사용자가 로그인하면 JWT를 발급 <br>2. 이후 요청마다 JWT를 HTTP Header에 포함 (Authorization: Bearer &lt;토큰&gt;) <br>3. 서버는 토큰을 검증하여 사용자를 인증</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">토큰인증방식이 필요한 이유</h2>
+  <p data-ke-size="size18">기존의 세션방식 말고 왜 토큰인증방식이 필요한가?&nbsp;</p>
+  <h3 data-ke-size="size23">1. 서버확장성&nbsp;</h3>
+  <p data-ke-size="size18">세션방식은 사용자 수가 많아질수록 서버의 세션 메모리 부담이 증가하고</p>
+  <p data-ke-size="size18">하나의 서버가 세션을 관리하는 세션방식에서 여러대의 서버로 확장하는 경우 세션관리를 위한&nbsp;</p>
+  <p data-ke-size="size18">별도의 방법(세션 클러스터링 등)이 필요하게 됨.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">토큰인증방식에서는 사용자가 많아져도 사용자가 토큰을 가지고 있기때문에 서버의 메모리 부담이 없음</p>
+  <p data-ke-size="size18">또 서버가 여러개여도 서버는 토큰을 검증하기만 하면 됨.&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h3 style="color: #000000; text-align: start;" data-ke-size="size23">2. API 서버와 클라이언트 분리</h3>
+  <p data-ke-size="size18">API서버와 클라이언트가 분리된 환경( React, Vue 등)에서 인증을 적용할 때&nbsp;</p>
+  <p data-ke-size="size18">세션방식보다 토큰방식이 적합함.&nbsp;</p>
+  <p data-ke-size="size18">(JWT 방식은 헤더방식이 때문의 브라우저의 CORS 쿠키정책 영향을 받지 않는 등)</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">또 API 서버가&nbsp; 분리되었기 때문에 웹 뿐만 아니라 모바일 앱, 외부API 서비스 등</p>
+  <p data-ke-size="size18">여러 클라이언트에서도 인증을 쉽게 할 수 있음.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">access token과 refresh token</h2>
+  <p data-ke-size="size18">기본적으로 토큰인증방식에서 JWT는 토큰의 형식,종류이다.&nbsp;</p>
+  <p data-ke-size="size18">이 JWT를 가지고 토큰인증방식에서 access token 역할과 refresh token 역할을 부여한다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">access token은 username을 포함하고 있는 토큰으로서</p>
+  <p data-ke-size="size18">클라이언트는 로그인 시도 시 access token을 획득한 후&nbsp; (서버는 access token을 만든 후 응답)</p>
+  <p data-ke-size="size18">매 요청마다 access token을 서버에 보내 인증된 사용자라는거를 알린다.</p>
+  <p data-ke-size="size18">(서버는 매 요청마다 검사. username으로 매번 DB 조회)</p>
+  <p data-ke-size="size18">access token은 기본적으로 30분의 만료기간을 갖는다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">refresh token은 access token을 재발급하는 용도로만 쓰이며 보통 7일 or 30일의 만료기간을 갖는다.</p>
+  <p data-ke-size="size18">refresh token조차 만료된다면 클라이언트는&nbsp; 다시 로그인을 해야한다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">이 30분과 7일이라는건&nbsp; <b>보안과 사용자 편의성&nbsp; 간의 균형</b>때문이다.&nbsp;</p>
+  <p data-ke-size="size18">30분마다 재로그인을 하는건 불편,&nbsp; 그렇다고 7일동안 사용자 정보가 포함된 토큰을 사용한다면 보안위험.</p>
+  <p data-ke-size="size18">(물론 access token이 탈취된 30분 동안은 위험함)</p>
+  <p data-ke-size="size18">그래서 사용자 정보는 30분으로 제한하고 7일동안은 로그인을 보장하기 위한 refresh token을 병행하게 됨.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">refresh token은 토큰인증방식의 statless 를 보완하기 위해 예외적으로&nbsp;</p>
+  <p data-ke-size="size18">서버가 DB 등에 저장 + 클라이언트에도 저장함 (저장 방법은 클라이언트마다 다름) .&nbsp;</p>
+  <p data-ke-size="size18">access token이 만료되었을 때&nbsp;</p>
+  <p data-ke-size="size18">클라이언트는 refresh token을 다시 서버에 보내고 서버는 DB의 refresh token과 비교 후 갖다면</p>
+  <p data-ke-size="size18">로그인 없이 다시 access token을 재발급 함</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">access token, refresh token 동작방식</h2>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">로그인 시도</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/naVGj/btsMBZNZ95z/AAAAAAAAAAAAAAAAAAAAAN2TMINYKXzAjcJem8IIZZ-2yTQ2IvsCUEHen29zUJuG/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=yHrhDOl40HgKUhA4o1CUOZBatPc%3D" data-phocus="https://blog.kakaocdn.net/dna/naVGj/btsMBZNZ95z/AAAAAAAAAAAAAAAAAAAAAN2TMINYKXzAjcJem8IIZZ-2yTQ2IvsCUEHen29zUJuG/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=yHrhDOl40HgKUhA4o1CUOZBatPc%3D"><img src="https://blog.kakaocdn.net/dna/naVGj/btsMBZNZ95z/AAAAAAAAAAAAAAAAAAAAAN2TMINYKXzAjcJem8IIZZ-2yTQ2IvsCUEHen29zUJuG/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=yHrhDOl40HgKUhA4o1CUOZBatPc%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FnaVGj%2FbtsMBZNZ95z%2FAAAAAAAAAAAAAAAAAAAAAN2TMINYKXzAjcJem8IIZZ-2yTQ2IvsCUEHen29zUJuG%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DyHrhDOl40HgKUhA4o1CUOZBatPc%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="0"></span></figure>
+  <p></p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size16">&nbsp;</p>
+  <p data-ke-size="size18">로그인 시도 후 인증된 사용자요청</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/mkdEF/btsMCqkAyXF/AAAAAAAAAAAAAAAAAAAAAHYid_Bt-QdWFEqVHWNFkYu6l8G3eaL-mlqvNw-iyHQH/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=J2l4rkF9XhsJPifq%2F7Q4u7C3Efg%3D" data-phocus="https://blog.kakaocdn.net/dna/mkdEF/btsMCqkAyXF/AAAAAAAAAAAAAAAAAAAAAHYid_Bt-QdWFEqVHWNFkYu6l8G3eaL-mlqvNw-iyHQH/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=J2l4rkF9XhsJPifq%2F7Q4u7C3Efg%3D"><img src="https://blog.kakaocdn.net/dna/mkdEF/btsMCqkAyXF/AAAAAAAAAAAAAAAAAAAAAHYid_Bt-QdWFEqVHWNFkYu6l8G3eaL-mlqvNw-iyHQH/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=J2l4rkF9XhsJPifq%2F7Q4u7C3Efg%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FmkdEF%2FbtsMCqkAyXF%2FAAAAAAAAAAAAAAAAAAAAAHYid_Bt-QdWFEqVHWNFkYu6l8G3eaL-mlqvNw-iyHQH%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DJ2l4rkF9XhsJPifq%252F7Q4u7C3Efg%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="1"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">클라이언트는 로그인 필요한 곳에&nbsp; access token을 포함해 요청하게 된다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">access token 만료 후 요청.&nbsp;&nbsp;</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/cxJHDE/btsMC4t8P3u/AAAAAAAAAAAAAAAAAAAAAD1r4aJT8_MYgw5ujaGO51l5A0bQWZbD1Uo3Eyj2Rwfn/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=dQt%2FXycxroL0XbLqMGGqDfVsqsM%3D" data-phocus="https://blog.kakaocdn.net/dna/cxJHDE/btsMC4t8P3u/AAAAAAAAAAAAAAAAAAAAAD1r4aJT8_MYgw5ujaGO51l5A0bQWZbD1Uo3Eyj2Rwfn/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=dQt%2FXycxroL0XbLqMGGqDfVsqsM%3D"><img src="https://blog.kakaocdn.net/dna/cxJHDE/btsMC4t8P3u/AAAAAAAAAAAAAAAAAAAAAD1r4aJT8_MYgw5ujaGO51l5A0bQWZbD1Uo3Eyj2Rwfn/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=dQt%2FXycxroL0XbLqMGGqDfVsqsM%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcxJHDE%2FbtsMC4t8P3u%2FAAAAAAAAAAAAAAAAAAAAAD1r4aJT8_MYgw5ujaGO51l5A0bQWZbD1Uo3Eyj2Rwfn%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DdQt%252FXycxroL0XbLqMGGqDfVsqsM%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="2"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">클라이언트는 access token이 만료된 줄 모르고 access token을 가지고 요청한다.</p>
+  <p data-ke-size="size18">서버는 access token 검사 후&nbsp; 만료됐다는 사실을 클라이언트에 전달한다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">refresh token 전달.</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/uPg0D/btsMIqJ8mCj/AAAAAAAAAAAAAAAAAAAAAH-wNWUlgx0Knr5vgQ873_gER6g9S1UFs6ZPWSpcbZQq/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=7anlfdb9N2dON6C3KADGW7X6BfM%3D" data-phocus="https://blog.kakaocdn.net/dna/uPg0D/btsMIqJ8mCj/AAAAAAAAAAAAAAAAAAAAAH-wNWUlgx0Knr5vgQ873_gER6g9S1UFs6ZPWSpcbZQq/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=7anlfdb9N2dON6C3KADGW7X6BfM%3D"><img src="https://blog.kakaocdn.net/dna/uPg0D/btsMIqJ8mCj/AAAAAAAAAAAAAAAAAAAAAH-wNWUlgx0Knr5vgQ873_gER6g9S1UFs6ZPWSpcbZQq/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=7anlfdb9N2dON6C3KADGW7X6BfM%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FuPg0D%2FbtsMIqJ8mCj%2FAAAAAAAAAAAAAAAAAAAAAH-wNWUlgx0Knr5vgQ873_gER6g9S1UFs6ZPWSpcbZQq%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3D7anlfdb9N2dON6C3KADGW7X6BfM%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="3"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">이후&nbsp; 클라이언트는 기존의 access token은 버리고, 새롭게 받은 access token으로 다시&nbsp;</p>
+  <p data-ke-size="size18">인증된 사용자 요청을 하게 된다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">만료된 refresh token 전달</p>
+  <p></p><figure class="imageblock alignLeft" data-ke-mobilestyle="widthOrigin" data-origin-width="641" data-origin-height="361"><span data-url="https://blog.kakaocdn.net/dna/ngBBe/btsMFKKow46/AAAAAAAAAAAAAAAAAAAAANgG9QnqlJBmtreKEpR9ehVfULSNA7_d9sww32tvTRkd/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=euMesf4nXuwWz%2Ba6RBGkg%2BzGcLk%3D" data-phocus="https://blog.kakaocdn.net/dna/ngBBe/btsMFKKow46/AAAAAAAAAAAAAAAAAAAAANgG9QnqlJBmtreKEpR9ehVfULSNA7_d9sww32tvTRkd/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=euMesf4nXuwWz%2Ba6RBGkg%2BzGcLk%3D"><img src="https://blog.kakaocdn.net/dna/ngBBe/btsMFKKow46/AAAAAAAAAAAAAAAAAAAAANgG9QnqlJBmtreKEpR9ehVfULSNA7_d9sww32tvTRkd/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1774969199&amp;allow_ip=&amp;allow_referer=&amp;signature=euMesf4nXuwWz%2Ba6RBGkg%2BzGcLk%3D" srcset="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&amp;fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FngBBe%2FbtsMFKKow46%2FAAAAAAAAAAAAAAAAAAAAANgG9QnqlJBmtreKEpR9ehVfULSNA7_d9sww32tvTRkd%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1774969199%26allow_ip%3D%26allow_referer%3D%26signature%3DeuMesf4nXuwWz%252Ba6RBGkg%252BzGcLk%253D" onerror="this.onerror=null; this.src='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png'; this.srcset='//t1.daumcdn.net/tistory_admin/static/images/no-image-v1.png';" loading="lazy" width="641" height="361" data-origin-width="641" data-origin-height="361" data-phocus-index="4"></span></figure>
+  <p></p>
+  <p data-ke-size="size18">클라이언트는 refresh token가&nbsp; 만료된줄 모르고&nbsp; refreh token을 가지고 access token 재발급을 시도한다.</p>
+  <p data-ke-size="size18">서버는 클라이언트에게&nbsp; &nbsp;refresh token이 만료됐다는 사실을 전달한다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">이후 <b>클라이언트는 다시 로그인을 시도</b>하면 된다.&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <h2 data-ke-size="size26">클라이언트와&nbsp; API서버</h2>
+  <p data-ke-size="size18">클라이언트와&nbsp; API서버를 분리했을 때&nbsp; 서버는 각각의 요청에 맞게 잘 처리하면 되고</p>
+  <p data-ke-size="size18">redirect 등을 통해 클라이언트가 어떻게 재요청하는지는 신경쓰지 않아도 된다.</p>
+  <p data-ke-size="size18"><b> 서버입장에서는&nbsp; 위의 동작방식에서의 모든 요청을 각각 처리할 뿐</b>이다.</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p>
+  <p data-ke-size="size18">&nbsp;</p></div>
