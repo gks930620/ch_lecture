@@ -1,13 +1,10 @@
-title: "📚 개발 강의 자료"
-description: "Java · JavaScript · Spring Boot · Git 강의 자료 모음"
+title: "CH Lecture"
+description: "Java · JavaScript · Spring 학습 문서 모음"
 theme: jekyll-theme-minimal
 baseurl: "/ch_lecture"
+url: "https://gks930620.github.io"
+lang: "ko"
 markdown: kramdown
-
-# 한국어 설정
-lang: ko
-
-# 네비게이션 링크
-header_pages:
-  - index.md
-
+repository_url: "https://github.com/gks930620/ch_lecture"
+home_label: "Go to Main"
+show_downloads: false

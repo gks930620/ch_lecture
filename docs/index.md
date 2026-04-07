@@ -1,12 +1,7 @@
 ---
 layout: default
-title: CH Lecture Docs
----
-
-# CH Lecture 문서 홈
-
-설명 문서는 `docs/` 아래에, 실습 코드는 루트 프로젝트 폴더에 유지합니다.
-
+title: CH Lecture
+description: Java · JavaScript · Spring 학습 문서 모음
 ---
 
 ## 프로젝트 문서
@@ -27,5 +22,5 @@ title: CH Lecture Docs
 
 ## 사용 방법
 
-- 사이트에서는 `docs/<프로젝트>/` 경로로 설명 문서를 봅니다.
-- 실습 코드는 루트의 원본 폴더(`java_basic/`, `javascript_basic/` 등)에서 확인합니다.
+- 프로젝트 폴더를 클릭하면 단원 문서 목록으로 이동합니다.
+- 각 문서 링크를 클릭하면 해당 설명 페이지가 열립니다.
