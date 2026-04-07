@@ -8,15 +8,15 @@ description: Java · JavaScript · Spring 학습 문서 모음
 
 - [java_basic](java_basic/)
 - [javascript_basic](javascript_basic/)
-- [spring_csr_chat](spring_csr_chat/)
-- [spring_csr_final](spring_csr_final/)
-- [spring_csr_jwt_access_refresh](spring_csr_jwt_access_refresh/)
-- [spring_csr_jwt_oauth2](spring_csr_jwt_oauth2/)
+- [web_basic](web_basic/)
 - [spring_ssr](spring_ssr/)
 - [spring_ssr_security](spring_ssr_security/)
 - [spring_ssr_security_oauth2](spring_ssr_security_oauth2/)
 - [spring_ssr_security_oauth2_chat](spring_ssr_security_oauth2_chat/)
-- [web_basic](web_basic/)
+- [spring_csr_jwt_access_refresh](spring_csr_jwt_access_refresh/)
+- [spring_csr_jwt_oauth2](spring_csr_jwt_oauth2/)
+- [spring_csr_chat](spring_csr_chat/)
+- [spring_csr_final](spring_csr_final/)
 
 ---
 
