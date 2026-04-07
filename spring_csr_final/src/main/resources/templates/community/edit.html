@@ -326,7 +326,7 @@
 
         // 로그인 확인 및 데이터 로드
         function checkLoginAndLoadData() {
-            authFetch('/api/my/info')
+            authFetch('/api/users/me')
                 .then(response => {
                     if (response.ok) {
                         return response.json();
@@ -397,7 +397,7 @@
                     formData.append('refType', 'COMMUNITY');
                     formData.append('usage', 'IMAGES');
 
-                    const response = await authFetch('/api/files/upload', {
+                    const response = await authFetch('/api/files', {
                         method: 'POST',
                         credentials: 'include',
                         body: formData
@@ -532,7 +532,7 @@
         // 기존 첨부파일 로드 (별도 API)
         async function loadExistingFiles() {
             try {
-                const response = await fetch(`/api/files/detail?refId=${currentCommunityId}&refType=COMMUNITY&usage=ATTACHMENT`);
+                const response = await fetch(`/api/files?refId=${currentCommunityId}&refType=COMMUNITY&usage=ATTACHMENT`);
 
                 if (!response.ok) {
                     console.log('첨부파일 없음 또는 조회 실패');
@@ -562,7 +562,7 @@
         // 게시글 데이터 로드
         async function loadCommunityData() {
             try {
-                const response = await fetch(`/api/community/${currentCommunityId}`);
+                const response = await fetch(`/api/communities/${currentCommunityId}`);
 
                 if (!response.ok) {
                     throw new Error('게시글을 불러오는데 실패했습니다.');
@@ -619,7 +619,7 @@
                     content: content
                 };
 
-                const response = await authFetch(`/api/community/${currentCommunityId}`, {
+                const response = await authFetch(`/api/communities/${currentCommunityId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -670,7 +670,7 @@
                     formData.append('usage', 'ATTACHMENT');
 
                     try {
-                        const fileResponse = await authFetch('/api/files/upload', {
+                        const fileResponse = await authFetch('/api/files', {
                             method: 'POST',
                             credentials: 'include',
                             body: formData

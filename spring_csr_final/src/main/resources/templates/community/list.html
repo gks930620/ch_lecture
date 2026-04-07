@@ -317,7 +317,7 @@
 
         // 로그인 상태 확인 (API 호출로 정확하게 체크)
         function checkLoginStatus() {
-            authFetch('/api/my/info')
+            authFetch('/api/users/me')
                 .then(response => {
                     if (response.ok) {
                         return response.json();
@@ -348,7 +348,7 @@
                 currentSearchType = searchType;
 
                 // 기본 URL
-                let url = `/api/community?page=${page}&size=${pageSize}&sort=createdAt,desc`;
+                let url = `/api/communities?page=${page}&size=${pageSize}&sort=createdAt,desc`;
 
                 // 검색 키워드가 있으면 파라미터 추가
                 if (keyword && keyword.trim() !== '' && searchType) {

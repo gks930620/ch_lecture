@@ -196,7 +196,7 @@
             document.addEventListener('DOMContentLoaded', async () => {
                 // 1. 로그인 확인 및 현재 사용자 정보 조회
                 try {
-                    const infoResponse = await authFetch('/api/my/info', { credentials: 'include' });
+                    const infoResponse = await authFetch('/api/users/me', { credentials: 'include' });
                     if (!infoResponse || !infoResponse.ok) {
                         alert('로그인이 필요합니다.');
                         window.location.href = '/login';
@@ -214,10 +214,10 @@
 
                 // 2. 방 정보 조회
                 try {
-                    const roomResponse = await authFetch('/api/room/' + roomId, { credentials: 'include' });
+                    const roomResponse = await authFetch('/api/rooms/' + roomId, { credentials: 'include' });
                     if (roomResponse && roomResponse.ok) {
                         const roomData = await roomResponse.json();
-                        document.getElementById('roomName').textContent = roomData.name;
+                        document.getElementById('roomName').textContent = roomData.data.name;
                     }
                 } catch (e) {
                     console.warn('방 정보 조회 실패:', e);

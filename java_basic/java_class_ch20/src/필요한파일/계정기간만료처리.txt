@@ -1,1 +1,0 @@
-alter user  username(std201등) account unlock;

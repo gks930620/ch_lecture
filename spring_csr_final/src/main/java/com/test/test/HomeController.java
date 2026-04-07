@@ -58,7 +58,7 @@ public class HomeController {
         return "stomp/rooms";
     }
 
-    @GetMapping("/room/{roomId}")
+    @GetMapping("/rooms/{roomId}")
     public String chatRoom(@PathVariable("roomId") Long roomId, Model model) {
         model.addAttribute("roomId", roomId);
         return "stomp/room";

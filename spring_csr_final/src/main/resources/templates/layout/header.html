@@ -285,7 +285,7 @@
             if (headerLoginStatusUpdated) return;
 
             try {
-                const response = await authFetch('/api/my/info', { credentials: 'include' });
+                const response = await authFetch('/api/users/me', { credentials: 'include' });
                 if (response && response.ok) {
                     const result = await response.json();
                     updateHeaderLoginStatus(true, result.data.nickname);
@@ -324,7 +324,7 @@
             try {
                 console.log('🔄 토큰 재발급 시도...');
 
-                const response = await fetch('/api/refresh/reissue', {
+                const response = await fetch('/api/tokens/refresh', {
                     method: 'POST',
                     credentials: 'include' // 쿠키 포함 (refresh_token)
                 });

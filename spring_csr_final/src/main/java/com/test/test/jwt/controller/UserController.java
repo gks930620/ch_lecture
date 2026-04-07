@@ -13,12 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/my")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    @GetMapping("/info")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getMyInfo(@AuthenticationPrincipal CustomUserAccount customUserAccount) {
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getMyInfo(
+            @AuthenticationPrincipal CustomUserAccount customUserAccount) {
         if (customUserAccount == null) {
             return ResponseEntity.status(401).body(null);
         }
@@ -33,7 +34,6 @@ public class UserController {
         userInfo.put("provider", userDTO.getProvider());
         userInfo.put("roles", userDTO.getRoles());
 
-        return ResponseEntity.ok(ApiResponse.success("내 정보 조회 성공", userInfo));
+        return ResponseEntity.ok(ApiResponse.success("My profile fetched", userInfo));
     }
 }
-

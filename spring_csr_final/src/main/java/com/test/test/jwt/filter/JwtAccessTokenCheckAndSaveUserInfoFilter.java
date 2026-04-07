@@ -24,55 +24,46 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAccessTokenCheckAndSaveUserInfoFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;  //단순히  jwt기능제공
-    private final UserDetailsService userDetailsService;  //내가만들고 빈 등록한 CustomUserDetailsService
+    private final JwtUtil jwtUtil;
+    private final UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-        FilterChain chain)
-        throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
 
         String token = getTokenFromRequest(request);
-
         if (token == null) {
             chain.doFilter(request, response);
             return;
         }
 
         try {
-            //token은 access 아니면 refresh 2개뿐
             String tokenType = jwtUtil.getTokenType(token);
             if ("refresh".equals(tokenType)) {
-                chain.doFilter(request, response);   //refresh토큰이 있다 => /api/refresh/reissue는 인증 필요없는 곳 무사통과
+                // Refresh token can pass through to /api/tokens/refresh.
+                chain.doFilter(request, response);
                 return;
             }
 
-            //access token에 대해서....
-            if (!jwtUtil.validateToken(token)) { //토큰이 문제 있다면.. jwtUtil에 문제가 없다면 만료되었을 때만.
-                request.setAttribute("ERROR_CAUSE", "토큰만료");
-                chain.doFilter(request, response);   // access_token이 만료된거라면 인증필요한 url => security가 authenticationException
+            if (!jwtUtil.validateToken(token)) {
+                request.setAttribute("ERROR_CAUSE", "TOKEN_EXPIRED");
+                chain.doFilter(request, response);
                 return;
             }
 
-            //만료 안 되었다면 SecurityContext에 인증정보 담아 로그인한걸로 판단!!
             String username = jwtUtil.extractUsername(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(
-                username); //내가 만든 CustomUserAccount
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(userDetails, null,
-                    userDetails.getAuthorities());
-            authenticationToken.setDetails(
-                new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);  //이걸 해야 비로소 securityConfig가 로그인한 걸로 간주
-            chain.doFilter(request, response);  //인증된 상태로 통과!
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            chain.doFilter(request, response);
         } catch (JwtException e) {
-            // 잘못된 토큰 형식 등 JWT 파싱 실패 시
-            request.setAttribute("ERROR_CAUSE", "잘못된토큰");
-            chain.doFilter(request, response);  // 인증 없이 통과 -> authenticationEntryPoint에서 처리
+            request.setAttribute("ERROR_CAUSE", "INVALID_TOKEN");
+            chain.doFilter(request, response);
         } catch (UsernameNotFoundException e) {
-            // DB에 사용자가 없는 경우 (로컬 DB와 Docker DB가 다를 때 발생)
-            log.warn("JWT 토큰의 사용자가 DB에 없음: {}. 쿠키 삭제 후 비로그인 상태로 처리", e.getMessage());
-            // 쿠키 삭제
+            log.warn("User from JWT token not found: {}", e.getMessage());
+
             Cookie accessTokenCookie = new Cookie("access_token", null);
             accessTokenCookie.setMaxAge(0);
             accessTokenCookie.setPath("/");
@@ -83,27 +74,23 @@ public class JwtAccessTokenCheckAndSaveUserInfoFilter extends OncePerRequestFilt
             refreshTokenCookie.setPath("/");
             response.addCookie(refreshTokenCookie);
 
-            chain.doFilter(request, response);  // 인증 없이 통과
+            chain.doFilter(request, response);
         }
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
-        // 1. 우선 Authorization 헤더에서 찾음 (앱이나 특정 API 호출용)
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
 
-        // 2. 헤더에 없으면 쿠키에서 찾음 (브라우저용)
         if (request.getCookies() != null) {
             return Arrays.stream(request.getCookies())
-                .filter(cookie -> "access_token".equals(cookie.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
+                    .filter(cookie -> "access_token".equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
         }
         return null;
     }
-
-
 }

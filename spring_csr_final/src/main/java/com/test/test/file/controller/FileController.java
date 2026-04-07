@@ -1,4 +1,4 @@
-﻿package com.test.test.file.controller;
+package com.test.test.file.controller;
 
 import com.test.test.common.dto.ApiResponse;
 import com.test.test.file.dto.FileDetailDTO;
@@ -36,9 +36,9 @@ public class FileController {
     private String uploadDir;
 
     /**
-     * ?대?吏 ?뚯씪 ?쒕튃 (HTML img ?쒓렇?먯꽌 ?몄텧)
-     * - 濡쒖뺄 ???紐⑤뱶?먯꽌留??ъ슜
-     * - Supabase 紐⑤뱶?먯꽌??CDN URL濡?吏곸젒 ?묎렐?섎?濡???API ?ъ슜 ????
+     * 이미지 파일 서비스 (HTML img 태그에서 호출)
+     * - 로컬 저장 모드에서만 사용
+     * - Supabase 모드에서는 CDN URL로 직접 접근하므로 이 API 사용 안함
      */
     @GetMapping("/images/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
@@ -48,13 +48,13 @@ public class FileController {
             Resource resource = new UrlResource(file.toUri());
 
             if (resource.exists() || resource.isReadable()) {
-                String contentType = "image/jpeg"; // 湲곕낯媛?
+                String contentType = "image/jpeg"; // 기본값
                 if (filename.toLowerCase().endsWith(".png")) contentType = "image/png";
                 else if (filename.toLowerCase().endsWith(".gif")) contentType = "image/gif";
 
                 return ResponseEntity.ok()
-                        .contentType(MediaType.parseMediaType(contentType))
-                        .body(resource);
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .body(resource);
             } else {
                 return ResponseEntity.notFound().build();
             }
@@ -64,162 +64,162 @@ public class FileController {
     }
 
     /**
-     * ?뚯씪 寃??API (?듯빀)
-     * @param refId 李몄“ ID
+     * 파일 조회 API (통합)
+     * @param refId 참조 ID
      * @param refType COMMUNITY, USER
-     * @param usage THUMBNAIL, IMAGES, ATTACHMENT (?좏깮)
-     * @return ?뚯씪 寃쎈줈 由ъ뒪??
+     * @param usage THUMBNAIL, IMAGES, ATTACHMENT (선택)
+     * @return 파일 경로 리스트
      */
-    @GetMapping("/api/files")
-    public ResponseEntity<List<String>> getFiles(
-            @RequestParam Long refId,
-            @RequestParam String refType,
-            @RequestParam(required = false) String usage) {
+    @GetMapping("/api/files/paths")
+    public ResponseEntity<ApiResponse<List<String>>> getFiles(
+        @RequestParam Long refId,
+        @RequestParam String refType,
+        @RequestParam(required = false) String usage) {
 
 
         try {
             List<String> filePaths = fileService.getFilePaths(refId, refType, usage);
-            return ResponseEntity.ok(filePaths);
+            return ResponseEntity.ok(ApiResponse.success("파일 경로 조회 성공", filePaths));
         } catch (IllegalArgumentException e) {
-            log.error("?섎せ???뚮씪誘명꽣: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
+            log.error("잘못된 파라미터: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(ApiResponse.fail("잘못된 파라미터입니다."));
         }
     }
 
     /**
-     * ?뚯씪 ?낅줈??API (怨듯넻)
-     * @param files ?낅줈?쒗븷 ?뚯씪??
-     * @param refId 李몄“ ID (由щ럭 ID, 媛寃?ID ??
+     * 파일 업로드 API (공통)
+     * @param files 업로드할 파일들
+     * @param refId 참조 ID (리뷰 ID, 가게 ID 등)
      * @param refType COMMUNITY, USER
      * @param usage THUMBNAIL, IMAGES, ATTACHMENT
-     * @return ?낅줈?쒕맂 ?뚯씪 寃쎈줈 由ъ뒪??
+     * @return 업로드된 파일 경로 리스트
      */
-    @PostMapping("/api/files/upload")
+    @PostMapping("/api/files")
     public ResponseEntity<ApiResponse<List<String>>> uploadFiles(
-            @RequestParam("files") List<MultipartFile> files,
-            @RequestParam Long refId,
-            @RequestParam FileEntity.RefType refType,
-            @RequestParam FileEntity.Usage usage) {
+        @RequestParam("files") List<MultipartFile> files,
+        @RequestParam Long refId,
+        @RequestParam FileEntity.RefType refType,
+        @RequestParam FileEntity.Usage usage) {
 
         try {
-            // 1. FileUtil濡?臾쇰━???뚯씪 ???
+            // 1. FileUtil로 물리적 파일 저장
             List<FileUploadResult> uploadResults = files.stream()
-                    .filter(file -> !file.isEmpty())
-                    .map(fileUtil::saveFile)
-                    .toList();
+                .filter(file -> !file.isEmpty())
+                .map(fileUtil::saveFile)
+                .toList();
 
-            log.info("?뚯씪 臾쇰━??????꾨즺 - ?뚯씪 ?? {}", uploadResults.size());
+            log.info("파일 물리적 저장 완료 - 파일 수: {}", uploadResults.size());
 
-            // 2. FileService濡?DB???뚯씪 ?뺣낫 ???
+            // 2. FileService로 DB에 파일 정보 저장
             List<String> savedPaths = fileService.saveFiles(uploadResults, refId, refType, usage);
 
-            log.info("?뚯씪 ?낅줈???꾨즺 - refId: {}, refType: {}, ?뚯씪 ?? {}", refId, refType, savedPaths.size());
+            log.info("파일 업로드 완료 - refId: {}, refType: {}, 파일 수: {}", refId, refType, savedPaths.size());
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("?뚯씪 ?낅줈???깃났", savedPaths));
+            return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("파일 업로드 성공", savedPaths));
 
         } catch (IllegalArgumentException e) {
-            log.error("?섎せ???뚮씪誘명꽣: {}", e.getMessage());
+            log.error("잘못된 파라미터: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            log.error("?뚯씪 ?낅줈???ㅽ뙣: {}", e.getMessage(), e);
+            log.error("파일 업로드 실패: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }
 
     /**
-     * 泥⑤??뚯씪 ?곸꽭 ?뺣낫 議고쉶 API (?먮낯 ?뚯씪紐??ы븿)
-     * @param refId 李몄“ ID
+     * 첨부파일 상세 정보 조회 API (원본 파일명 포함)
+     * @param refId 참조 ID
      * @param refType COMMUNITY, USER
-     * @param usage THUMBNAIL, IMAGES, ATTACHMENT (?좏깮)
-     * @return ?뚯씪 ?곸꽭 ?뺣낫 由ъ뒪??
+     * @param usage THUMBNAIL, IMAGES, ATTACHMENT (선택)
+     * @return 파일 상세 정보 리스트
      */
-    @GetMapping("/api/files/detail")
+    @GetMapping("/api/files")
     public ResponseEntity<ApiResponse<List<FileDetailDTO>>> getFileDetails(
-            @RequestParam Long refId,
-            @RequestParam String refType,
-            @RequestParam(required = false) String usage) {
+        @RequestParam Long refId,
+        @RequestParam String refType,
+        @RequestParam(required = false) String usage) {
         try {
             List<FileDetailDTO> fileDetails = fileService.getFileDetails(refId, refType, usage);
-            return ResponseEntity.ok(ApiResponse.success("?뚯씪 議고쉶 ?깃났", fileDetails));
+            return ResponseEntity.ok(ApiResponse.success("파일 조회 성공", fileDetails));
         } catch (IllegalArgumentException e) {
-            log.error("?섎せ???뚮씪誘명꽣: {}", e.getMessage());
+            log.error("잘못된 파라미터: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
 
     /**
-     * 泥⑤??뚯씪 ?ㅼ슫濡쒕뱶 API
-     * - 濡쒖뺄 ?뚯씪: 吏곸젒 ?쒕튃
-     * - Supabase ?뚯씪: CDN?먯꽌 媛?몄????먮낯 ?뚯씪紐낆쑝濡??묐떟
-     * @param fileId ?뚯씪 ID
-     * @return ?뚯씪 由ъ냼??(?먮낯 ?뚯씪紐낆쑝濡??ㅼ슫濡쒕뱶)
+     * 첨부파일 다운로드 API
+     * - 로컬 파일: 직접 서비스
+     * - Supabase 파일: CDN에서 가져오되 원본 파일명으로 응답
+     * @param fileId 파일 ID
+     * @return 파일 리소스 (원본 파일명으로 다운로드)
      */
-    @GetMapping("/api/files/download/{fileId}")
+    @GetMapping("/api/files/{fileId}/content")
     public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
         try {
-            // 1. DB?먯꽌 ?뚯씪 ?뺣낫 議고쉶
+            // 1. DB에서 파일 정보 조회
             FileEntity fileEntity = fileService.getFileById(fileId);
             if (fileEntity == null) {
-                log.warn("?뚯씪??李얠쓣 ???놁뒿?덈떎: fileId={}", fileId);
+                log.warn("파일을 찾을 수 없습니다: fileId={}", fileId);
                 return ResponseEntity.notFound().build();
             }
 
             String filePath = fileEntity.getFilePath();
             Resource resource;
 
-            // 2. CDN URL?몄? 濡쒖뺄 ?뚯씪?몄? ?먮떒
+            // 2. CDN URL인지 로컬 파일인지 판단
             if (filePath != null && filePath.startsWith("http")) {
-                // Supabase CDN URL ??URL Resource濡?濡쒕뱶
-                log.info("CDN ?뚯씪 ?ㅼ슫濡쒕뱶: fileId={}, url={}", fileId, filePath);
+                // Supabase CDN URL 등 URL Resource로 로드
+                log.info("CDN 파일 다운로드: fileId={}, url={}", fileId, filePath);
                 resource = new UrlResource(filePath);
             } else {
-                // 濡쒖뺄 ?뚯씪 ??湲곗〈 諛⑹떇
+                // 로컬 파일 등 기존 방식
                 Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
                 Path file = uploadPath.resolve(fileEntity.getStoredFileName());
-                log.info("濡쒖뺄 ?뚯씪 ?ㅼ슫濡쒕뱶: fileId={}, path={}", fileId, file);
+                log.info("로컬 파일 다운로드: fileId={}, path={}", fileId, file);
                 resource = new UrlResource(file.toUri());
             }
 
             if (!resource.exists() || !resource.isReadable()) {
-                log.error("?뚯씪??李얠쓣 ???놁뒿?덈떎: {}", filePath);
+                log.error("파일을 찾을 수 없습니다: {}", filePath);
                 return ResponseEntity.notFound().build();
             }
 
-            // 3. ?먮낯 ?뚯씪紐??몄퐫??(?쒓? ?뚯씪紐?吏??
+            // 3. 원본 파일명 인코딩 (한글 파일명 지정)
             String encodedFileName = URLEncoder.encode(fileEntity.getOriginalFileName(), StandardCharsets.UTF_8)
-                    .replaceAll("\\+", "%20");
+                .replaceAll("\\+", "%20");
 
-            // 4. ?ㅼ슫濡쒕뱶 ?묐떟 ?ㅻ뜑 ?ㅼ젙 (?먮낯 ?뚯씪紐낆쑝濡?)
+            // 4. 다운로드 응답 헤더 설정 (원본 파일명으로)
             return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
-                    .body(resource);
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
+                .body(resource);
 
         } catch (MalformedURLException e) {
-            log.error("?뚯씪 寃쎈줈 ?ㅻ쪟: {}", e.getMessage());
+            log.error("파일 경로 오류: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            log.error("?뚯씪 ?ㅼ슫濡쒕뱶 ?ㅽ뙣: {}", e.getMessage(), e);
+            log.error("파일 다운로드 실패: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }
 
     /**
-     * ?뚯씪 ??젣 API
-     * @param fileId ??젣???뚯씪 ID
-     * @return ?깃났 ????젣 ?꾨즺 硫붿떆吏
+     * 파일 삭제 API
+     * @param fileId 삭제할 파일 ID
+     * @return 성공 시 삭제 완료 메시지
      */
     @DeleteMapping("/api/files/{fileId}")
     public ResponseEntity<ApiResponse<Void>> deleteFile(@PathVariable Long fileId) {
         try {
-            log.info("?뚯씪 ??젣 ?붿껌: fileId={}", fileId);
+            log.info("파일 삭제 요청: fileId={}", fileId);
             fileService.deleteFile(fileId);
-            return ResponseEntity.ok(ApiResponse.success("?뚯씪????젣?섏뿀?듬땲??));
+            return ResponseEntity.ok(ApiResponse.success("파일이 삭제되었습니다."));
         } catch (IllegalArgumentException e) {
-            log.error("?뚯씪 ??젣 ?ㅽ뙣: {}", e.getMessage());
+            log.error("파일 삭제 실패: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            log.error("?뚯씪 ??젣 ?먮윭: {}", e.getMessage(), e);
+            log.error("파일 삭제 에러: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }

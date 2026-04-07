@@ -7,68 +7,64 @@ import com.test.test.community.comment.dto.CommentDTO;
 import com.test.test.community.comment.dto.CommentUpdateDTO;
 import com.test.test.jwt.model.CustomUserAccount;
 import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
-    /**
-     * 특정 게시글의 댓글 목록 조회 (페이징)
-     */
-    @GetMapping("/community/{communityId}")
+    @GetMapping("/communities/{communityId}/comments")
     public ResponseEntity<ApiResponse<PageResponse<CommentDTO>>> getComments(
             @PathVariable Long communityId,
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
 
         Page<CommentDTO> comments = commentService.getCommentsByCommunityId(communityId, pageable);
-        return ResponseEntity.ok(ApiResponse.success("댓글 목록 조회 성공", PageResponse.from(comments)));
+        return ResponseEntity.ok(ApiResponse.success("Comments fetched", PageResponse.from(comments)));
     }
 
-    /**
-     * 댓글 작성 (로그인 필요)
-     */
-    @PostMapping
+    @PostMapping("/communities/{communityId}/comments")
     public ResponseEntity<ApiResponse<CommentDTO>> createComment(
+            @PathVariable Long communityId,
             @Valid @RequestBody CommentCreateDTO createDTO,
             @AuthenticationPrincipal CustomUserAccount userAccount) {
 
-        CommentDTO comment = commentService.createComment(createDTO, userAccount.getUsername());
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("댓글이 작성되었습니다", comment));
+        CommentDTO comment = commentService.createComment(communityId, createDTO, userAccount.getUsername());
+        return ResponseEntity.created(URI.create("/api/comments/" + comment.getId()))
+                .body(ApiResponse.success("Comment created", comment));
     }
 
-    /**
-     * 댓글 수정 (로그인 필요, 작성자만)
-     */
-    @PutMapping("/{commentId}")
+    @PutMapping("/comments/{commentId}")
     public ResponseEntity<ApiResponse<CommentDTO>> updateComment(
             @PathVariable Long commentId,
             @Valid @RequestBody CommentUpdateDTO updateDTO,
             @AuthenticationPrincipal CustomUserAccount userAccount) {
 
         CommentDTO comment = commentService.updateComment(commentId, updateDTO, userAccount.getUsername());
-        return ResponseEntity.ok(ApiResponse.success("댓글이 수정되었습니다", comment));
+        return ResponseEntity.ok(ApiResponse.success("Comment updated", comment));
     }
 
-    /**
-     * 댓글 삭제 (로그인 필요, 작성자만)
-     */
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<ApiResponse<Void>> deleteComment(
             @PathVariable Long commentId,
             @AuthenticationPrincipal CustomUserAccount userAccount) {
         commentService.deleteComment(commentId, userAccount.getUsername());
-        return ResponseEntity.ok(ApiResponse.success("댓글이 삭제되었습니다"));
+        return ResponseEntity.ok(ApiResponse.success("Comment deleted"));
     }
 }
-

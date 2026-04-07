@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.chlecture.board.dao.BoardDao">
+    <resultMap id="BoardMap" type="com.example.chlecture.board.model.Board">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="writer" column="writer"/>
+        <!-- [Ch12] DB의 status(VARCHAR) → Board.statusCode(String) 매핑 -->
+        <result property="statusCode" column="status"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectList" resultMap="BoardMap" parameterType="map">
+        SELECT * FROM board ORDER BY id DESC LIMIT #{offset},#{limit}
+    </select>
+
+    <select id="selectOne" resultMap="BoardMap" parameterType="int">
+        SELECT * FROM board WHERE id = #{id}
+    </select>
+
+    <!-- [Ch12] statusCode에 BoardStatus.getCode() 값("A"/"I"/"D")이 들어감 -->
+    <insert id="insert" parameterType="com.example.chlecture.board.model.Board">
+        INSERT INTO board(title, content, writer, status)
+        VALUES(#{title}, #{content}, #{writer}, #{statusCode})
+    </insert>
+
+    <update id="update" parameterType="com.example.chlecture.board.model.Board">
+        UPDATE board SET title = #{title}, content = #{content}, status = #{statusCode}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM board WHERE id = #{id}
+    </delete>
+</mapper>
+

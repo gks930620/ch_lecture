@@ -30,5 +30,14 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> success(String message) {
         return success(message, null);
     }
+
+    // 실패 응답 (메시지만, 데이터 없음)
+    public static <T> ApiResponse<T> fail(String message) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .message(message)
+                .data(null)
+                .build();
+    }
 }
 

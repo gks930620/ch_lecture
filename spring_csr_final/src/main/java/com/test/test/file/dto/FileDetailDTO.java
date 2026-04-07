@@ -23,7 +23,7 @@ public class FileDetailDTO {
                 .storedFileName(entity.getStoredFileName())
                 .fileSize(entity.getFileSize())
                 // 다운로드: 원본 파일명이 필요하므로 서버 API 유지 (CDN은 UUID로 다운됨)
-                .downloadUrl("/api/files/download/" + entity.getId())
+                .downloadUrl("/api/files/" + entity.getId() + "/content")
                 // 미리보기: DB에 이미 완성된 URL 저장됨 (CDN URL 또는 /uploads/xxx)
                 .previewUrl(entity.getFilePath())
                 .build();

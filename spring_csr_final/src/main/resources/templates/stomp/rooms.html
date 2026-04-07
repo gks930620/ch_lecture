@@ -247,7 +247,7 @@
                     const li = document.createElement('li');
                     const safeName = escapeHtml(room.name);
                     li.innerHTML = `
-                        <a href="/room/${room.id}" class="room-item">
+                        <a href="/rooms/${room.id}" class="room-item">
                             <div class="room-info">
                                 <div class="room-icon">
                                     <span class="material-icons">forum</span>
@@ -275,9 +275,9 @@
                     return;
                 }
 
-                const rooms = await response.json();
+                const roomResult = await response.json();
                 roomCreateForm.style.display = 'flex';
-                renderRooms(rooms);
+                renderRooms(roomResult.data || []);
 
                 roomCreateForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
@@ -304,7 +304,7 @@
 
                         const created = await createResponse.json();
                         roomNameInput.value = '';
-                        window.location.href = `/room/${created.id}`;
+                        window.location.href = `/rooms/${created.data.id}`;
                     } catch (error) {
                         console.error('채팅방 생성 실패:', error);
                         alert('채팅방 생성 중 오류가 발생했습니다.');

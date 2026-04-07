@@ -417,7 +417,7 @@
         // 로그인 상태 확인
         async function checkLoginStatus() {
             try {
-                const response = await authFetch('/api/my/info');
+                const response = await authFetch('/api/users/me');
                 if (response.ok) {
                     const result = await response.json();
                     currentUser = result.data; // ApiResponse에서 data 추출
@@ -438,7 +438,7 @@
             try {
                 showLoading(true);
 
-                const response = await fetch(`/api/community/${currentCommunityId}`);
+                const response = await fetch(`/api/communities/${currentCommunityId}`);
 
                 if (!response.ok) {
                     throw new Error('게시글을 불러오는데 실패했습니다.');
@@ -553,7 +553,7 @@
 
             try {
                 // 1. 첨부파일 목록 가져오기 (별도 API)
-                const filesResponse = await fetch(`/api/files/detail?refId=${currentCommunityId}&refType=COMMUNITY&usage=ATTACHMENT`);
+                const filesResponse = await fetch(`/api/files?refId=${currentCommunityId}&refType=COMMUNITY&usage=ATTACHMENT`);
 
                 if (filesResponse.ok) {
                     const filesResult = await filesResponse.json();
@@ -577,7 +577,7 @@
                 }
 
                 // 3. 게시글 삭제
-                const deleteResponse = await authFetch(`/api/community/${currentCommunityId}`, {
+                const deleteResponse = await authFetch(`/api/communities/${currentCommunityId}`, {
                     method: 'DELETE',
                     credentials: 'include'
                 });
@@ -605,7 +605,7 @@
         async function loadFiles() {
             try {
                 // ATTACHMENT 파일 상세 정보 조회 (원본 파일명 포함)
-                const response = await fetch(`/api/files/detail?refId=${currentCommunityId}&refType=COMMUNITY&usage=ATTACHMENT`);
+                const response = await fetch(`/api/files?refId=${currentCommunityId}&refType=COMMUNITY&usage=ATTACHMENT`);
 
                 if (!response.ok) {
                     console.log('첨부파일 없음 또는 조회 실패');
@@ -652,7 +652,7 @@
         // 댓글 목록 로드
         async function loadComments(page = 0) {
             try {
-                const response = await fetch(`/api/comments/community/${currentCommunityId}?page=${page}&size=${commentPageSize}`);
+                const response = await fetch(`/api/communities/${currentCommunityId}/comments?page=${page}&size=${commentPageSize}`);
 
                 if (!response.ok) {
                     throw new Error('댓글을 불러오는데 실패했습니다.');
@@ -742,14 +742,13 @@
             }
 
             try {
-                const response = await authFetch('/api/comments', {
+                const response = await authFetch(`/api/communities/${currentCommunityId}/comments`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     credentials: 'include',
                     body: JSON.stringify({
-                        communityId: currentCommunityId,
                         content: content
                     })
                 });

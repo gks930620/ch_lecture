@@ -4,7 +4,6 @@ import com.test.test.community.CommunityEntity;
 import com.test.test.community.comment.CommentEntity;
 import com.test.test.jwt.entity.UserEntity;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,10 +17,7 @@ import lombok.Setter;
 @Builder
 public class CommentCreateDTO {
 
-    @NotNull(message = "게시글 ID는 필수입니다")
-    private Long communityId;
-
-    @NotBlank(message = "댓글 내용은 필수입니다")
+    @NotBlank(message = "Comment content is required")
     private String content;
 
     public CommentEntity toEntity(CommunityEntity community, UserEntity user) {

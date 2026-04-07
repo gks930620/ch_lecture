@@ -282,7 +282,7 @@ h<!DOCTYPE html>
 
         // 로그인 확인 (API 호출로 정확하게 체크)
         function checkLoginAndRedirect() {
-            authFetch('/api/my/info')
+            authFetch('/api/users/me')
                 .then(response => {
                     if (response.ok) {
                         return response.json();
@@ -355,7 +355,7 @@ h<!DOCTYPE html>
                     formData.append('refType', 'COMMUNITY');
                     formData.append('usage', 'IMAGES');
 
-                    const response = await authFetch('/api/files/upload', {
+                    const response = await authFetch('/api/files', {
                         method: 'POST',
                         credentials: 'include',
                         body: formData
@@ -478,7 +478,7 @@ h<!DOCTYPE html>
                 console.log('📤 게시글 데이터:', communityData);
 
                 // credentials: 'include'로 쿠키를 자동으로 전달 (Authorization 헤더 불필요)
-                const response = await authFetch('/api/community', {
+                const response = await authFetch('/api/communities', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -513,7 +513,7 @@ h<!DOCTYPE html>
                     formData.append('refType', 'COMMUNITY');
                     formData.append('usage', 'ATTACHMENT'); // 첨부파일은 ATTACHMENT
 
-                    const fileResponse = await authFetch('/api/files/upload', {
+                    const fileResponse = await authFetch('/api/files', {
                         method: 'POST',
                         credentials: 'include',
                         body: formData

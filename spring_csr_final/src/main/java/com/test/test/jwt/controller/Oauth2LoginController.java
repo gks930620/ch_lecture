@@ -71,7 +71,7 @@ public class Oauth2LoginController {
 
     // ✅ 앱용 OAuth2 로그인은 이제 네이티브 SDK 방식을 사용합니다.
     // 앱에서 kakao_flutter_sdk, google_sign_in 등으로 네이티브 로그인 후
-    // /api/oauth2/{provider}/app 엔드포인트로 사용자 정보를 전송하여 JWT를 발급받습니다.
+    // /api/oauth2/providers/{provider}/tokens 엔드포인트로 사용자 정보를 전송하여 JWT를 발급받습니다.
     // (AppOAuth2Controller 참조)
 }
 

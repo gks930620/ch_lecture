@@ -1,36 +1,42 @@
 package com.test.test.stomp.controller;
 
+import com.test.test.common.dto.ApiResponse;
 import com.test.test.stomp.model.RoomCreateRequest;
 import com.test.test.stomp.model.RoomDTO;
 import com.test.test.stomp.service.RoomService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import java.net.URI;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/rooms")
 @RequiredArgsConstructor
 public class RoomController {
 
     private final RoomService roomService;
 
-    // 전체 방 목록
-    @GetMapping("/rooms")
-    public List<RoomDTO> getRooms() {
-        return roomService.getAllRooms();
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<RoomDTO>>> getRooms() {
+        return ResponseEntity.ok(ApiResponse.success("Room list fetched", roomService.getAllRooms()));
     }
 
-    // 특정 방 상세
-    @GetMapping("/room/{roomId}")
-    public RoomDTO getRoom(@PathVariable Long roomId) {
-        return roomService.getRoom(roomId);
+    @GetMapping("/{roomId}")
+    public ResponseEntity<ApiResponse<RoomDTO>> getRoom(@PathVariable Long roomId) {
+        return ResponseEntity.ok(ApiResponse.success("Room fetched", roomService.getRoom(roomId)));
     }
 
-    // 채팅방 생성
-    @PostMapping("/rooms")
-    public RoomDTO createRoom(@Valid @RequestBody RoomCreateRequest request) {
-        return roomService.createRoom(request.name());
+    @PostMapping
+    public ResponseEntity<ApiResponse<RoomDTO>> createRoom(@Valid @RequestBody RoomCreateRequest request) {
+        RoomDTO room = roomService.createRoom(request.name());
+        return ResponseEntity.created(URI.create("/api/rooms/" + room.getId()))
+            .body(ApiResponse.success("Room created", room));
     }
 }
-

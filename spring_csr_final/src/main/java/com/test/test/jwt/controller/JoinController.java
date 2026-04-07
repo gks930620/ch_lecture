@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/join")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class JoinController {
 
@@ -23,6 +23,6 @@ public class JoinController {
     public ResponseEntity<ApiResponse<Void>> join(@Valid @RequestBody JoinDTO joinDTO) {
         joinService.joinProcess(joinDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("회원가입이 완료되었습니다"));
+                .body(ApiResponse.success("User created"));
     }
 }
