@@ -9,6 +9,6 @@ title: spring_ssr_security_oauth2
 
 ## 문서 목록
 
-- [security oauth2 설명.md](security oauth2 설명.md)
-- [security oauth2 설명_back.md](security oauth2 설명_back.md)
-- [프로젝트_구조_정리.md](프로젝트_구조_정리.md)
+- [`security oauth2 설명.md`](security oauth2 설명.md)
+- [`security oauth2 설명_back.md`](security oauth2 설명_back.md)
+- [`프로젝트_구조_정리.md`](프로젝트_구조_정리.md)

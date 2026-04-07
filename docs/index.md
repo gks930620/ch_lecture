@@ -11,9 +11,8 @@ title: CH Lecture Docs
 
 ## 프로젝트 문서
 
-- [apache-tomcat-9.0.115](apache-tomcat-9.0.115/)
-- [javascript_basic](javascript_basic/)
 - [java_basic](java_basic/)
+- [javascript_basic](javascript_basic/)
 - [spring_csr_chat](spring_csr_chat/)
 - [spring_csr_final](spring_csr_final/)
 - [spring_csr_jwt_access_refresh](spring_csr_jwt_access_refresh/)

@@ -9,5 +9,5 @@ title: spring_ssr_security
 
 ## 문서 목록
 
-- [security설명.md](security설명.md)
-- [프로젝트_구조_정리.md](프로젝트_구조_정리.md)
+- [`security설명.md`](security설명.md)
+- [`프로젝트_구조_정리.md`](프로젝트_구조_정리.md)

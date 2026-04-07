@@ -9,5 +9,5 @@ title: spring_csr_chat
 
 ## 문서 목록
 
-- [stomp설명.md](stomp설명.md)
-- [나만의참고.md](나만의참고.md)
+- [`stomp설명.md`](stomp설명.md)
+- [`나만의참고.md`](나만의참고.md)
