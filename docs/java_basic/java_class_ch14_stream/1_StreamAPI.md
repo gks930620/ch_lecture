@@ -1,4 +1,4 @@
-# 14장. Stream API
+# Stream API
 
 ## 학습 목표
 - Stream의 처리 모델을 이해한다.

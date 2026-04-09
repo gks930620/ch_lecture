@@ -17,9 +17,6 @@
         <p class="eyebrow">CH Lecture Docs</p>
         <h1 class="project-name">{{ page.title | default: site.title }}</h1>
         <h2 class="project-tagline">{{ page.description | default: site.description }}</h2>
-        {% if page.url != '/' and page.url != '/index.html' %}
-          <p class="page-path">{{ page.url | remove: '.html' }}</p>
-        {% endif %}
         <div class="hero-actions">
           <a href="{{ site.repository_url | default: site.github.repository_url }}" class="btn btn-solid">View on GitHub</a>
           <a href="{{ '/' | relative_url }}" class="btn btn-outline">{{ site.home_label | default: 'Go to Main' }}</a>

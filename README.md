@@ -4,9 +4,9 @@
 
 ## 🌐 GitHub Pages
 
-👉 **[강의 자료 페이지 바로가기](https://YOUR_GITHUB_USERNAME.github.io/ch_lecture/)**
+👉 **[강의 자료 페이지 바로가기](https://gks930620.github.io/ch_lecture/)**
 
-> GitHub Pages 배포 후 위 링크의 `YOUR_GITHUB_USERNAME` 부분을 본인 GitHub 계정으로 변경해주세요.
+> GitHub Pages 배포 후에도 위 링크로 바로 접근할 수 있습니다.
 
 ---
 
@@ -42,5 +42,5 @@ ch_lecture/
 3. **Branch** 를 `main`, 폴더를 `/docs` 로 선택
 4. **Save** 클릭
 
-몇 분 후 `https://YOUR_USERNAME.github.io/ch_lecture/` 에서 확인 가능합니다.
+몇 분 후 `https://gks930620.github.io/ch_lecture/` 에서 확인 가능합니다.
 
