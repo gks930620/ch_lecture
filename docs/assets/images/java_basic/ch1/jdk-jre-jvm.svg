@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420">
+  <rect width="960" height="420" fill="#f8fafc"/>
+  <text x="480" y="44" text-anchor="middle" font-size="28" font-family="Arial" fill="#0f172a">JDK, JRE, JVM Relationship</text>
+
+  <rect x="90" y="80" width="780" height="280" rx="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="3"/>
+  <text x="120" y="120" font-size="26" font-family="Arial" fill="#1e3a8a" font-weight="bold">JDK</text>
+  <text x="120" y="150" font-size="17" font-family="Arial" fill="#1e3a8a">Development + Runtime tools</text>
+  <text x="120" y="176" font-size="15" font-family="Arial" fill="#1e3a8a">javac, jar, javadoc, jdb, ...</text>
+
+  <rect x="170" y="170" width="620" height="160" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+  <text x="200" y="210" font-size="24" font-family="Arial" fill="#166534" font-weight="bold">JRE</text>
+  <text x="200" y="237" font-size="16" font-family="Arial" fill="#166534">Runtime environment</text>
+  <text x="200" y="262" font-size="15" font-family="Arial" fill="#166534">JVM + Standard Libraries</text>
+
+  <rect x="310" y="230" width="340" height="80" rx="12" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+  <text x="332" y="275" font-size="24" font-family="Arial" fill="#991b1b" font-weight="bold">JVM</text>
+  <text x="425" y="275" font-size="16" font-family="Arial" fill="#991b1b">Bytecode Execution Engine</text>
+
+  <text x="480" y="392" text-anchor="middle" font-size="18" font-family="Arial" fill="#334155">JDK > JRE > JVM</text>
+</svg>

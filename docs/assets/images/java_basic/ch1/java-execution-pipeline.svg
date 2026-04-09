@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="360" viewBox="0 0 1400 360">
+  <rect width="1400" height="360" fill="#f8fafc"/>
+  <text x="700" y="46" text-anchor="middle" font-size="30" font-family="Arial" fill="#0f172a">Java Compile and Runtime Pipeline</text>
+
+  <g font-family="Arial" font-size="16" text-anchor="middle">
+    <rect x="40" y="120" width="170" height="90" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="3"/>
+    <text x="125" y="162" fill="#075985">Source</text>
+    <text x="125" y="184" fill="#075985">HelloWorld.java</text>
+
+    <rect x="250" y="120" width="130" height="90" rx="12" fill="#ede9fe" stroke="#7c3aed" stroke-width="3"/>
+    <text x="315" y="162" fill="#4c1d95">javac</text>
+    <text x="315" y="184" fill="#4c1d95">Compiler</text>
+
+    <rect x="420" y="120" width="180" height="90" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+    <text x="510" y="162" fill="#14532d">Bytecode</text>
+    <text x="510" y="184" fill="#14532d">HelloWorld.class</text>
+
+    <rect x="640" y="120" width="170" height="90" rx="12" fill="#ffe4e6" stroke="#e11d48" stroke-width="3"/>
+    <text x="725" y="162" fill="#881337">Class Loader</text>
+    <text x="725" y="184" fill="#881337">(load classes)</text>
+
+    <rect x="850" y="120" width="210" height="90" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+    <text x="955" y="150" fill="#92400e">Verify / Link</text>
+    <text x="955" y="172" fill="#92400e">Initialize</text>
+    <text x="955" y="194" fill="#92400e">(static init)</text>
+
+    <rect x="1100" y="120" width="130" height="90" rx="12" fill="#dbeafe" stroke="#1d4ed8" stroke-width="3"/>
+    <text x="1165" y="162" fill="#1e3a8a">Interpreter</text>
+    <text x="1165" y="184" fill="#1e3a8a">+ JIT</text>
+
+    <rect x="1270" y="120" width="95" height="90" rx="12" fill="#e2e8f0" stroke="#475569" stroke-width="3"/>
+    <text x="1318" y="162" fill="#334155">OS</text>
+    <text x="1318" y="184" fill="#334155">CPU</text>
+  </g>
+
+  <g stroke="#334155" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <line x1="210" y1="165" x2="250" y2="165"/>
+    <line x1="380" y1="165" x2="420" y2="165"/>
+    <line x1="600" y1="165" x2="640" y2="165"/>
+    <line x1="810" y1="165" x2="850" y2="165"/>
+    <line x1="1060" y1="165" x2="1100" y2="165"/>
+    <line x1="1230" y1="165" x2="1270" y2="165"/>
+  </g>
+
+  <text x="700" y="304" text-anchor="middle" font-size="18" font-family="Arial" fill="#334155">
+    Runtime also includes memory management (Heap/Stack) and GC
+  </text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+    </marker>
+  </defs>
+</svg>

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="500" viewBox="0 0 1180 500">
+  <rect width="1180" height="500" fill="#f8fafc"/>
+  <text x="590" y="44" text-anchor="middle" font-size="30" font-family="Arial" fill="#0f172a">Array Assignment vs Real Copy</text>
+
+  <rect x="60" y="90" width="500" height="360" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+  <text x="310" y="126" text-anchor="middle" font-size="22" font-family="Arial" fill="#991b1b">Reference Assignment (shared array)</text>
+
+  <rect x="90" y="165" width="150" height="52" rx="8" fill="#fecaca" stroke="#b91c1c" stroke-width="2"/>
+  <text x="110" y="198" font-size="18" font-family="Courier New" fill="#7f1d1d">a -></text>
+  <rect x="90" y="235" width="150" height="52" rx="8" fill="#fecaca" stroke="#b91c1c" stroke-width="2"/>
+  <text x="110" y="268" font-size="18" font-family="Courier New" fill="#7f1d1d">b -></text>
+
+  <rect x="290" y="190" width="230" height="110" rx="10" fill="#fef2f2" stroke="#b91c1c" stroke-width="2"/>
+  <text x="405" y="230" text-anchor="middle" font-size="24" font-family="Courier New" fill="#7f1d1d">[1, 2, 3]</text>
+  <text x="405" y="260" text-anchor="middle" font-size="15" font-family="Arial" fill="#7f1d1d">a[0] and b[0] affect same array</text>
+
+  <g stroke="#7f1d1d" stroke-width="2.5" fill="none" marker-end="url(#arrowRed)">
+    <line x1="240" y1="191" x2="288" y2="220"/>
+    <line x1="240" y1="261" x2="288" y2="220"/>
+  </g>
+
+  <rect x="620" y="90" width="500" height="360" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+  <text x="870" y="126" text-anchor="middle" font-size="22" font-family="Arial" fill="#166534">Actual Copy (independent arrays)</text>
+
+  <rect x="650" y="165" width="150" height="52" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+  <text x="670" y="198" font-size="18" font-family="Courier New" fill="#14532d">a -></text>
+  <rect x="650" y="235" width="150" height="52" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+  <text x="670" y="268" font-size="18" font-family="Courier New" fill="#14532d">copy -></text>
+
+  <rect x="850" y="160" width="230" height="80" rx="10" fill="#ecfccb" stroke="#65a30d" stroke-width="2"/>
+  <text x="965" y="208" text-anchor="middle" font-size="24" font-family="Courier New" fill="#365314">[1, 2, 3]</text>
+  <rect x="850" y="255" width="230" height="80" rx="10" fill="#ecfccb" stroke="#65a30d" stroke-width="2"/>
+  <text x="965" y="303" text-anchor="middle" font-size="24" font-family="Courier New" fill="#365314">[1, 2, 3]</text>
+
+  <g stroke="#14532d" stroke-width="2.5" fill="none" marker-end="url(#arrowGreen)">
+    <line x1="800" y1="191" x2="848" y2="200"/>
+    <line x1="800" y1="261" x2="848" y2="295"/>
+  </g>
+
+  <text x="590" y="480" text-anchor="middle" font-size="18" font-family="Arial" fill="#334155">Use clone / Arrays.copyOf / System.arraycopy for independent copies</text>
+
+  <defs>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#7f1d1d"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#14532d"/>
+    </marker>
+  </defs>
+</svg>

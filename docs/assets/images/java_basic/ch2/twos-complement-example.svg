@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="420" viewBox="0 0 980 420">
+  <rect width="980" height="420" fill="#f8fafc"/>
+  <text x="490" y="44" text-anchor="middle" font-size="28" font-family="Arial" fill="#0f172a">Two's Complement Example (-5 in byte)</text>
+
+  <g font-family="Arial" font-size="18" fill="#1e293b">
+    <text x="80" y="110">1) +5 in binary</text>
+    <text x="80" y="190">2) Invert bits (one's complement)</text>
+    <text x="80" y="270">3) Add 1</text>
+    <text x="80" y="350" font-weight="bold">Result: -5</text>
+  </g>
+
+  <g font-family="Courier New" font-size="30">
+    <rect x="420" y="76" width="460" height="54" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="450" y="112" fill="#075985">00000101</text>
+
+    <rect x="420" y="156" width="460" height="54" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="450" y="192" fill="#4c1d95">11111010</text>
+
+    <rect x="420" y="236" width="460" height="54" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="450" y="272" fill="#166534">11111010 + 1</text>
+
+    <rect x="420" y="316" width="460" height="54" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="450" y="352" fill="#991b1b">11111011</text>
+  </g>
+
+  <g stroke="#334155" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+    <line x1="650" y1="130" x2="650" y2="154"/>
+    <line x1="650" y1="210" x2="650" y2="234"/>
+    <line x1="650" y1="290" x2="650" y2="314"/>
+  </g>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+    </marker>
+  </defs>
+</svg>

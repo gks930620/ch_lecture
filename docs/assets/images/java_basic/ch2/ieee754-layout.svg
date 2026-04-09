@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="460" viewBox="0 0 1100 460">
+  <rect width="1100" height="460" fill="#f8fafc"/>
+  <text x="550" y="42" text-anchor="middle" font-size="29" font-family="Arial" fill="#0f172a">IEEE 754 Floating Point Layout</text>
+
+  <text x="90" y="98" font-size="22" font-family="Arial" fill="#1e293b">float (32-bit)</text>
+  <rect x="270" y="72" width="40" height="40" fill="#fecaca" stroke="#dc2626" stroke-width="2"/>
+  <rect x="310" y="72" width="240" height="40" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+  <rect x="550" y="72" width="420" height="40" fill="#bfdbfe" stroke="#2563eb" stroke-width="2"/>
+  <text x="290" y="100" text-anchor="middle" font-size="14" font-family="Arial" fill="#7f1d1d">1</text>
+  <text x="430" y="100" text-anchor="middle" font-size="14" font-family="Arial" fill="#78350f">8 bits exponent</text>
+  <text x="760" y="100" text-anchor="middle" font-size="14" font-family="Arial" fill="#1e3a8a">23 bits fraction</text>
+
+  <text x="90" y="188" font-size="22" font-family="Arial" fill="#1e293b">double (64-bit)</text>
+  <rect x="270" y="162" width="40" height="40" fill="#fecaca" stroke="#dc2626" stroke-width="2"/>
+  <rect x="310" y="162" width="300" height="40" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+  <rect x="610" y="162" width="360" height="40" fill="#bfdbfe" stroke="#2563eb" stroke-width="2"/>
+  <text x="290" y="190" text-anchor="middle" font-size="14" font-family="Arial" fill="#7f1d1d">1</text>
+  <text x="460" y="190" text-anchor="middle" font-size="14" font-family="Arial" fill="#78350f">11 bits exponent</text>
+  <text x="790" y="190" text-anchor="middle" font-size="14" font-family="Arial" fill="#1e3a8a">52 bits fraction</text>
+
+  <rect x="90" y="250" width="920" height="170" rx="14" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+  <text x="120" y="286" font-size="20" font-family="Arial" fill="#0f172a">Value formula (normalized):</text>
+  <text x="120" y="323" font-size="24" font-family="Courier New" fill="#0f172a">(-1)^sign * (1.fraction) * 2^(exponent - bias)</text>
+  <text x="120" y="358" font-size="18" font-family="Arial" fill="#334155">float bias = 127, double bias = 1023</text>
+  <text x="120" y="389" font-size="18" font-family="Arial" fill="#334155">Decimal fractions (0.1, 0.2) are often stored as approximations in binary.</text>
+</svg>

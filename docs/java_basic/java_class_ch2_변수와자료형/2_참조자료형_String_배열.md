@@ -27,6 +27,10 @@ String b = a;
 - `a`와 `b`는 같은 문자열 객체를 가리킬 수 있다.
 - `b`를 다른 문자열로 재대입하면 `a`는 영향을 받지 않는다(참조값 복사이기 때문).
 
+![String 참조와 문자열 풀](../../assets/images/java_basic/ch2/string-pool-reference.svg)
+
+참조 변수, 문자열 풀, `==`/`equals` 결과 차이를 한 번에 보여주는 그림이다.
+
 ---
 
 ## 2. 메모리 관점: Stack과 Heap
@@ -245,6 +249,10 @@ int[] b = a; // 같은 배열 참조
 b[0] = 99;
 System.out.println(a[0]); // 99
 ```
+
+![배열 참조 공유와 실제 복사](../../assets/images/java_basic/ch2/array-copy-reference.svg)
+
+`b = a`가 "복사"가 아니라 같은 배열을 가리키는 참조 공유라는 점을 시각화했다.
 
 실제 별도 배열이 필요하면 복사 API를 사용한다.
 
