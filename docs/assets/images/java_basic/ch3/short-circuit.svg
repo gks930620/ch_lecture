@@ -3,7 +3,7 @@
   <text x="550" y="42" text-anchor="middle" font-size="30" font-family="Arial" fill="#0f172a">Short-Circuit Evaluation</text>
 
   <rect x="70" y="90" width="460" height="380" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
-  <text x="300" y="126" text-anchor="middle" font-size="24" font-family="Arial" fill="#166534">A && B</text>
+  <text x="300" y="126" text-anchor="middle" font-size="24" font-family="Arial" fill="#166534">A &amp;&amp; B</text>
   <text x="300" y="154" text-anchor="middle" font-size="15" font-family="Arial" fill="#166534">if A is false, B is not evaluated</text>
 
   <rect x="130" y="190" width="340" height="60" rx="10" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>

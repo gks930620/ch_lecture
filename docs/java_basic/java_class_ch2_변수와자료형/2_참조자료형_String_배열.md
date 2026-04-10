@@ -1,4 +1,4 @@
-# 참조 자료형 - String과 배열
+﻿# 참조 자료형 - String과 배열
 
 ## 학습 목표
 - 기본 자료형과 참조 자료형의 저장 방식 차이를 메모리 관점에서 설명할 수 있다.
@@ -27,7 +27,7 @@ String b = a;
 - `a`와 `b`는 같은 문자열 객체를 가리킬 수 있다.
 - `b`를 다른 문자열로 재대입하면 `a`는 영향을 받지 않는다(참조값 복사이기 때문).
 
-![String 참조와 문자열 풀](../../assets/images/java_basic/ch2/string-pool-reference.svg)
+![String 참조와 문자열 풀]({{ '/assets/images/java_basic/ch2/string-pool-reference.svg' | relative_url }})
 
 참조 변수, 문자열 풀, `==`/`equals` 결과 차이를 한 번에 보여주는 그림이다.
 
@@ -250,7 +250,7 @@ b[0] = 99;
 System.out.println(a[0]); // 99
 ```
 
-![배열 참조 공유와 실제 복사](../../assets/images/java_basic/ch2/array-copy-reference.svg)
+![배열 참조 공유와 실제 복사]({{ '/assets/images/java_basic/ch2/array-copy-reference.svg' | relative_url }})
 
 `b = a`가 "복사"가 아니라 같은 배열을 가리키는 참조 공유라는 점을 시각화했다.
 
@@ -323,3 +323,4 @@ System.out.println(names[0].length()); // 요소가 null
 - `String`은 불변 객체이며, 비교는 `equals`가 기본이다.
 - 배열은 고정 길이 자료구조로, 인덱스/복사/null/경계 조건을 정확히 다뤄야 한다.
 - 이 챕터를 정확히 이해하면 이후 컬렉션, 객체지향, 예외 처리 학습이 훨씬 쉬워진다.
+

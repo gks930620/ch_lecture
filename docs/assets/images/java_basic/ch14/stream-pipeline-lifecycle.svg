@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="500" viewBox="0 0 1180 500">
+  <rect width="1180" height="500" fill="#f8fafc"/>
+  <text x="590" y="42" text-anchor="middle" font-size="30" font-family="Arial" fill="#0f172a">Stream Pipeline Lifecycle</text>
+
+  <rect x="80" y="90" width="1020" height="320" rx="14" fill="#eef2ff" stroke="#4f46e5" stroke-width="3"/>
+
+  <g font-family="Arial" font-size="18" text-anchor="middle">
+    <rect x="120" y="200" width="170" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="205" y="242" fill="#1e3a8a">Source</text>
+
+    <rect x="330" y="200" width="180" height="70" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="420" y="242" fill="#166534">filter/map</text>
+
+    <rect x="550" y="200" width="180" height="70" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="640" y="242" fill="#92400e">sorted/distinct</text>
+
+    <rect x="770" y="200" width="180" height="70" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="860" y="242" fill="#991b1b">collect/reduce</text>
+  </g>
+
+  <g stroke="#334155" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+    <line x1="290" y1="235" x2="328" y2="235"/>
+    <line x1="510" y1="235" x2="548" y2="235"/>
+    <line x1="730" y1="235" x2="768" y2="235"/>
+  </g>
+
+  <text x="200" y="165" font-size="16" font-family="Arial" fill="#334155">No work yet</text>
+  <text x="520" y="165" font-size="16" font-family="Arial" fill="#334155">Lazy intermediate operations</text>
+  <text x="840" y="165" font-size="16" font-family="Arial" fill="#334155">Executed at terminal operation</text>
+
+  <text x="590" y="450" text-anchor="middle" font-size="18" font-family="Arial" fill="#334155">
+    Streams are single-use and should avoid side effects in pipeline operations.
+  </text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+    </marker>
+  </defs>
+</svg>
+

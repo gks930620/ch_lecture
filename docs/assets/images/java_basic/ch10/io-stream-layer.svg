@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="520" viewBox="0 0 1180 520">
+  <rect width="1180" height="520" fill="#f8fafc"/>
+  <text x="590" y="44" text-anchor="middle" font-size="30" font-family="Arial" fill="#0f172a">I/O Stream Layering</text>
+
+  <rect x="90" y="90" width="1000" height="380" rx="14" fill="#eef2ff" stroke="#4f46e5" stroke-width="3"/>
+
+  <rect x="170" y="140" width="380" height="280" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="360" y="175" text-anchor="middle" font-size="22" font-family="Arial" fill="#1e3a8a">Byte Stream</text>
+  <rect x="210" y="210" width="300" height="54" rx="8" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="360" y="243" text-anchor="middle" font-size="18" font-family="Courier New" fill="#1e3a8a">FileInputStream</text>
+  <rect x="210" y="280" width="300" height="54" rx="8" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="360" y="313" text-anchor="middle" font-size="18" font-family="Courier New" fill="#1e3a8a">BufferedInputStream</text>
+  <rect x="210" y="350" width="300" height="54" rx="8" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="360" y="383" text-anchor="middle" font-size="18" font-family="Courier New" fill="#1e3a8a">DataInputStream</text>
+
+  <rect x="620" y="140" width="380" height="280" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="810" y="175" text-anchor="middle" font-size="22" font-family="Arial" fill="#166534">Character Stream</text>
+  <rect x="660" y="210" width="300" height="54" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+  <text x="810" y="243" text-anchor="middle" font-size="18" font-family="Courier New" fill="#166534">FileReader</text>
+  <rect x="660" y="280" width="300" height="54" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+  <text x="810" y="313" text-anchor="middle" font-size="18" font-family="Courier New" fill="#166534">BufferedReader</text>
+  <rect x="660" y="350" width="300" height="54" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+  <text x="810" y="383" text-anchor="middle" font-size="18" font-family="Courier New" fill="#166534">InputStreamReader(UTF-8)</text>
+
+  <text x="590" y="495" text-anchor="middle" font-size="18" font-family="Arial" fill="#334155">
+    Open file -> wrap with buffer -> read/write -> close (try-with-resources)
+  </text>
+</svg>
+

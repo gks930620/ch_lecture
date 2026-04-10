@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560">
+  <rect width="1200" height="560" fill="#f8fafc"/>
+  <text x="600" y="44" text-anchor="middle" font-size="30" font-family="Arial" fill="#0f172a">JDBC Architecture and Transaction Flow</text>
+
+  <rect x="90" y="90" width="1020" height="420" rx="14" fill="#eef2ff" stroke="#4f46e5" stroke-width="3"/>
+
+  <rect x="140" y="160" width="220" height="80" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="250" y="206" text-anchor="middle" font-size="20" font-family="Arial" fill="#1e3a8a">Application</text>
+
+  <rect x="430" y="160" width="220" height="80" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="540" y="206" text-anchor="middle" font-size="20" font-family="Arial" fill="#166534">JDBC API</text>
+
+  <rect x="720" y="160" width="220" height="80" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="830" y="206" text-anchor="middle" font-size="20" font-family="Arial" fill="#92400e">DB Driver</text>
+
+  <rect x="480" y="300" width="380" height="80" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="670" y="344" text-anchor="middle" font-size="20" font-family="Arial" fill="#991b1b">Database (SQL engine)</text>
+
+  <text x="150" y="430" font-size="18" font-family="Arial" fill="#334155">Transaction flow:</text>
+  <text x="150" y="462" font-size="17" font-family="Courier New" fill="#334155">setAutoCommit(false) -> execute -> execute -> commit()</text>
+  <text x="150" y="490" font-size="17" font-family="Courier New" fill="#334155">on error: rollback() -> close resources</text>
+
+  <g stroke="#334155" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+    <line x1="360" y1="200" x2="428" y2="200"/>
+    <line x1="650" y1="200" x2="718" y2="200"/>
+    <line x1="830" y1="240" x2="700" y2="298"/>
+  </g>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+    </marker>
+  </defs>
+</svg>
+

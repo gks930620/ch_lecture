@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="520" viewBox="0 0 1180 520">
+  <rect width="1180" height="520" fill="#f8fafc"/>
+  <text x="590" y="44" text-anchor="middle" font-size="30" font-family="Arial" fill="#0f172a">Modern Java Feature Map</text>
+
+  <rect x="80" y="90" width="1020" height="380" rx="14" fill="#eef2ff" stroke="#4f46e5" stroke-width="3"/>
+
+  <rect x="480" y="130" width="220" height="70" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="590" y="172" text-anchor="middle" font-size="22" font-family="Arial" fill="#1e3a8a">Language Updates</text>
+
+  <rect x="140" y="260" width="180" height="70" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="230" y="302" text-anchor="middle" font-size="19" font-family="Arial" fill="#166534">var</text>
+
+  <rect x="360" y="260" width="180" height="70" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="450" y="302" text-anchor="middle" font-size="19" font-family="Arial" fill="#166534">record</text>
+
+  <rect x="580" y="260" width="180" height="70" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="670" y="302" text-anchor="middle" font-size="19" font-family="Arial" fill="#166534">switch expr</text>
+
+  <rect x="800" y="260" width="180" height="70" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="890" y="302" text-anchor="middle" font-size="19" font-family="Arial" fill="#166534">pattern matching</text>
+
+  <text x="150" y="400" font-size="18" font-family="Arial" fill="#334155">Adopt when readability and maintainability clearly improve.</text>
+  <text x="150" y="430" font-size="18" font-family="Arial" fill="#334155">Keep project JDK/runtime compatibility and team conventions aligned.</text>
+
+  <g stroke="#334155" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+    <line x1="520" y1="200" x2="250" y2="258"/>
+    <line x1="560" y1="200" x2="450" y2="258"/>
+    <line x1="620" y1="200" x2="670" y2="258"/>
+    <line x1="660" y1="200" x2="890" y2="258"/>
+  </g>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+    </marker>
+  </defs>
+</svg>
+
