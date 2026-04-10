@@ -4,9 +4,9 @@ title: CH Lecture | 강의 소개
 description: 강의 광고용 PPT 스타일 페이지
 ---
 
-<div style="padding: 34px 28px; border-radius: 16px; background: #050505; color: #ffffff; border: 1px solid #2a2a2a;">
-  <p style="margin: 0; color: #ef4444; font-size: 14px; font-weight: 700; letter-spacing: 0.08em;">CH LECTURE DECK</p>
-  <h2 style="margin: 10px 0 8px; border: 0; color: #ffffff; font-size: clamp(32px, 4.4vw, 46px);">설명이 아니라, 구현으로 완성하는 강의</h2>
+<div style="padding: 34px 28px; border-radius: 16px; background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 60%, #ffffff 100%); color: #111827; border: 1px solid #cbd5e1;">
+  <p style="margin: 0; color: #b91c1c; font-size: 14px; font-weight: 700; letter-spacing: 0.08em;">CH LECTURE DECK</p>
+  <h2 style="margin: 10px 0 8px; border: 0; color: #111827; font-size: clamp(32px, 4.4vw, 46px);">설명이 아니라, 구현으로 완성하는 강의</h2>
   <p style="margin: 0; font-size: 20px; line-height: 1.65;">
     참고 이미지 형식을 기준으로 구성한 소개 슬라이드입니다.<br>
     오프라인 1:1 수업 기준으로 작성되었습니다.
@@ -17,14 +17,14 @@ description: 강의 광고용 PPT 스타일 페이지
 
 ## 슬라이드 이동
 
-<div style="padding: 20px; border-radius: 14px; background: #0b0b0b; border: 1px solid #2a2a2a; color: #ffffff;">
-  <div style="height: 2px; background: #7f1d1d; margin: 0 0 14px;"></div>
+<div style="padding: 20px; border-radius: 14px; background: #ffffff; border: 1px solid #d1d5db; color: #111827;">
+  <div style="height: 2px; background: #ef4444; margin: 0 0 14px;"></div>
   <ol>
-    <li><a style="color: #fca5a5;" href="./01_후킹.html">01_후킹</a> - 비전공자/입문자 대상 메시지 + 트랙 소개</li>
-    <li><a style="color: #fca5a5;" href="./02_결과물.html">02_결과물</a> - 결과물 대신 커리큘럼 전체 맵</li>
-    <li><a style="color: #fca5a5;" href="./03_커리큘럼.html">03_커리큘럼</a> - 프로필 + 수업에 대한 약속</li>
-    <li><a style="color: #fca5a5;" href="./04_콜투액션.html">04_콜투액션</a> - Java/Web 핵심 커리큘럼</li>
-    <li><a style="color: #fca5a5;" href="./05_서버_프로젝트.html">05_서버_프로젝트</a> - Spring 실전/프로젝트 커리큘럼</li>
-    <li><a style="color: #fca5a5;" href="./06_선택_심화.html">06_선택_심화</a> - 선택 심화 + 신청 유도</li>
+    <li><a style="color: #b91c1c;" href="./01_후킹.html">01_후킹</a> - 비전공자/입문자 대상 메시지 + 트랙 소개</li>
+    <li><a style="color: #b91c1c;" href="./02_결과물.html">02_결과물</a> - 결과물 대신 커리큘럼 전체 맵</li>
+    <li><a style="color: #b91c1c;" href="./03_커리큘럼.html">03_커리큘럼</a> - 프로필 + 수업에 대한 약속</li>
+    <li><a style="color: #b91c1c;" href="./04_콜투액션.html">04_콜투액션</a> - Java/Web 핵심 커리큘럼</li>
+    <li><a style="color: #b91c1c;" href="./05_서버_프로젝트.html">05_서버_프로젝트</a> - Spring 실전/프로젝트 커리큘럼</li>
+    <li><a style="color: #b91c1c;" href="./06_선택_심화.html">06_선택_심화</a> - 선택 심화 + 신청 유도</li>
   </ol>
 </div>
