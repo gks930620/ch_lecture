@@ -17,11 +17,9 @@ description: 강의 광고용 PPT 스타일 페이지
 <div style="padding: 20px; border-radius: 14px; background: #ffffff; border: 1px solid #d1d5db; color: #111827;">
   <div style="height: 2px; background: #ef4444; margin: 0 0 14px;"></div>
   <ol>
-    <li><a style="color: #b91c1c;" href="./01_후킹.html">01_후킹</a> - 비전공자/입문자 대상 메시지 + 트랙 소개</li>
-    <li><a style="color: #b91c1c;" href="./02_커리큘럼.html">02_커리큘럼</a> - 커리큘럼 전체 맵</li>
-    <li><a style="color: #b91c1c;" href="./03_프로필_수업에대한약속.html">03_프로필 수업에대한 약속</a> - 프로필 + 수업에 대한 약속</li>
-    <li><a style="color: #b91c1c;" href="./04_콜투액션.html">04_콜투액션</a> - Java/Web 핵심 커리큘럼</li>
-    <li><a style="color: #b91c1c;" href="./05_서버_프로젝트.html">05_서버_프로젝트</a> - Spring 실전/프로젝트 커리큘럼</li>
-    <li><a style="color: #b91c1c;" href="./06_선택_심화.html">06_선택_심화</a> - 선택 심화 + 신청 유도</li>
+    <li><a style="color: #b91c1c;" href="./01_개요.html">01_개요</a> </li>
+    <li><a style="color: #b91c1c;" href="./02_커리큘럼.html">02_커리큘럼</a> </li>
+    <li><a style="color: #b91c1c;" href="./03_프로필_수업에대한약속.html">03_프로필 수업에대한 약속</a> </li>
+    <li><a style="color: #b91c1c;" href="./04_선택_심화.html">04_선택_심화</a> </li>
   </ol>
 </div>
