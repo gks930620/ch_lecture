@@ -5,12 +5,15 @@ title: java_basic
 
 # java_basic
 
-Java 기초 강의 폴더 목록입니다. 먼저 챕터 폴더로 이동한 뒤, 해당 폴더 안에서 문서를 선택하세요.
+Java 기초 강의 폴더 목록입니다.
+
+- `ch1`, `ch3`는 통합형 index, `ch2`는 단일 통합 md 파일로 구성했습니다.
+- `ch4` 이후는 기존 구조(챕터 폴더 내 문서 목록)입니다.
 
 ## 챕터 폴더
 
-- [java_class_ch1 시작하기](java_class_ch1_시작하기/)
-- [java_class_ch2 변수와 자료형](java_class_ch2_변수와자료형/)
+- [ch1 시작하기](ch1_시작하기.md)
+- [java_class_ch2 변수와 자료형 통합](ch2_변수와자료형_통합.md)
 - [java_class_ch3 연산자](java_class_ch3_연산자/)
 - [java_class_ch4 제어문과 반복문](java_class_ch4_제어문과반복문/)
 - [java_class_ch5 배열](java_class_ch5_배열/)
