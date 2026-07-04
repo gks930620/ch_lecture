@@ -79,8 +79,12 @@ public String logout(HttpSession session) {
 
 ## 4. Controller에서 세션 사용
 
+> ⚠️ 아래 두 방법은 **Interceptor 도입 전** Controller가 직접 로그인 체크하던 방식이다.  
+> 이 프로젝트의 실제 `mypage()`에는 null 체크 코드가 없고, 로그인 체크는 아래 4-1의
+> `LoginCheckInterceptor`가 공통으로 처리한다.
+
 ```java
-// 방법 1: HttpSession 직접 주입
+// 방법 1: HttpSession 직접 주입 (Interceptor 도입 전 방식)
 @GetMapping("/mypage")
 public String mypage(HttpSession session, Model model) {
     LoginUserDTO loginUser = (LoginUserDTO) session.getAttribute("loginUser");
@@ -89,7 +93,7 @@ public String mypage(HttpSession session, Model model) {
     return "mypage";
 }
 
-// 방법 2: @SessionAttribute 사용
+// 방법 2: @SessionAttribute 사용 (Interceptor 도입 전 방식)
 @GetMapping("/mypage")
 public String mypage(@SessionAttribute(name = "loginUser", required = false)
                      LoginUserDTO loginUser, Model model) {
@@ -98,6 +102,50 @@ public String mypage(@SessionAttribute(name = "loginUser", required = false)
     return "mypage";
 }
 ```
+
+---
+
+## 4-1. 이 프로젝트의 실제 방식 — Interceptor로 공통 처리
+
+로그인 체크를 Controller마다 반복하지 않고 `LoginCheckInterceptor`가 한 곳에서 처리한다.
+
+```java
+// LoginCheckInterceptor.java (실제 코드 요약)
+@Component
+public class LoginCheckInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
+        HttpSession session = request.getSession(false); // 없으면 새로 만들지 않음
+        if (session == null || session.getAttribute("loginUser") == null) {
+            response.sendRedirect("/login");  // 비로그인 → 로그인 페이지로
+            return false;                     // Controller 실행 차단
+        }
+        return true; // 로그인 확인 완료 → Controller 진행
+    }
+}
+```
+
+```java
+// WebConfig.java — 적용 경로 등록 (실제 코드 요약)
+registry.addInterceptor(loginCheckInterceptor)
+        .addPathPatterns("/community/write", "/community/*/edit",
+                         "/community/*/delete", "/mypage");   // 로그인 필요한 경로만 명시 등록
+// 홈(/), 목록(/community), 상세(/community/{id}), 정적 리소스 등은
+// 애초에 등록하지 않았으므로 exclude 없이도 Interceptor가 적용되지 않음
+```
+
+> ⚠️ **exclude 패턴 주의 (교육 포인트)**: `excludePathPatterns()`는 include보다 **우선 평가**된다.
+> 예전 이 프로젝트에는 exclude에 상세 조회용 `/community/*`가 있었는데, 한 세그먼트 패턴이라
+> `/community/write`에도 매칭되어 **글쓰기 로그인 체크가 무력화**되는 버그가 있었다
+> (비로그인이 write 폼 접근 가능 → POST 시 NPE 500). include를 명시적으로 등록했다면
+> exclude는 최소한만 쓰는 것이 안전하다.
+
+덕분에 실제 `UserController.mypage()`에는 null 체크가 없다 — Interceptor를 통과했다면 반드시 로그인 상태이기 때문.
+
+> **댓글 API(`/api/**`)는?** Interceptor에 등록하지 않고, `CommentApiController`가
+> 자체적으로 세션을 체크해서 비로그인 시 **401 JSON**을 반환한다.
+> (SSR 페이지는 redirect, API는 JSON 에러 — 응답 방식이 달라서 분리)
 
 ---
 
@@ -114,6 +162,9 @@ public String mypage(@SessionAttribute(name = "loginUser", required = false)
 ---
 
 ## 6. 세션 설정 (application.yml)
+
+이 프로젝트는 별도 설정 없이 **기본값(30분)** 을 그대로 사용한다.  
+만료 시간을 바꾸려면 아래처럼 설정한다.
 
 ```yaml
 server:

@@ -82,7 +82,7 @@ spring:
 # @Value("${file.upload-dir}") 로 Java 코드에서 주입받아 사용
 file:
   upload-dir: ./uploads   # 파일 업로드 저장 경로 (프로젝트 루트 기준 상대경로)
-                           # 서버 실행 시 ./uploads → C:/workspace/ch_lecture/spring_ssr/uploads/
+                           # 서버 실행 시 ./uploads → <프로젝트 루트>/uploads/ 폴더로 풀림
 
 # ─── 공공데이터 API 설정 ───
 # .env 파일의 API_SERVICE_KEY 값을 읽어옴 (spring-dotenv 라이브러리)

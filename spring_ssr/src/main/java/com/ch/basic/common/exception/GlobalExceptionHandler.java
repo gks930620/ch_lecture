@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * SSR 전역 예외 처리 핸들러 — error.html 렌더링
  *
  * @ControllerAdvice(annotations = Controller.class):
- *   @Controller에서 발생하는 예외만 잡음 (SSR 전용)
- *   @RestController에서 발생하는 예외는 ApiExceptionHandler가 JSON으로 처리
+ *   SSR(@Controller) 예외는 이 핸들러가, API(@RestController) 예외는 ApiExceptionHandler가 나눠 처리
+ *   ※ @RestController도 내부에 @Controller를 포함하므로 "만 잡음"은 아님 — 엄밀히 분리하려면 basePackages 사용
  */
 @ControllerAdvice(annotations = Controller.class)
 public class GlobalExceptionHandler {

@@ -9,7 +9,6 @@
 
 ```
 spring_ssr/
-├── 설계/                         ← md 강의 문서
 ├── src/main/java/com/
 │   ├── ch/basic/                 ← 실제 애플리케이션 (com.ch.basic)
 │   │   ├── DemoApplication.java
@@ -30,6 +29,8 @@ spring_ssr/
 │   └── templates/                ← Thymeleaf 템플릿
 └── build.gradle
 ```
+
+> ※ md 강의 문서는 `docs/spring_ssr/`에 있음 (프로젝트 내 `설계/` 폴더에서 이동됨)
 
 ### 기술 스택
 
@@ -63,7 +64,7 @@ spring_ssr/
 | `프로젝트_구조_정리.md` — 파일 처리 흐름 | `FileService`, `FileController`, `FileApiController` 동작 일치 | ✅ 일치 |
 | `프로젝트_구조_정리.md` — 스케줄러 고아 파일 삭제 | `FileCleanupScheduler` (매일 새벽 4시, refId=0 + 24시간) 일치 | ✅ 일치 |
 | `프로젝트_구조_정리.md` — 소프트/하드 삭제 정책 | User(소프트, `@SQLRestriction`), Community/Comment(하드), File(고아→스케줄러) 일치 | ✅ 일치 |
-| `프로젝트_구조_정리.md` — 게시글 삭제 흐름 | `CommunityController.delete()`: 파일고아→댓글삭제→게시글삭제 순서 일치 | ✅ 일치 |
+| `프로젝트_구조_정리.md` — 게시글 삭제 흐름 | `CommunityController.delete()`: 권한체크→파일고아→댓글삭제→게시글삭제 순서 일치 | ✅ 일치 |
 
 ---
 
@@ -73,14 +74,14 @@ spring_ssr/
 
 | # | 파일 | 수정 내용 |
 |---|------|----------|
-| 1 | `개념_00_목차.md` | 존재하지 않는 `04_JPA_Repository`, `05_QueryDSL`, `12_Security` 제거. 실제 `12_스케쥴러` 추가. 참고 문서(서비스설계, 파일테이블설계 등) 섹션 추가 |
+| 1 | `개념_00_목차.md` | 존재하지 않는 `04_JPA_Repository`, `05_QueryDSL`, `12_Security` 제거. 실제 `12_스케줄러` 추가. 참고 문서(서비스설계, 파일테이블설계 등) 섹션 추가 |
 | 2 | `개념_07_Session_Login.md` | `UserEntity` → `LoginUserDTO`로 수정 (Entity를 세션에 저장하지 않는 이유 설명 추가) |
 | 3 | `개념_08_Validation.md` | 현재 코드는 `@RequestParam` 방식이지만, 문서는 `@Valid` 정석 사용법 정리 목적임을 안내 추가 |
 | 4 | `개념_01_IoC_DI.md` | 패키지 `com.test.test` → `com.ch.basic` |
 | 5 | `개념_10_AOP.md` | 패키지 `com.test.test` → `com.ch.basic` (10건 전체 치환) |
 | 6 | `개념_09_Exception.md` | `@ControllerAdvice` → `@ControllerAdvice(annotations = Controller.class)`, `@RestControllerAdvice` → `@RestControllerAdvice(annotations = RestController.class)`, `findByIdAndIsDeletedFalse` → `findById`, `@Slf4j` 제거 |
 
-### 📌 남아있는 미작성 항목
+### 📌 문서 작성 현황
 
 모든 개념 문서 작성 완료.
 
@@ -98,7 +99,7 @@ spring_ssr/
 | 상세 | `/community/{id}` | GET | 조회수 증가, 댓글·파일은 JS에서 API 호출 |
 | 수정 폼 | `/community/{id}/edit` | GET | 로그인 필수 |
 | 수정 처리 | `/community/{id}/edit` | POST | 글 수정 → 에디터이미지 동기화 → 파일삭제 → 새파일저장 |
-| 삭제 | `/community/{id}/delete` | POST | 파일고아처리 → 댓글삭제 → 게시글삭제 |
+| 삭제 | `/community/{id}/delete` | POST | 권한체크 → 파일고아처리 → 댓글삭제 → 게시글삭제 |
 
 ### 2. 댓글 (REST API — `@RestController`)
 
@@ -188,19 +189,12 @@ spring_ssr/
 
 | # | 위치 | 수정 내용 | 상태 |
 |---|------|----------|------|
-| 1 | `개념_00_목차.md` | `04_JPA_Repository`, `05_QueryDSL`, `12_Security` 제거, `12_스케쥴러` 및 참고 문서 추가 | ✅ 완료 |
+| 1 | `개념_00_목차.md` | `04_JPA_Repository`, `05_QueryDSL`, `12_Security` 제거, `12_스케줄러` 및 참고 문서 추가 | ✅ 완료 |
 | 2 | `개념_07_Session_Login.md` | `UserEntity` → `LoginUserDTO`로 전체 수정 | ✅ 완료 |
 | 3 | `개념_08_Validation.md` | 현재 코드는 `@RequestParam`, 문서는 정석 사용법 목적임을 안내 추가 | ✅ 완료 |
 | 4 | `개념_01_IoC_DI.md` | 패키지 `com.test.test` → `com.ch.basic` | ✅ 완료 |
 | 5 | `개념_10_AOP.md` | 패키지 `com.test.test` → `com.ch.basic` (10건) | ✅ 완료 |
 | 6 | `개념_09_Exception.md` | `@ControllerAdvice(annotations=...)` 추가, `findById` 수정, `@Slf4j` 제거 | ✅ 완료 |
-
-### 📌 남아있는 미작성 항목
-
-| 파일 | 상태 |
-|------|------|
-| `개념_03_JPA_Entity.md` | 메모만 있음 (내용 미작성) |
-| `개념_12_스케쥴러.md` | 메모만 있음 (상세 내용은 `프로젝트_구조_정리.md`에 있음) |
 
 ---
 
@@ -218,11 +212,11 @@ spring_ssr/
 | `개념_09_Exception.md` | ★★★★★ | ✅ | 수정 완료 — annotations 매개변수, findById |
 | `개념_10_AOP.md` | ★★★★★ | ✅ | 수정 완료 — 패키지명 `com.ch.basic` |
 | `개념_11_Filter_Interceptor.md` | ★★★★★ | ✅ | 실제 코드 인용, 적용 범위 정확 |
-| `개념_12_스케쥴러.md` | ★★★★★ | ✅ | @Scheduled, cron, FileCleanupScheduler 적용 코드 기반 설명 |
+| `개념_12_스케줄러.md` | ★★★★★ | ✅ | @Scheduled, cron, FileCleanupScheduler 적용 코드 기반 설명 |
 | `프로젝트_구조_정리.md` | ★★★★★ | ✅ | 전체 설계 상세 문서 (참고/상식용) |
 | `서비스설계_정리.md` | ★★★★★ | - | Facade 패턴, 계층 구조 (참고/상식용) |
 | `파일테이블설계_정리.md` | ★★★★★ | - | 통합 vs 분리, 실무 기준 (참고/상식용) |
 | `테스트코드_정리.md` | ★★★★☆ | - | SSR 테스트 가성비 분석 (참고/상식용) |
 | `협업.md` | ★★☆☆☆ | - | 간략 메모 수준 |
-| `휘 공공데이터API, CORS 정리.md` | ★★★★★ | ✅ | CORS 동작원리, CSRF, 서버 설정별 비교표 |
+| `공공데이터API, CORS 정리.md` | ★★★★★ | ✅ | CORS 동작원리, CSRF, 서버 설정별 비교표 |
 

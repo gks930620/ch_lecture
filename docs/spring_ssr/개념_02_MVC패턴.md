@@ -50,7 +50,7 @@ Thymeleaf가 list.html 렌더링
     │                │         ┌──────────┘                 │
     │                ▼         ▼                            │
     │           HandlerAdapter ──→ Controller               │
-    │           "이 핸들러를       (실제 비즈니스 로직)      │
+    │           "이 핸들러를       (요청 처리, Service 호출) │
     │            실행해줘"            │                      │
     │                │               │ ④ ModelAndView 반환  │
     │                │←──────────────┘   (뷰 이름 + 데이터) │
@@ -76,7 +76,7 @@ Thymeleaf가 list.html 렌더링
 | ① | **DispatcherServlet** | 모든 HTTP 요청의 진입점 (Front Controller 패턴) |
 | ② | **HandlerMapping** | URL → 어떤 Controller의 어떤 메서드? 매핑 정보 조회 |
 | ③ | **HandlerAdapter** | 찾은 Controller 메서드를 실행 (`@GetMapping` 등 처리) |
-| ④ | **Controller** | 비즈니스 로직 수행, Model에 데이터 담기, **뷰 이름 반환** |
+| ④ | **Controller** | 요청 처리 후 Service에 비즈니스 로직 위임, Model에 데이터 담기, **뷰 이름 반환** |
 | ⑤ | **ViewResolver** | 뷰 이름(`"community/list"`) → 실제 파일 경로 변환 |
 | ⑥ | **View** | Model 데이터를 HTML 템플릿에 넣어 렌더링 |
 | ⑦ | **응답** | 완성된 HTML을 브라우저에 전송 |
@@ -84,11 +84,12 @@ Thymeleaf가 list.html 렌더링
 ### ViewResolver 설정 (자동)
 
 ```yaml
-# application.yml - Spring Boot가 자동 설정해줌
+# prefix/suffix는 Spring Boot 자동 설정 기본값 — 직접 쓰지 않아도 아래 값이 적용됨
+# (이 프로젝트의 application.yml에는 thymeleaf.cache: false만 적혀 있음)
 spring:
   thymeleaf:
-    prefix: classpath:/templates/   # ← 뷰 이름 앞에 붙는 경로
-    suffix: .html                   # ← 뷰 이름 뒤에 붙는 확장자
+    prefix: classpath:/templates/   # ← 뷰 이름 앞에 붙는 경로 (기본값)
+    suffix: .html                   # ← 뷰 이름 뒤에 붙는 확장자 (기본값)
 ```
 
 ```
@@ -118,12 +119,19 @@ public class CommunityController {
     }
 }
 
-// REST API: ViewResolver 사용 안 함
+// REST API: ViewResolver 사용 안 함 (실제 코드를 단순화한 버전)
 @RestController  // = @Controller + @ResponseBody
+@RequestMapping("/api/communities/{communityId}/comments")
+@RequiredArgsConstructor
 public class CommentApiController {
-    @GetMapping("/api/comments")
-    public List<CommentDTO> list() {
-        return commentService.getComments();  // → JSON 직접 반환
+
+    private final CommentService commentService;
+
+    @GetMapping  // GET /api/communities/1/comments
+    public ResponseEntity<PageResponse<CommentDTO>> getComments(
+            @PathVariable Long communityId, Pageable pageable) {
+        // → JSON 직접 반환
+        return ResponseEntity.ok(commentService.getCommentsByCommunityId(communityId, pageable));
     }
 }
 ```
@@ -134,6 +142,9 @@ public class CommentApiController {
 ---
 
 ## 3. Controller 핵심 애노테이션
+
+> 아래는 실제 `CommunityController.java`를 학습용으로 축약한 버전이다.  
+> (실제 `list()`는 `@PageableDefault Pageable` + 검색 파라미터, 실제 `write()`는 개별 `@RequestParam` + 첨부파일 + `HttpSession`을 받는다 — 실제 코드는 소스 참고)
 
 ```java
 @Controller               // Bean 등록 + 뷰 반환
@@ -181,7 +192,7 @@ public class CommunityController {
 ```java
 @GetMapping
 public String list(Model model) {
-    Page<CommunityDTO> communities = communityService.getCommunityList(...);
+    PageResponse<CommunityDTO> communities = communityService.getCommunityList(...);
 
     model.addAttribute("communities", communities);  // 키-값으로 전달
     model.addAttribute("searchType", searchType);
@@ -237,8 +248,11 @@ Thymeleaf에서 꺼내 쓰기:
 return "redirect:/community";        // /community로 이동
 return "redirect:/community/" + id; // /community/1로 이동
 
-// forward - 서버 내부에서 뷰로 이동 (URL 변경 안 됨)
-return "community/list";  // 그냥 뷰 이름 반환 = forward
+// 뷰 이름 반환 - 서버에서 바로 뷰를 렌더링 (URL 변경 안 됨)
+return "community/list";  // ViewResolver가 찾은 뷰를 직접 렌더링
+
+// forward - 서버 내부에서 다른 URL로 요청을 넘김 (URL 변경 안 됨)
+return "forward:/some-url";  // forward: 접두사를 붙여야 진짜 forward
 ```
 
 > POST 후에는 반드시 `redirect` → **PRG 패턴 (Post-Redirect-Get)**  

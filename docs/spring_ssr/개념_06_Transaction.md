@@ -25,16 +25,16 @@
 public class CommunityService {
 
     // 읽기 전용 (readOnly = true 상속)
-    public Page<CommunityDTO> getCommunityList(...) { ... }
+    public PageResponse<CommunityDTO> getCommunityList(...) { ... }
 
     @Transactional  // 쓰기 필요 → readOnly = false로 오버라이드
-    public Long createCommunity(CommunityCreateDTO dto) { ... }
+    public Long createCommunity(CommunityCreateDTO dto, Long userId, String username, String nickname) { ... }
 
     @Transactional  // 쓰기 필요
-    public void updateCommunity(Long id, CommunityUpdateDTO dto) { ... }
+    public void updateCommunity(Long id, CommunityUpdateDTO dto, String username) { ... }
 
     @Transactional  // 쓰기 필요
-    public void deleteCommunity(Long id) { ... }
+    public void deleteCommunity(Long id, String username) { ... }
 }
 ```
 
@@ -52,12 +52,12 @@ public class CommunityService {
 // 기본값: REQUIRED
 @Transactional(propagation = Propagation.REQUIRED)
 ```
-전파는 빼자..  
-기본적으로 service1에서 service2 호출.  
-service2에서 에러나도 service1,2 둘다 롤백
-어쨋든 @Trasactional 있는 다른 service호출할 때는 주의
-알림메일 발송 기록 (메일 실패 상관없이 실패했다는  내역은 DB에 남기기) 등. 
- 
+`REQUIRED`(기본값)에서는 Service A가 Service B를 호출하면 둘이 **하나의 트랜잭션에 묶인다.**  
+그래서 B에서 예외가 나면 A가 한 작업까지 함께 롤백된다.  
+`@Transactional`이 붙은 다른 Service를 호출할 때는 이 점을 항상 주의해야 한다.
+
+메일 발송 실패 기록처럼 "메인 로직이 실패해도(또는 이 작업이 실패해도) 따로 남겨야 하는 작업"은
+`REQUIRES_NEW`로 별도 트랜잭션으로 분리하는 것을 고려한다.
 
 | 옵션 | 설명 |
 |------|------|
@@ -70,7 +70,9 @@ service2에서 에러나도 service1,2 둘다 롤백
 // 실무 예시: 로그 저장은 실패해도 메인 로직에 영향 없게
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public void saveLog(String action) {
-    // 로그 저장 실패해도 외부 트랜잭션은 그대로 진행
+    // 별도 트랜잭션으로 실행됨
+    // ※ 단, 호출하는 쪽에서 이 메서드의 예외를 try-catch로 잡아야
+    //    외부 트랜잭션이 영향받지 않음 (예외가 그대로 전파되면 외부도 롤백됨)
 }
 ```
 
@@ -128,8 +130,12 @@ public void process() throws IOException {
 public class CommunityService {
 
     // 조회 → readOnly 상속
-    public Page<CommunityDTO> getCommunityList(...) { ... }
-    public CommunityDTO getCommunityDetail(Long id) { ... }
+    public PageResponse<CommunityDTO> getCommunityList(...) { ... }
+
+    // 조회 메서드지만 조회수 증가(UPDATE)가 있어 readOnly 해제!
+    // incrementViewCount()의 변경이 dirty checking으로 UPDATE를 발생시키기 때문
+    @Transactional
+    public CommunityDTO getCommunityDetail(Long communityId) { ... }
 
     // 변경 → @Transactional 오버라이드
     @Transactional

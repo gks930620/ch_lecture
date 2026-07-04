@@ -1,6 +1,9 @@
 # Validation (@Valid)
 
 > ⚠️ 이 프로젝트의 게시글 작성/수정은 현재 `@RequestParam`으로 개별 파라미터를 받고 있음 (파일 업로드와 함께 처리하기 위해).  
+> 댓글 API도 `@RequestBody Map`으로 받아 수동 검증(`content.isBlank()`)한다.  
+> 즉 **DTO에 붙어 있는 `@NotBlank` 등은 선언만 되어 있고, `@Valid`가 실행되는 곳이 프로젝트에 없다.**  
+> 검증 애노테이션은 붙이는 것만으로는 동작하지 않고, 받는 쪽에서 `@Valid`(또는 `@Validated`)를 붙여야 실행된다.  
 > 아래는 **@Valid + DTO 바인딩 방식의 정석적인 사용법** 정리.
 
 ---
@@ -16,17 +19,19 @@ implementation 'org.springframework.boot:spring-boot-starter-validation'
 ## 2. DTO에 제약 조건 선언
 
 ```java
-// CommunityCreateDTO.java
+// CommunityCreateDTO.java (이 프로젝트 실제 코드 — toEntity() 메서드는 생략)
 @Getter
+@Setter  // form 바인딩 시 Setter 필요 (Spring이 setter로 값을 넣어줌)
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class CommunityCreateDTO {
 
-    @NotBlank(message = "제목을 입력해주세요.")
-    @Size(max = 200, message = "제목은 200자 이하로 입력해주세요.")
+    @NotBlank(message = "제목은 필수입니다")
+    @Size(max = 200, message = "제목은 200자 이하여야 합니다")
     private String title;
 
-    @NotBlank(message = "내용을 입력해주세요.")
+    @NotBlank(message = "내용은 필수입니다")
     private String content;
 }
 ```
@@ -38,13 +43,17 @@ public class CommunityCreateDTO {
 ```java
 @PostMapping("/write")
 public String write(@Valid @ModelAttribute CommunityCreateDTO createDTO,
-                    BindingResult bindingResult) { // 반드시 @Valid 바로 다음에 위치
+                    BindingResult bindingResult,  // 반드시 @Valid 바로 다음에 위치
+                    HttpSession session) {
 
     if (bindingResult.hasErrors()) {
         return "community/write"; // 검증 실패 → 다시 폼으로
     }
 
-    Long id = communityService.createCommunity(createDTO, null);
+    // 세션에서 로그인 사용자 정보를 꺼내 작성자 정보로 전달 (개념_07 참고)
+    LoginUserDTO loginUser = (LoginUserDTO) session.getAttribute("loginUser");
+    Long id = communityService.createCommunity(createDTO,
+            loginUser.getId(), loginUser.getUsername(), loginUser.getNickname());
     return "redirect:/community/" + id;
 }
 ```

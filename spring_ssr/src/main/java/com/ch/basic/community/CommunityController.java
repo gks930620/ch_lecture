@@ -180,13 +180,19 @@ public class CommunityController {
     /**
      * 삭제 처리 (하드 삭제)
      *
-     * 처리 순서: 1) 파일 고아 처리 → 2) 댓글 하드 삭제 → 3) 게시글 하드 삭제
+     * 처리 순서: 0) 권한 체크 → 1) 파일 고아 처리 → 2) 댓글 하드 삭제 → 3) 게시글 하드 삭제
+     * ※ 권한 체크를 맨 앞에서 먼저! — 권한 없는 요청이 파일/댓글을 먼저 지워버리는 것을 방지
      * ※ FK 제약 때문에 댓글을 먼저 삭제해야 게시글 삭제 가능
      * ※ 파일은 고아 처리(refId=0)만 하고 물리 삭제는 FileCleanupScheduler가 수행
+     * ※ 여러 Service를 트랜잭션 없이 순차 호출하는 구조의 한계는 서비스설계_정리.md 참고
+     *   (제대로 하려면 Facade에서 @Transactional로 묶는 것이 정석)
      */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, HttpSession session) {
         LoginUserDTO loginUser = getLoginUser(session);
+
+        // 0) 권한 체크 — 작성자 본인이 아니면 여기서 403 (아래 삭제 작업이 실행되지 않음)
+        communityService.validateOwner(id, loginUser.getUsername());
 
         // 1) 파일 고아 처리 (refId=0으로 변경, 물리 삭제는 스케줄러)
         fileService.detachFilesByRefId(id);

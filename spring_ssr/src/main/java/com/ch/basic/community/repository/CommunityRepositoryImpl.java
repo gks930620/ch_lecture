@@ -21,8 +21,9 @@ import java.util.stream.Collectors;
 /**
  * CommunityRepositoryCustom의 QueryDSL 구현체
  *
- * ※ 클래스명 규칙: "인터페이스명 + Impl" → Spring Data JPA가 자동 인식하여 연결
- *   CommunityRepositoryCustom → CommunityRepositoryImpl (자동 매칭)
+ * ※ 클래스명 규칙 (둘 다 유효 — Spring Data JPA가 자동 인식하여 연결):
+ *   ① "Custom 인터페이스명 + Impl" (기본 규칙) — 예: FileRepositoryCustomImpl
+ *   ② "Repository명 + Impl" — 이 클래스가 이 방식: CommunityRepository → CommunityRepositoryImpl
  *
  * @RequiredArgsConstructor: JPAQueryFactory를 생성자 주입 (QuerydslConfig에서 Bean 등록한 것)
  */

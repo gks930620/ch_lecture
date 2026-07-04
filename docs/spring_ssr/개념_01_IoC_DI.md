@@ -7,7 +7,7 @@
 > **예제 코드**: `src/main/java/com/ioc/step1~4/` 패키지 참고  
 > 각 step 패키지의 `Main.java`를 실행하면 됨
 
-### Step 1. 직접 객체 생성 (`Step1_DirectCreation.java`)
+### Step 1. 직접 객체 생성 (`com.ioc.step1` — Main.java 실행)
 
 ```java
 class MemberService {
@@ -23,7 +23,7 @@ class MemberService {
 
 ---
 
-### Step 2. 인터페이스 + 생성자 주입 (`Step2_ConstructorInjection.java`)
+### Step 2. 인터페이스 + 생성자 주입 (`com.ioc.step2` — Main.java 실행)
 
 ```java
 interface MemberRepository {
@@ -54,7 +54,7 @@ MemberService service = new MemberService(repo);       // 외부에서 주입
 
 ---
 
-### Step 3. Assembler - 조립기 (`Step3_Assembler.java`)
+### Step 3. Assembler - 조립기 (`com.ioc.step3` — Main.java 실행)
 
 ```java
 class AppAssembler {
@@ -99,7 +99,7 @@ MemberController controller = assembler.getMemberController();  // 그냥 가져
 
 ---
 
-### Step 4. Spring 컨테이너 (`Step4_SpringContainer.java`)
+### Step 4. Spring 컨테이너 (`com.ioc.step4` — Main.java 실행)
 
 Step3의 Assembler를 **Spring이 대신** 해준다.
 
@@ -147,10 +147,13 @@ MemberController controller = context.getBean(MemberController.class);
 기존 방식에서는 개발자가 직접 객체를 생성하고 관리했다.
 
 ```java
-// 기존 방식 - 개발자가 직접 생성 (Step1)
-CommunityRepository repository = new CommunityRepositoryImpl();
-CommunityService service = new CommunityService(repository);
+// 기존 방식 - 개발자가 직접 생성 (Step1과 같은 방식, 개념 설명용 가상 코드)
+MemberRepository repository = new MemberRepository();
+MemberService service = new MemberService(repository);
 ```
+
+> 참고: 실제 프로젝트의 `CommunityRepository`는 인터페이스이고, 구현체는 Spring Data JPA가
+> 런타임에 자동 생성하므로 개발자가 `new`로 만들 수 없다. 위 코드는 개념 비교용 예시다.
 
 IoC는 이 제어권을 **Spring 컨테이너(ApplicationContext)** 에게 넘기는 것이다.
 
@@ -175,7 +178,7 @@ Spring 컨테이너가 관리하는 객체를 **Bean** 이라고 한다.
 
 | 방법 | 설명 | 이 프로젝트 사용 예 |
 |------|------|-------------------|
-| `@Component` | 일반 컴포넌트 | `LocalFileStorage` |
+| `@Component` | 일반 컴포넌트 | `LoginCheckInterceptor`, `FileCleanupScheduler` |
 | `@Service` | 서비스 계층 | `CommunityService`, `FileService` |
 | `@Repository` | 데이터 계층 | `CommunityRepository` |
 | `@Controller` | 웹 계층 | `CommunityController`, `UserController` |
@@ -186,9 +189,13 @@ Spring 컨테이너가 관리하는 객체를 **Bean** 이라고 한다.
 @Configuration
 public class QuerydslConfig {
 
+    // @PersistenceContext: JPA의 EntityManager를 주입받는 어노테이션
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Bean
-    public JPAQueryFactory jpaQueryFactory(EntityManager em) {
-        return new JPAQueryFactory(em); // JPAQueryFactory를 Bean으로 등록
+    public JPAQueryFactory jpaQueryFactory() {
+        return new JPAQueryFactory(entityManager); // JPAQueryFactory를 Bean으로 등록
     }
 }
 ```
@@ -235,7 +242,7 @@ public class SomeService {
 ### 생성자 주입을 권장하는 이유
 
 - `final` 키워드 → 불변 보장
-- 순환 참조 컴파일 시점에 감지
+- 순환 참조를 앱 시작(컨테이너가 Bean을 생성하는) 시점에 감지 → 서버가 아예 뜨지 않으므로 바로 발견 가능
 - 테스트 시 Mock 주입 용이 (Step2에서 직접 해봤듯이)
 
 ---
@@ -264,10 +271,12 @@ Spring 컨테이너 (ApplicationContext) ← Step4의 AnnotationConfigApplicatio
 CommunityController
     └── CommunityService    (@Service Bean)
             └── CommunityRepository  (@Repository Bean)
-                    └── JPAQueryFactory  (@Bean - QuerydslConfig)
+                    └── CommunityRepositoryImpl(QueryDSL 커스텀 구현체)
+                            └── JPAQueryFactory  (@Bean - QuerydslConfig)
 
 UserController
-    └── UserRepository  (@Repository Bean)
+    └── UserService  (@Service Bean)
+            └── UserRepository  (@Repository Bean)
 
 FileController
     └── FileService  (@Service Bean)

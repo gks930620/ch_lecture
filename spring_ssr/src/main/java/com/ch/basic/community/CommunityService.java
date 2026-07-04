@@ -87,6 +87,20 @@ public class CommunityService {
     }
 
     /**
+     * 게시글 작성자 본인인지 검증 (권한 체크만 수행)
+     *
+     * Controller의 delete()가 파일 고아 처리·댓글 삭제보다 먼저 호출 —
+     * 권한 없는 요청이 파일/댓글을 먼저 지워버리는 것을 방지 (권한 체크는 항상 맨 앞에!)
+     */
+    public void validateOwner(Long communityId, String username) {
+        CommunityEntity community = communityRepository.findById(communityId)
+            .orElseThrow(() -> EntityNotFoundException.of("게시글", communityId));
+        if (username == null || !community.isWrittenBy(username)) {
+            throw AccessDeniedException.forDelete("게시글");
+        }
+    }
+
+    /**
      * 게시글 삭제 (하드 삭제)
      * DB에서 실제로 삭제 (DELETE)
      */

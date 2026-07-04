@@ -7,7 +7,7 @@
 
 ## 1. JPA란?
 
-**Java Persistence API** — Java 객체(Entity)와 DB 테이블을 자동으로 매핑해주는 ORM 기술.
+**Java Persistence API** (Spring Boot 3부터는 공식 명칭이 **Jakarta Persistence**, 패키지도 `jakarta.persistence`) — Java 객체(Entity)와 DB 테이블을 자동으로 매핑해주는 ORM 기술.
 
 ```
 기존 방식 (MyBatis 등):
@@ -46,6 +46,15 @@ public class CommunityEntity {
     @Id                                              // Primary Key
     @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
     private Long id;
+
+    @Column(name = "user_id")                        // 작성자 ID (FK 관계 없이 값만 저장)
+    private Long userId;
+
+    @Column(name = "username")                       // 작성자 로그인 ID (권한 체크용)
+    private String username;
+
+    @Column(name = "nickname")                       // 작성자 닉네임 (화면 표시용)
+    private String nickname;
 
     @Column(nullable = false, length = 200)          // NOT NULL, VARCHAR(200)
     private String title;
@@ -112,6 +121,7 @@ public void incrementViewCount() {
     this.viewCount++;
 }
 
+// this.username은 위 Entity의 username 필드 (작성자 로그인 ID)
 public boolean isWrittenBy(String username) {
     return this.username != null && this.username.equals(username);
 }
@@ -180,7 +190,9 @@ public interface CommunityRepository extends JpaRepository<CommunityEntity, Long
 ```java
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     // 메서드 이름 규칙(findBy + 필드명)으로 SQL을 자동 생성
-    // → SELECT * FROM users WHERE username = ?
+    // → SELECT * FROM users WHERE username = ? AND is_deleted = false
+    //   (UserEntity의 @SQLRestriction("is_deleted = false") 때문에
+    //    모든 조회에 소프트 삭제 조건이 자동으로 붙음)
     Optional<UserEntity> findByUsername(String username);
 }
 
@@ -279,10 +291,15 @@ CommunityRepository (인터페이스)
         CommunityRepositoryImpl (구현체)                 ← QueryDSL 실제 구현
 ```
 
-> **클래스명 규칙**: `Custom 인터페이스를 포함하는 Repository명 + Impl`  
-> `CommunityRepository`가 `CommunityRepositoryCustom`을 상속 → `CommunityRepositoryImpl` 자동 매칭
+> **클래스명 규칙 — 두 가지 모두 유효**  
+> ① `Custom 인터페이스명 + Impl` (Spring Data JPA 기본 규칙): `CommunityRepositoryCustom` → `CommunityRepositoryCustomImpl`  
+> ② `Repository명 + Impl` (역시 허용): `CommunityRepository` → `CommunityRepositoryImpl`  
+> 이 프로젝트는 두 방식이 혼재한다 — 게시글은 ②(`CommunityRepositoryImpl`), 파일은 ①(`FileRepositoryCustomImpl`). 어느 쪽이든 Spring이 자동 매칭한다.
 
 ### 실제 코드 — 게시글 검색 (동적 where절)
+
+> 실제 `CommunityRepositoryImpl.java`를 단순화한 버전이다.  
+> (실제 코드에는 댓글 수 IN 쿼리 조회(N+1 방지), `total == null` 처리, 검색 조건에 trim된 키워드를 적용하는 부분 등이 추가로 있음)
 
 ```java
 @Repository
@@ -336,6 +353,10 @@ public class CommunityRepositoryImpl implements CommunityRepositoryCustom {
 ### 실제 코드 — 파일 검색 (동적 조건 조합)
 
 ```java
+// static import로 Q클래스 인스턴스를 바로 사용
+// import static com.ch.basic.file.entity.QFileEntity.fileEntity;
+
+@RequiredArgsConstructor  // final 필드 생성자 자동 생성 (없으면 컴파일 에러)
 public class FileRepositoryCustomImpl implements FileRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
@@ -384,6 +405,8 @@ spring:
     hibernate:
       ddl-auto: create     # 서버 시작 시 테이블 DROP 후 재생성 (개발용)
                              # update: 변경분만 반영 / validate: 검증만 (운영용)
+    defer-datasource-initialization: true  # JPA 테이블 생성 후 data-*.sql 실행
+                                            # (ddl-auto: create + 초기 데이터 SQL 조합이 동작하는 핵심 설정)
     properties:
       hibernate:
         show_sql: true       # 실행되는 SQL 콘솔 출력 (개발 시 디버깅용)
@@ -402,7 +425,8 @@ spring:
 | `validate` | Entity와 테이블 일치하는지 검증만 | 운영 |
 | `none` | 아무것도 안 함 | 운영 |
 
-> ⚠️ 운영 환경에서는 절대 `create`나 `update` 사용 금지. 데이터 날아감.
+> ⚠️ 운영 환경에서는 `create`/`create-drop`은 테이블을 DROP해서 **데이터가 삭제**되므로 절대 금지.  
+> `update`는 데이터가 삭제되진 않지만 의도치 않은 스키마 변경 위험이 있어 역시 운영에서는 피하고 `validate` 또는 `none`을 사용.
 
 ---
 

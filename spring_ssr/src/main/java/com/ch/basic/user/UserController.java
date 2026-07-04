@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
  * 사용자 관련 Controller — 로그인, 로그아웃, 회원가입, 마이페이지
  *
  * @Controller: Spring MVC 컨트롤러 (반환값 = 템플릿 이름)
- * @RequiredArgsConstructor: final 필드(userRepository)에 대한 생성자 자동 생성 → 의존성 주입
+ * @RequiredArgsConstructor: final 필드(userService)에 대한 생성자 자동 생성 → 의존성 주입
  */
 @Controller
 @RequiredArgsConstructor

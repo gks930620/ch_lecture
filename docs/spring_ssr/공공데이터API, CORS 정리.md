@@ -9,7 +9,7 @@
 | **Spring 버전** | 3.0+ | 5.0+ | 6.1+ | 6.0+ | Java 11+ | 외부 라이브러리 |
 | **방식** | 동기 | 비동기/동기 | 동기 | 동기/비동기 | 동기/비동기 | 동기 |
 | **선언형** | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
-| **상태** | ⚠️ Deprecated | 유지 | ⭐ 권장 | ⭐ 권장 | 표준 내장 | 유지 |
+| **상태** | ⚠️ 유지보수 모드 (신규 기능 없음) | 유지 | ⭐ 권장 | ⭐ 권장 | 표준 내장 | 유지 |
 | **난이도** | 쉬움 | 복잡 | 쉬움 | 매우 쉬움 | 중간 | 매우 쉬움 |
 | **Spring 의존성** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | **추가 의존성** | 없음 | webflux 필요 | 없음 | 6.1+는 없음 ✅ | 없음 | spring-cloud 필요 |
@@ -42,7 +42,7 @@ API 요청  처음에는 RestClient로 하고,  나중에 API 요청이 많아�
 # CORS : 내 spring 서버는   개발자가 의도한 대로만 동작,  브라우저는 해커가 조작가능.    
 그래서 기본적으로 브라우저는 다른 오리진으로의 요청을 막음.    (오리진 : protocol + host + port)
 브라우저가  오리진 다른 요청 막는 건 javascript  ajax 등의 비동기 요청.
-a<img>나  url직접입력, a태그 등은 안 막음
+`<img>`나 url직접입력, a태그 등은 안 막음
 공공API 서버는 다른 서버의 요청을 CORS로 막는게 아님..  다른서버의 요청 막는건 인증키 (외 ip 등 기타 여러가지)
 
 SOP (Same-Origin Policy) : 브라우저가 다른 오리진으로의 요청을 막는 보안 정책
@@ -51,6 +51,8 @@ CORS (Cross-Origin Resource Sharing) : 브라우저가 다른 오리진으로의
 
 참고 : ajax, fetch, xhr  등 막음.  xhr은 동기요청도 가능한데 막음.  
          정확히는 비동기 요청을 막는다기보다는  자바스크립트가 응답을 읽을 수 있는 모든 행위에 대해 CORS 검사 후  브라우저가 막음. 
+
+![CORS 차단 원리와 프록시 우회](spring_ssr_images/cors-preflight-proxy.svg)
 
 ## CORS 동작원리 =  브라우저가 javascript ajax 요청 막는 과정
 1. 브라우저의 javascript ajax =>  공공API 서버 요청
@@ -63,7 +65,7 @@ CORS (Cross-Origin Resource Sharing) : 브라우저가 다른 오리진으로의
  3번에서 공공API 서버가  a 오리진은 CORS 허용함!!이라고 응답하면 
  4번에서 브라우저는  a 오리진은 CORS 허용하는군.    그래서 javascript  ajax 요청 허용함. (2번째 요청. )
 참고 : 몇몇 공공API는 모든 오리진을 허용하기 때문에  브라우저 javascript ajax 에서 직접요청해도 CORS  문제 안 걸릴수도 있음.
-참고2 : preflight 요청 없이 바로 요청하느 Simple Request도 있음.  이 때는 2번 과정 없이 바로 3번으로 넘어감
+참고2 : preflight 요청 없이 바로 요청하는 Simple Request도 있음.  이 때는 2번 과정 없이 바로 3번으로 넘어감
 
 ##  공공APi 요청 시 CORS 해결 방법
 - 가장 정석적인 프록시 서버(내 스프링 서버) 이용
@@ -75,7 +77,7 @@ CORS (Cross-Origin Resource Sharing) : 브라우저가 다른 오리진으로의
    즉 내spring 서버 => 공공API서버는 CORS랑 전혀 상관없음!!
    서버가 서버 요청 막는건 CORS가 아니라 IP나 인증키 등등
 
-여기까지는 공공API 에 요청할 때 문제되는 COSR에 관한 내용.
+여기까지는 공공API 에 요청할 때 문제되는 CORS에 관한 내용.
 -----------------------------------------------------------------
 
 
@@ -83,7 +85,7 @@ CORS (Cross-Origin Resource Sharing) : 브라우저가 다른 오리진으로의
 ## 단순 공공API 호출이 아니라 우리회사 여러  서버가 연동되는 상황에서의 CORS
 1.  화면html주는 서버(같은회사의  8030) => 브라우저 javascript ajax=> 내 spring 서버( 같은회사의 8080)              
 2.  브라우저가 javascript ajax 요청 하는 과정은
-    브라우저의 javascript ajax =>  내 spring  서버 요청. 브라우저는 먼저 공공API한테 물어봄.
+    브라우저의 javascript ajax =>  내 spring  서버 요청. 브라우저는 먼저 내 spring 서버(8080)한테 물어봄.
     나 8030오리진인데  spring 서버(8080) 너한테 요청해도 돼?  (preflight 요청)
 그럼 내가 spring 서버(8080) 개발자고  저 8030 오리진은 같은회사의 요청이니까 허용을 해야됨.
 그래서 allowedOrigins 설정에서 8030 오리진을 허용해주면 브라우저는 8030 오리진은 CORS 허용하는군. 
@@ -93,10 +95,31 @@ CORS (Cross-Origin Resource Sharing) : 브라우저가 다른 오리진으로의
 라고 요청해서 8080서버개발자가 allowedOrigins 설정에서 8030오리진을 허용해주는 식으로 협업이 이루어짐
 
     
-##  preflght 없이 Simple Request 보내는 조건
--메서드: PUT, DELETE, PATCH, CONNECT 등 (GET/POST/HEAD가 아닌 것)
--헤더: 내가 임의로 만든 헤더가 포함된 경우 (예: X-AUTH-TOKEN, Authorization)
--Content-Type: 다음 세 가지가 아닌 경우  application/x-www-form-urlencoded ,multipart/form-data  , text/plain
+# 주의사항 
+A서버(API서버)한테 B서버가 데이터 요청하는건 CORS랑 상관없음.
+서버끼리의 데이터 주세요!! 는 원래 다됨. 
+근데 그러면 안되니까 A서버(API서버)는 API key 같은 인증을 요구하는거임.
+이 인증만 되면 CORS 요청 허용이랑 상관없이 어떤 서버든 API서버에 요청가능
+
+CORS 허용은 A서버가 B서버를 허용했을 때 
+B 서버로부터 화면까지 전달받은 B브라우저에서 직접(ajax 등)으로 요청왔을 때 허용하는 것 
+
+
+
+
+
+
+
+
+## Preflight가 발생하는 조건 (하나라도 해당되면 예비 요청을 먼저 보냄)
+- 메서드: PUT, DELETE, PATCH, CONNECT 등 (GET/POST/HEAD가 아닌 것)
+- 헤더: 내가 임의로 만든 헤더가 포함된 경우 (예: X-AUTH-TOKEN, Authorization)
+- Content-Type: 다음 세 가지가 아닌 경우 → application/x-www-form-urlencoded, multipart/form-data, text/plain
+
+## 반대로, preflight 없이 바로 보내는 Simple Request 조건 (전부 만족해야 함)
+- 메서드: GET, POST, HEAD 중 하나
+- 헤더: 브라우저가 기본으로 붙이는 헤더만 사용 (커스텀 헤더 없음)
+- Content-Type: application/x-www-form-urlencoded, multipart/form-data, text/plain 중 하나
 
 ## Spring 설정별 CORS 동작 비교
 > 전제: **B 오리진**에서 내 Spring 서버로 요청하는 상황
@@ -123,15 +146,16 @@ CORS (Cross-Origin Resource Sharing) : 브라우저가 다른 오리진으로의
 
 CORS가 허용되지 않는 데이터를 볼 수없게 방어한다는건 브라우저가 js한테 응답을 안 보내는 것이고, 
 서버개발자 입장에서는  1번 상황에서처럼  악의적인 사용자가 javascript ajax로   데이터 변경을 하면 안되니까 
-믿을만한 오리지만 허용해주도록 잘 설정해야됨.
+믿을만한 오리진만 허용해주도록 잘 설정해야됨.
 그래서 서버개발자인 나는 믿을만한 A 오리진만 허용하도록 CORS를 설정해서 
 B 오리진에서 javascript ajax로 데이터 변경하는 걸 막았는데... 그럼 끝인가???
 
 아니지...  B오리진 사이트에서  내 서버의 데이터변경용 URL을  form 태그로 요청한다면???
 
 ## CSRF
-그래서 나온게 CSRF 입니다.
-CSRF 설정을 하면 POST 요청이 왔을 때 CSRF 토큰이 없으면 403 Forbidden
+그래서 나온게 CSRF 방어입니다.
+**Spring Security의 CSRF 보호 기능**을 켜면 POST 요청이 왔을 때 CSRF 토큰이 없으면 403 Forbidden
+(※ 이 프로젝트는 Spring Security를 사용하지 않으므로 CSRF 보호가 적용되어 있지 않음 — 개념 설명)
 
 내 사이트의 화면에서는  서버에서 만든 CSRF 토큰이 전달 됩니다.
 <form action="https://bank.com/transfer" method="POST">
@@ -153,19 +177,9 @@ CSRF 설정을 하면 POST 요청이 왔을 때 CSRF 토큰이 없으면 403 For
 참고 : CSRF는 GET 요청에는 적용 안됨.   GET 요청은 애초에 상태 변경없이 하는게 HTTP 설계 원칙이니까
 참고 : CSRF는 자바스크립트도 막음. 애초에 post요청에서 토큰이 있냐 없냐를 검사하는거니까...
          A 오리진에서 자바스크립트 요청을 할 때  CSRF 토큰 같이 보내면 됨.
-이렇게 하니까 정리하긴 했는데 .. 나만 이해한거 같아.. 다른사람 이해 못할거같음..  그림 ppt 등으로 확실하게 빡 뭔가 이해시켜야 될듯 
- 
 
 
 
-
-와... 근데 APi 너무 좋다  
-간단하게 사이트 만들자  = > 일정입력하면 날씨 좋은 곳 위주로 추천 
-
-
-
-일단 사택부터 하고 하자.. 주말에 하면 많이 할 수 있겠지..
-일단 넘어가고  공공API 요청하는거 AI한테 부탁해서 얼른 끝내보자.
 
 
 

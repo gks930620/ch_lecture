@@ -12,8 +12,9 @@ import java.util.List;
 /**
  * FileRepositoryCustom의 QueryDSL 구현체
  *
- * ※ 클래스명 규칙: "Custom 인터페이스를 포함하는 Repository명 + Impl"
- *   FileRepository가 FileRepositoryCustom을 상속 → FileRepositoryCustomImpl (자동 매칭)
+ * ※ 클래스명 규칙 (둘 다 유효 — Spring Data JPA가 자동 인식하여 연결):
+ *   ① "Custom 인터페이스명 + Impl" (기본 규칙) — 이 클래스가 이 방식: FileRepositoryCustom → FileRepositoryCustomImpl
+ *   ② "Repository명 + Impl" — 예: CommunityRepositoryImpl
  */
 @RequiredArgsConstructor
 public class FileRepositoryCustomImpl implements FileRepositoryCustom {

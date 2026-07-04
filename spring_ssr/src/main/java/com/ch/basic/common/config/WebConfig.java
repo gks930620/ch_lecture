@@ -48,6 +48,13 @@ public class WebConfig implements WebMvcConfigurer {
      *
      * addPathPatterns(): 이 경로에 접근할 때 Interceptor 실행 (로그인 체크 대상)
      * excludePathPatterns(): 이 경로는 Interceptor 적용 제외 (비로그인도 접근 가능)
+     *
+     * ⚠️ 주의: exclude 패턴은 include 패턴보다 "우선" 평가된다!
+     *   예전에 exclude에 있던 "/community/*"(상세 조회용)는 한 세그먼트 패턴이라
+     *   "/community/write"에도 매칭되어 글쓰기 로그인 체크가 무력화되는 버그가 있었음.
+     *   (비로그인이 write 폼에 접근 가능 → POST 시 NPE 500 에러)
+     *   include를 아래처럼 명시적으로만 등록하면 그 외 경로는 애초에 적용되지 않으므로
+     *   exclude는 최소한으로 유지한다.
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -61,14 +68,9 @@ public class WebConfig implements WebMvcConfigurer {
                         //    → CommentApiController에서 자체적으로 세션 체크 후 401 JSON 응답
                         //    API가 많아지면 ApiLoginCheckInterceptor를 별도로 만들어서
                         //    실패 시 401 JSON 응답하는 방식으로 분리하는 것이 정석
-                )
-                .excludePathPatterns(
-                        "/login", "/signup",         // 로그인/회원가입 → 비로그인 접근 가능 (당연)
-                        "/", "/community",           // 홈, 목록 → 비로그인도 조회 가능
-                        "/community/*",              // 상세 조회 → 비로그인도 조회 가능
-                        "/uploads/**",               // 업로드된 파일 (이미지 등) → 누구나 접근
-                        "/css/**", "/js/**"          // 정적 리소스 (CSS, JS) → 누구나 접근
                 );
+        // ※ 홈(/), 목록(/community), 상세(/community/{id}), 정적 리소스(/css, /js, /uploads),
+        //    로그인/회원가입은 위 include에 등록하지 않았으므로 exclude 없이도 적용되지 않음
     }
 
 }

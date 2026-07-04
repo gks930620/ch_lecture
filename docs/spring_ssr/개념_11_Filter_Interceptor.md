@@ -1,6 +1,6 @@
 # Filter vs Interceptor
 
-> ⚠️ 이 프로젝트에 코드 없음 - 개념만 정리
+> ⚠️ **Filter**는 이 프로젝트에 코드 없음(개념만 정리) / **Interceptor**는 `LoginCheckInterceptor`로 실제 적용되어 있음 (5장 참고)
 
 ---
 
@@ -9,7 +9,7 @@
 ```
 HTTP 요청
     ↓
-[Filter 1]           ← javax.servlet (Spring 밖)
+[Filter 1]           ← jakarta.servlet (구 javax.servlet, Spring 밖)
 [Filter 2]
     ↓
 DispatcherServlet    ← 여기서부터 Spring 영역
@@ -70,9 +70,9 @@ public class LogFilter implements Filter {
 Controller **앞/뒤**에서 실행.
 
 ```java
+// Interceptor의 3개 메서드 구조를 보여주는 예시 (실제 적용 코드는 5장 참고)
 @Component
-@RequiredArgsConstructor
-public class LoginCheckInterceptor implements HandlerInterceptor {
+public class MyInterceptor implements HandlerInterceptor {
 
     // Controller 실행 전
     @Override
@@ -111,22 +111,25 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 ### Interceptor 등록
 
 ```java
-// WebConfig.java
+// WebConfig.java (등록 방법 예시 — 실제 등록 코드는 5장 참고)
 @Configuration
+@RequiredArgsConstructor  // final 필드 생성자 주입
 public class WebConfig implements WebMvcConfigurer {
 
-    private final LoginCheckInterceptor loginCheckInterceptor;
+    private final MyInterceptor myInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginCheckInterceptor)
-                .addPathPatterns("/community/write",    // 적용 경로
-                                 "/community/*/edit",
-                                 "/community/*/delete")
-                .excludePathPatterns("/login", "/signup"); // 제외 경로
+        registry.addInterceptor(myInterceptor)
+                .addPathPatterns("/admin/**")              // 적용 경로
+                .excludePathPatterns("/admin/login");      // 제외 경로
     }
 }
 ```
+
+> ⚠️ `excludePathPatterns()`는 include보다 **우선 평가**되고, `/community/*` 같은 한 세그먼트
+> 패턴은 `/community/write`에도 매칭된다. exclude를 잘못 넓게 잡으면 로그인 체크가
+> 무력화될 수 있으므로 주의 (실제 사례는 개념_07 4-1장 참고).
 
 ---
 
@@ -136,9 +139,13 @@ public class WebConfig implements WebMvcConfigurer {
 |--|--------|------------|
 | 위치 | Servlet 컨테이너 (Spring 밖) | Spring MVC (Spring 안) |
 | Spring Bean 사용 | 어렵 (가능은 함) | 가능 |
-| 적용 범위 | 모든 요청 (정적 파일 포함) | DispatcherServlet 이후 요청만 |
+| 적용 범위 | 모든 요청 (정적 파일 포함) | DispatcherServlet 이후 요청만 ※ |
 | 주요 용도 | 인코딩, CORS, XSS | 로그인 체크, 공통 데이터 처리 |
 | 예외 처리 | 직접 처리 | `@ControllerAdvice` 사용 가능 |
+
+> ※ Spring Boot에서는 css/js 같은 정적 리소스도 DispatcherServlet을 거치므로 **Interceptor가 적용될 수 있다**.  
+> 그래서 `addPathPatterns("/**")`처럼 넓게 걸 때는 `/css/**`, `/js/**`를 exclude에 넣어야 한다.  
+> (이 프로젝트는 로그인이 필요한 4개 경로만 명시적으로 등록하므로 exclude 없이도 정적 리소스에 적용되지 않음 — 5장 참고)
 
 ---
 
@@ -155,8 +162,9 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
                              HttpServletResponse response,
                              Object handler) throws Exception {
         HttpSession session = request.getSession(false);
-        UserEntity loginUser = (session != null)
-                ? (UserEntity) session.getAttribute("loginUser") : null;
+        // 세션에는 Entity가 아니라 LoginUserDTO를 저장해 둠 (개념_07 참고)
+        LoginUserDTO loginUser = (session != null)
+                ? (LoginUserDTO) session.getAttribute("loginUser") : null;
         if (loginUser == null) {
             response.sendRedirect("/login");
             return false;   // Controller 진입 차단
@@ -173,9 +181,10 @@ registry.addInterceptor(loginCheckInterceptor)
             "/community/write",       // 글쓰기
             "/community/*/edit",      // 수정
             "/community/*/delete",    // 삭제
-            "/mypage"                 // 마이페이지
-        )
-        .excludePathPatterns("/login", "/signup", "/", "/community", "/community/*");
+            "/mypage"                 // 마이페이지 → 로그인 필요한 경로만 명시 등록
+        );
+// ※ 홈(/), 목록, 상세, 정적 리소스 등은 등록하지 않았으므로 exclude 없이도 적용 안 됨
+//    (exclude는 include보다 우선 평가되므로 잘못 넓게 잡으면 로그인 체크가 뚫림 — 개념_07 4-1 참고)
 // ※ 댓글 API(/api/**)는 CommentApiController에서 자체 인증 처리 (401 JSON 응답)
 ```
 
