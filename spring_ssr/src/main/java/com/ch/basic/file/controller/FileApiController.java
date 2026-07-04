@@ -3,8 +3,11 @@ package com.ch.basic.file.controller;
 import com.ch.basic.file.dto.FileDetailDTO;
 import com.ch.basic.file.entity.FileEntity;
 import com.ch.basic.file.service.FileService;
+import com.ch.basic.user.dto.LoginUserDTO;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -61,6 +64,10 @@ public class FileApiController {
      * 에디터에서 이미지 삽입 시 JS fetch로 호출
      * 파일을 즉시 저장하고 URL을 반환 → 에디터 본문에 <img src="url"> 삽입
      *
+     * ※ 이 API는 Interceptor 적용 대상(/api/**)이 아니므로 댓글 API와 동일하게
+     *    Controller에서 직접 세션을 체크한다. (비로그인 무제한 업로드 방지 → 401 JSON)
+     *    글쓰기/수정 화면은 이미 로그인 상태이므로 정상 흐름에는 영향이 없다.
+     *
      * @param files   업로드 파일 리스트
      * @param refId   참조 ID (에디터 이미지: 글 작성 시 0, 수정 시 글 ID)
      * @param refType 참조 타입 (COMMUNITY)
@@ -68,11 +75,19 @@ public class FileApiController {
      * @return [{fileId: 1, url: "/uploads/uuid.png"}, ...]
      */
     @PostMapping("/api/files/upload")
-    public List<Map<String, Object>> uploadFiles(
+    public ResponseEntity<?> uploadFiles(
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam Long refId,
             @RequestParam FileEntity.RefType refType,
-            @RequestParam FileEntity.Usage usage) throws IOException {
+            @RequestParam FileEntity.Usage usage,
+            HttpSession session) throws IOException {
+
+        // 로그인 체크 — 비로그인이면 401 Unauthorized (JSON 응답)
+        LoginUserDTO loginUser = (LoginUserDTO) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "로그인이 필요합니다."));
+        }
 
         // 업로드 디렉토리 절대경로 + 없으면 생성
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
@@ -80,7 +95,7 @@ public class FileApiController {
             Files.createDirectories(uploadPath);
         }
 
-        return files.stream()
+        List<Map<String, Object>> result = files.stream()
                 .filter(f -> !f.isEmpty())  // 빈 파일 제외
                 .map(f -> {
                     try {
@@ -109,6 +124,8 @@ public class FileApiController {
                     }
                 })
                 .toList();
+
+        return ResponseEntity.ok(result);
     }
 
 }

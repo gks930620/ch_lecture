@@ -138,7 +138,7 @@ public class WebConfig implements WebMvcConfigurer {
 | | Filter | Interceptor |
 |--|--------|------------|
 | 위치 | Servlet 컨테이너 (Spring 밖) | Spring MVC (Spring 안) |
-| Spring Bean 사용 | 어렵 (가능은 함) | 가능 |
+| Spring Bean 사용 | 서블릿 컨테이너에 직접 등록 시 어려움 / Spring Boot에서 `@Component`·`FilterRegistrationBean`으로 등록하면 가능 (2장 예시가 `@Component` Filter) | 가능 |
 | 적용 범위 | 모든 요청 (정적 파일 포함) | DispatcherServlet 이후 요청만 ※ |
 | 주요 용도 | 인코딩, CORS, XSS | 로그인 체크, 공통 데이터 처리 |
 | 예외 처리 | 직접 처리 | `@ControllerAdvice` 사용 가능 |

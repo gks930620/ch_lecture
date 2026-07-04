@@ -41,16 +41,22 @@ public interface FileRepository extends JpaRepository<FileEntity, Long>, FileRep
      * 안전한 파일 삭제(고아 처리):
      * 주어진 file id들이 실제로 해당 refId(게시글)에 속해 있을 때만 refId를 0으로 변경
      * (다른 게시글의 파일을 삭제하지 못하도록 방어)
+     *
+     * ※ updatedAt도 함께 갱신한다. JPQL 벌크 update는 @PreUpdate 콜백을 거치지 않으므로
+     *    직접 set하지 않으면 updatedAt이 그대로 남는다. 고아 정리 스케줄러가
+     *    "updatedAt < 24시간 전" 기준으로 삭제하므로, 고아가 된 시점부터 유예를 세려면 필요.
      */
     @Modifying
-    @Query("update FileEntity f set f.refId = 0 where f.id in :ids and f.refId = :currentRefId")
+    @Query("update FileEntity f set f.refId = 0, f.updatedAt = CURRENT_TIMESTAMP where f.id in :ids and f.refId = :currentRefId")
     int detachFiles(@Param("ids") List<Long> ids, @Param("currentRefId") Long currentRefId);
 
     /**
      * 삭제된 게시글에 속한 파일들을 고아 처리 (refId=0으로 변경) (스케줄러용)
      * 이후 FileCleanupScheduler가 물리 파일 + DB 삭제 수행
+     *
+     * ※ detachFiles와 동일하게 updatedAt을 갱신해 고아 시점 기준 24시간 유예를 보장한다.
      */
     @Modifying
-    @Query("update FileEntity f set f.refId = 0 where f.refId in :refIds")
+    @Query("update FileEntity f set f.refId = 0, f.updatedAt = CURRENT_TIMESTAMP where f.refId in :refIds")
     int detachFilesByRefIds(@Param("refIds") List<Long> refIds);
 }

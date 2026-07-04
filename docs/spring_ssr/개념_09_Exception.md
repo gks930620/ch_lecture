@@ -139,7 +139,9 @@ public class GlobalExceptionHandler {
 | 적합 | SSR (Thymeleaf) | REST API |
 
 ```java
-// REST API 방식 (일부 발췌 — 실제는 403/400/500 핸들러도 같은 패턴으로 4개 존재)
+// REST API 방식 (일부 발췌 — 실제로는 403/BusinessException/500 핸들러도 있어 총 4개.
+//   단 BusinessException 핸들러는 아래처럼 상태코드를 고정하지 않고 e.getStatus()를 그대로 사용해
+//   409(중복) 등을 정상 반환한다 → 126행 각주 참고)
 @RestControllerAdvice(annotations = RestController.class)
 public class ApiExceptionHandler {
 

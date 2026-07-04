@@ -26,6 +26,10 @@ import java.util.Map;
  * 댓글은 detail.html의 JavaScript fetch로 비동기 처리 (페이지 새로고침 없이)
  *
  * URL 구조: /api/communities/{communityId}/comments — RESTful 중첩 리소스
+ *
+ * ※ 수정/삭제는 commentId만으로 대상을 찾고, URL의 {communityId}가 그 댓글의 실제 소속
+ *    게시글과 일치하는지는 검증하지 않는다(강의 단순화). 소유자 검증(username)은 하므로
+ *    보안 문제는 아니지만, 엄밀한 REST라면 소속 불일치 시 404를 주는 것이 정석이다.
  */
 @RestController
 @RequestMapping("/api/communities/{communityId}/comments")

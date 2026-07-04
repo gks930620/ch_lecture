@@ -18,10 +18,11 @@ import org.springframework.web.servlet.HandlerInterceptor;
  *    Interceptor로 분리하여 공통 처리 (코드 중복 제거)
  *
  * ※ 이 Interceptor가 동작하는 URL은 WebConfig.addInterceptors()에서 설정:
- *   - addPathPatterns(): 로그인 체크 대상 URL
+ *   - addPathPatterns(): 로그인 체크 대상 URL만 명시 등록
  *     → /community/write, /community/{id}/edit, /community/{id}/delete, /mypage
- *   - excludePathPatterns(): 비로그인도 접근 가능한 URL
- *     → /login, /signup, /, /community, /community/{id}, /uploads/**, /css/**, /js/**
+ *   - excludePathPatterns()는 사용하지 않음 — 위 4개 경로만 등록하므로 그 외(홈/목록/상세/
+ *     로그인/정적 리소스)는 애초에 적용되지 않는다. (exclude는 include보다 우선 평가되어
+ *     예전에 /community/* 가 /community/write까지 막던 버그가 있어 제거함 → WebConfig 주석 참고)
  *   - 댓글 API(/api/**)는 여기서 등록하지 않고 CommentApiController에서 자체 세션 체크
  *
  * @Component: Spring Bean으로 등록 (WebConfig에서 주입받아 사용)

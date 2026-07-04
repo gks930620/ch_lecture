@@ -144,7 +144,8 @@ registry.addInterceptor(loginCheckInterceptor)
 덕분에 실제 `UserController.mypage()`에는 null 체크가 없다 — Interceptor를 통과했다면 반드시 로그인 상태이기 때문.
 
 > **댓글 API(`/api/**`)는?** Interceptor에 등록하지 않고, `CommentApiController`가
-> 자체적으로 세션을 체크해서 비로그인 시 **401 JSON**을 반환한다.
+> 자체적으로 세션을 체크한다. 단 **작성·수정·삭제** 시에만 체크해서 비로그인이면 **401 JSON**을
+> 반환하고, **목록 조회(GET)는 비로그인도 200으로 허용**한다.
 > (SSR 페이지는 redirect, API는 JSON 에러 — 응답 방식이 달라서 분리)
 
 ---

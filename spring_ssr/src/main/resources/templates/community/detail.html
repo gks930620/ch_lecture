@@ -147,7 +147,10 @@
                 </span>
             </div>
 
-            <!-- 내용 (HTML 그대로 렌더링) -->
+            <!-- 내용 (Quill 에디터 HTML을 그대로 렌더링 → th:utext는 이스케이프하지 않음)
+                 ⚠️ 본문은 "신뢰된 입력"으로 가정한 강의용 단순화다. 서버에서 HTML을 정화(sanitize)하지
+                    않으므로, 실서비스에서는 저장 시 화이트리스트 기반 정화(jsoup 등)가 반드시 필요하다.
+                    (댓글은 JS escapeHtml로 이스케이프하지만 본문은 리치 텍스트 특성상 utext 사용) -->
             <div class="post-detail-content" th:utext="${community.content}">내용</div>
 
             <!-- 첨부파일 섹션 (JavaScript fetch API로 로드) -->

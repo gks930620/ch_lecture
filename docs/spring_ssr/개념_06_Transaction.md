@@ -87,16 +87,23 @@ public class CommunityService {
     @Transactional
     public void createCommunity(...) {
         // ... 게시글 저장
-        sendNotification(); // ❌ 트랜잭션 적용 안 됨!
+        sendNotification(); // ❌ REQUIRES_NEW가 무시됨!
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendNotification() {
         // 같은 클래스 내부 호출은 프록시를 거치지 않아서
-        // @Transactional이 무시됨
+        // 이 메서드에 붙은 @Transactional의 전파 속성(REQUIRES_NEW)이 무시됨
     }
 }
 ```
+
+> ⚠️ **주의 — "트랜잭션이 아예 없는 것"이 아니다.**  
+> `createCommunity()`가 이미 `@Transactional`이므로, 내부 호출된 `sendNotification()`의 코드는
+> **바깥(createCommunity) 트랜잭션 안에서 그대로 실행**된다. 프록시를 거치지 않아 무시되는 것은
+> "`REQUIRES_NEW`로 **별도 트랜잭션을 새로 분리**"하는 부분이다.
+> 즉 별도 트랜잭션으로 떨어지길 기대했지만 바깥 트랜잭션에 묶여버린다.
+> (바깥 메서드에 `@Transactional`이 아예 없다면 그때는 정말 트랜잭션 없이 실행된다.)
 
 **해결:** 별도 Service 클래스로 분리 후 주입받아 호출.
 
@@ -112,10 +119,12 @@ public class CommunityService {
 public void process() throws IOException {
     // IOException 발생해도 롤백 안 됨 (기본값)
 }
+```
 
+```java
 // rollbackFor로 명시적 지정
 @Transactional(rollbackFor = Exception.class)
-public void process() throws IOException {
+public void processWithRollback() throws IOException {
     // 모든 예외에서 롤백
 }
 ```
