@@ -7,7 +7,7 @@ description: 강의 광고용 PPT 스타일 페이지
 <div style="padding: 34px 28px; border-radius: 16px; background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 60%, #ffffff 100%); color: #111827; border: 1px solid #cbd5e1;">
   <p style="margin: 0; color: #b91c1c; font-size: 14px; font-weight: 700; letter-spacing: 0.08em;">CH LECTURE DECK</p>
   <h2 style="margin: 10px 0 8px; border: 0; color: #111827; font-size: clamp(32px, 4.4vw, 46px);">설명이 아니라, 구현으로 완성하는 강의</h2>
-  
+  <p style="margin: 0; font-size: 18px; color: #374151;">기초 다지기 5단계 + 백엔드 실전 7단계 — 입문부터 실전 배포까지 하나의 흐름</p>
 </div>
 
 ---

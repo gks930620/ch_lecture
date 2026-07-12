@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif">
+  <rect width="1600" height="900" fill="#f8fafc"/>
+  <rect width="1600" height="8" fill="#1d4ed8"/>
+
+  <!-- header -->
+  <text x="60" y="52" font-size="15" letter-spacing="3" fill="#64748b" font-weight="bold">CH LECTURE</text>
+  <text x="1540" y="52" font-size="14" fill="#94a3b8" text-anchor="end">gks930620.github.io/ch_lecture</text>
+  <text x="800" y="82" text-anchor="middle" font-size="40" font-weight="bold" fill="#0f172a">실전 웹개발 강의 커리큘럼</text>
+  <text x="800" y="118" text-anchor="middle" font-size="19" fill="#475569">입문부터 실전 서비스 배포까지 — 하나의 흐름으로 배우는 12단계</text>
+
+  <!-- PHASE 1 pill -->
+  <rect x="152" y="160" width="212" height="34" rx="17" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="258" y="183" text-anchor="middle" font-size="15" font-weight="bold" fill="#075985">PHASE 1 · 기초 다지기</text>
+
+  <!-- row 1: 5 cards (y=210, h=130, w=240) -->
+  <g>
+    <rect x="152" y="210" width="240" height="130" rx="14" fill="#e2e8f0" stroke="#475569" stroke-width="2.5"/>
+    <circle cx="180" cy="238" r="15" fill="#475569"/>
+    <text x="180" y="244" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">1</text>
+    <text x="272" y="268" text-anchor="middle" font-size="19" font-weight="bold" fill="#334155">GitHub 정적사이트</text>
+    <text x="272" y="296" text-anchor="middle" font-size="13.5" fill="#475569">Git/GitHub 기초</text>
+    <text x="272" y="316" text-anchor="middle" font-size="13.5" fill="#475569">Pages 배포 흐름</text>
+  </g>
+  <g>
+    <rect x="416" y="210" width="240" height="130" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+    <circle cx="444" cy="238" r="15" fill="#0284c7"/>
+    <text x="444" y="244" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">2</text>
+    <text x="536" y="268" text-anchor="middle" font-size="19" font-weight="bold" fill="#075985">Java 기초</text>
+    <text x="536" y="296" text-anchor="middle" font-size="13.5" fill="#0c4a6e">문법 · 객체지향 · 예외</text>
+    <text x="536" y="316" text-anchor="middle" font-size="13.5" fill="#0c4a6e">컬렉션 · 람다/Stream · JDBC</text>
+  </g>
+  <g>
+    <rect x="680" y="210" width="240" height="130" rx="14" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+    <circle cx="708" cy="238" r="15" fill="#d97706"/>
+    <text x="708" y="244" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">3</text>
+    <text x="800" y="268" text-anchor="middle" font-size="19" font-weight="bold" fill="#92400e">DB 기초 (SQL)</text>
+    <text x="800" y="296" text-anchor="middle" font-size="13.5" fill="#78350f">SELECT · 조인 · 서브쿼리</text>
+    <text x="800" y="316" text-anchor="middle" font-size="13.5" fill="#78350f">제약조건 · 트랜잭션</text>
+  </g>
+  <g>
+    <rect x="944" y="210" width="240" height="130" rx="14" fill="#ffe4e6" stroke="#e11d48" stroke-width="2.5"/>
+    <circle cx="972" cy="238" r="15" fill="#e11d48"/>
+    <text x="972" y="244" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">4</text>
+    <text x="1064" y="268" text-anchor="middle" font-size="19" font-weight="bold" fill="#881337">웹 기초 (HTML/CSS)</text>
+    <text x="1064" y="296" text-anchor="middle" font-size="13.5" fill="#9f1239">화면 구조 · 스타일링</text>
+    <text x="1064" y="316" text-anchor="middle" font-size="13.5" fill="#9f1239">웹페이지 구성 원리</text>
+  </g>
+  <g>
+    <rect x="1208" y="210" width="240" height="130" rx="14" fill="#fef9c3" stroke="#ca8a04" stroke-width="2.5"/>
+    <circle cx="1236" cy="238" r="15" fill="#ca8a04"/>
+    <text x="1236" y="244" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">5</text>
+    <text x="1328" y="268" text-anchor="middle" font-size="19" font-weight="bold" fill="#713f12">JavaScript 기초</text>
+    <text x="1328" y="296" text-anchor="middle" font-size="13.5" fill="#854d0e">DOM · 이벤트 · 비동기</text>
+    <text x="1328" y="316" text-anchor="middle" font-size="13.5" fill="#854d0e">브라우저 동작 원리</text>
+  </g>
+
+  <!-- row 1 arrows -->
+  <g stroke="#94a3b8" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <line x1="392" y1="275" x2="412" y2="275"/>
+    <line x1="656" y1="275" x2="676" y2="275"/>
+    <line x1="920" y1="275" x2="940" y2="275"/>
+    <line x1="1184" y1="275" x2="1204" y2="275"/>
+  </g>
+
+  <!-- phase transition -->
+  <g stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrowDark)">
+    <line x1="800" y1="352" x2="800" y2="398"/>
+  </g>
+  <text x="828" y="384" font-size="14" fill="#64748b">기초를 쌓고 실전으로</text>
+
+  <!-- PHASE 2 pill -->
+  <rect x="60" y="416" width="212" height="34" rx="17" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="166" y="439" text-anchor="middle" font-size="15" font-weight="bold" fill="#14532d">PHASE 2 · 백엔드 실전</text>
+
+  <!-- row 2: 7 cards (y=466, h=140, w=196) -->
+  <g>
+    <rect x="60" y="466" width="196" height="140" rx="14" fill="#ffedd5" stroke="#ea580c" stroke-width="2.5"/>
+    <circle cx="86" cy="492" r="14" fill="#ea580c"/>
+    <text x="86" y="497" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">6</text>
+    <text x="158" y="527" text-anchor="middle" font-size="17" font-weight="bold" fill="#7c2d12">동적 웹 기초</text>
+    <text x="158" y="558" text-anchor="middle" font-size="13" fill="#9a3412">Servlet/JSP · MVC</text>
+    <text x="158" y="578" text-anchor="middle" font-size="13" fill="#9a3412">세션/쿠키 · Filter</text>
+  </g>
+  <g>
+    <rect x="274" y="466" width="196" height="140" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2.5"/>
+    <circle cx="300" cy="492" r="14" fill="#16a34a"/>
+    <text x="300" y="497" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">7</text>
+    <text x="372" y="527" text-anchor="middle" font-size="17" font-weight="bold" fill="#14532d">Spring 기본</text>
+    <text x="372" y="558" text-anchor="middle" font-size="13" fill="#166534">DI/AOP · MVC · JPA</text>
+    <text x="372" y="578" text-anchor="middle" font-size="13" fill="#166534">커뮤니티 CRUD · 파일</text>
+  </g>
+  <g>
+    <rect x="488" y="466" width="196" height="140" rx="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/>
+    <circle cx="514" cy="492" r="14" fill="#1d4ed8"/>
+    <text x="514" y="497" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">8</text>
+    <text x="586" y="527" text-anchor="middle" font-size="17" font-weight="bold" fill="#1e3a8a">Security + OAuth2</text>
+    <text x="586" y="558" text-anchor="middle" font-size="13" fill="#1e40af">인증/인가 구조</text>
+    <text x="586" y="578" text-anchor="middle" font-size="13" fill="#1e40af">소셜 로그인 연동</text>
+  </g>
+  <g>
+    <rect x="702" y="466" width="196" height="140" rx="14" fill="#e0e7ff" stroke="#4338ca" stroke-width="2.5"/>
+    <circle cx="728" cy="492" r="14" fill="#4338ca"/>
+    <text x="728" y="497" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">9</text>
+    <text x="800" y="527" text-anchor="middle" font-size="17" font-weight="bold" fill="#312e81">JWT 인증</text>
+    <text x="800" y="558" text-anchor="middle" font-size="13" fill="#3730a3">Access/Refresh 토큰</text>
+    <text x="800" y="578" text-anchor="middle" font-size="13" fill="#3730a3">토큰 재발급 · OAuth2</text>
+  </g>
+  <g>
+    <rect x="916" y="466" width="196" height="140" rx="14" fill="#ccfbf1" stroke="#0d9488" stroke-width="2.5"/>
+    <circle cx="942" cy="492" r="14" fill="#0d9488"/>
+    <text x="942" y="497" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">10</text>
+    <text x="1014" y="527" text-anchor="middle" font-size="17" font-weight="bold" fill="#134e4a">실시간 채팅</text>
+    <text x="1014" y="558" text-anchor="middle" font-size="13" fill="#115e59">WebSocket/STOMP</text>
+    <text x="1014" y="578" text-anchor="middle" font-size="13" fill="#115e59">채팅방 · 알림</text>
+  </g>
+  <g>
+    <rect x="1130" y="466" width="196" height="140" rx="14" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/>
+    <circle cx="1156" cy="492" r="14" fill="#7c3aed"/>
+    <text x="1156" y="497" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">11</text>
+    <text x="1228" y="527" text-anchor="middle" font-size="17" font-weight="bold" fill="#4c1d95">CSR 방식 개발</text>
+    <text x="1228" y="558" text-anchor="middle" font-size="13" fill="#5b21b6">REST API 설계</text>
+    <text x="1228" y="578" text-anchor="middle" font-size="13" fill="#5b21b6">프론트-백 분리 구조</text>
+  </g>
+  <g>
+    <rect x="1344" y="466" width="196" height="140" rx="14" fill="#cffafe" stroke="#0891b2" stroke-width="2.5"/>
+    <circle cx="1370" cy="492" r="14" fill="#0891b2"/>
+    <text x="1370" y="497" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">12</text>
+    <text x="1442" y="527" text-anchor="middle" font-size="17" font-weight="bold" fill="#164e63">배포 · 운영</text>
+    <text x="1442" y="558" text-anchor="middle" font-size="13" fill="#155e75">Docker · 클라우드</text>
+    <text x="1442" y="578" text-anchor="middle" font-size="13" fill="#155e75">빌드 → 배포 → 운영</text>
+  </g>
+
+  <!-- row 2 arrows -->
+  <g stroke="#94a3b8" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <line x1="256" y1="536" x2="272" y2="536"/>
+    <line x1="470" y1="536" x2="486" y2="536"/>
+    <line x1="684" y1="536" x2="700" y2="536"/>
+    <line x1="898" y1="536" x2="914" y2="536"/>
+    <line x1="1112" y1="536" x2="1128" y2="536"/>
+    <line x1="1326" y1="536" x2="1342" y2="536"/>
+  </g>
+
+  <!-- outcome band -->
+  <rect x="152" y="660" width="1296" height="118" rx="16" fill="#0f172a"/>
+  <text x="200" y="708" font-size="16" font-weight="bold" fill="#7dd3fc">최종 결과물</text>
+  <text x="200" y="740" font-size="19" fill="#f1f5f9">커뮤니티 서비스 · 소셜 로그인/JWT 인증 · 실시간 채팅 · REST API · Docker 배포까지 직접 구현</text>
+  <text x="1400" y="708" font-size="15" fill="#94a3b8" text-anchor="end">개념 설명 → 바로 구현 → 회차별 결과물</text>
+  <text x="1400" y="740" font-size="15" fill="#94a3b8" text-anchor="end">AI 코딩 도구 활용 노하우 포함</text>
+
+  <!-- tech footer -->
+  <text x="800" y="836" text-anchor="middle" font-size="15" fill="#64748b">Java · SQL · HTML/CSS · JavaScript · Servlet/JSP · Spring Boot · Spring Security · JWT · WebSocket · Docker</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrowDark" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+</svg>
