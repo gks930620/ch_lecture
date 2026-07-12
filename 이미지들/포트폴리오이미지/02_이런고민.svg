@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif">
+  <rect width="1600" height="900" fill="#f8fafc"/>
+  <rect width="1600" height="8" fill="#1d4ed8"/>
+  <text x="60" y="52" font-size="15" letter-spacing="3" fill="#64748b" font-weight="bold">CH LECTURE</text>
+  <text x="1540" y="52" font-size="15" fill="#94a3b8" text-anchor="end" font-weight="bold">02 / 06</text>
+
+  <text x="800" y="122" text-anchor="middle" font-size="42" font-weight="bold" fill="#0f172a">혹시, 이런 고민 있지 않나요?</text>
+  <text x="800" y="160" text-anchor="middle" font-size="19" fill="#475569">혼자 공부하다 멈춘 이유는 재능이 아니라 "방법" 때문입니다</text>
+
+  <!-- column headers -->
+  <text x="380" y="216" text-anchor="middle" font-size="20" font-weight="bold" fill="#64748b">혼자 공부할 때</text>
+  <text x="1220" y="216" text-anchor="middle" font-size="20" font-weight="bold" fill="#b91c1c">이 수업에서는</text>
+
+  <!-- pain cards (left) -->
+  <g>
+    <rect x="100" y="238" width="560" height="120" rx="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
+    <circle cx="140" cy="298" r="16" fill="#94a3b8"/>
+    <text x="140" y="305" text-anchor="middle" font-size="17" font-weight="bold" fill="#ffffff">?</text>
+    <text x="176" y="290" font-size="19" font-weight="bold" fill="#475569">"강의는 다 들었는데,</text>
+    <text x="176" y="318" font-size="19" font-weight="bold" fill="#475569">혼자서는 아무것도 못 만들겠어요"</text>
+
+    <rect x="100" y="378" width="560" height="120" rx="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
+    <circle cx="140" cy="438" r="16" fill="#94a3b8"/>
+    <text x="140" y="445" text-anchor="middle" font-size="17" font-weight="bold" fill="#ffffff">?</text>
+    <text x="176" y="430" font-size="19" font-weight="bold" fill="#475569">"에러 하나에 몇 시간씩 막히고,</text>
+    <text x="176" y="458" font-size="19" font-weight="bold" fill="#475569">물어볼 사람이 없어요"</text>
+
+    <rect x="100" y="518" width="560" height="120" rx="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
+    <circle cx="140" cy="578" r="16" fill="#94a3b8"/>
+    <text x="140" y="585" text-anchor="middle" font-size="17" font-weight="bold" fill="#ffffff">?</text>
+    <text x="176" y="570" font-size="19" font-weight="bold" fill="#475569">"뭘, 어떤 순서로 배워야</text>
+    <text x="176" y="598" font-size="19" font-weight="bold" fill="#475569">취업/외주까지 가는지 모르겠어요"</text>
+
+    <rect x="100" y="658" width="560" height="120" rx="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
+    <circle cx="140" cy="718" r="16" fill="#94a3b8"/>
+    <text x="140" y="725" text-anchor="middle" font-size="17" font-weight="bold" fill="#ffffff">?</text>
+    <text x="176" y="710" font-size="19" font-weight="bold" fill="#475569">"공부한 지 몇 달인데</text>
+    <text x="176" y="738" font-size="19" font-weight="bold" fill="#475569">보여줄 결과물이 하나도 없어요"</text>
+  </g>
+
+  <!-- center arrows -->
+  <g stroke="#b91c1c" stroke-width="4" fill="none" marker-end="url(#arrowRed)">
+    <line x1="690" y1="298" x2="900" y2="298"/>
+    <line x1="690" y1="438" x2="900" y2="438"/>
+    <line x1="690" y1="578" x2="900" y2="578"/>
+    <line x1="690" y1="718" x2="900" y2="718"/>
+  </g>
+
+  <!-- solution cards (right) -->
+  <g>
+    <rect x="940" y="238" width="560" height="120" rx="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/>
+    <circle cx="980" cy="298" r="16" fill="#1d4ed8"/>
+    <path d="M973 298 l5 6 l10 -12" stroke="#ffffff" stroke-width="3" fill="none"/>
+    <text x="1016" y="290" font-size="19" font-weight="bold" fill="#1e3a8a">개념 설명 후, 수업 중에</text>
+    <text x="1016" y="318" font-size="19" font-weight="bold" fill="#1e3a8a">직접 같이 구현하며 완성합니다</text>
+
+    <rect x="940" y="378" width="560" height="120" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2.5"/>
+    <circle cx="980" cy="438" r="16" fill="#16a34a"/>
+    <path d="M973 438 l5 6 l10 -12" stroke="#ffffff" stroke-width="3" fill="none"/>
+    <text x="1016" y="430" font-size="19" font-weight="bold" fill="#14532d">막히면 바로 해결 + 수업 외 질문도</text>
+    <text x="1016" y="458" font-size="19" font-weight="bold" fill="#14532d">빠르게 피드백합니다</text>
+
+    <rect x="940" y="518" width="560" height="120" rx="14" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+    <circle cx="980" cy="578" r="16" fill="#d97706"/>
+    <path d="M973 578 l5 6 l10 -12" stroke="#ffffff" stroke-width="3" fill="none"/>
+    <text x="1016" y="570" font-size="19" font-weight="bold" fill="#92400e">기초 → 실전 → 배포로 이어지는</text>
+    <text x="1016" y="598" font-size="19" font-weight="bold" fill="#92400e">검증된 12단계 로드맵을 따라갑니다</text>
+
+    <rect x="940" y="658" width="560" height="120" rx="14" fill="#ffe4e6" stroke="#e11d48" stroke-width="2.5"/>
+    <circle cx="980" cy="718" r="16" fill="#e11d48"/>
+    <path d="M973 718 l5 6 l10 -12" stroke="#ffffff" stroke-width="3" fill="none"/>
+    <text x="1016" y="710" font-size="19" font-weight="bold" fill="#881337">매 회차 결과물이 쌓여</text>
+    <text x="1016" y="738" font-size="19" font-weight="bold" fill="#881337">그대로 포트폴리오가 됩니다</text>
+  </g>
+
+  <text x="800" y="850" text-anchor="middle" font-size="17" fill="#334155" font-weight="bold">"이해했다"에서 멈추지 않고, "만들었다"까지 가는 수업입니다</text>
+
+  <defs>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#b91c1c"/>
+    </marker>
+  </defs>
+</svg>

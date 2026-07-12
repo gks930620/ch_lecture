@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif">
+  <rect width="1600" height="900" fill="#f8fafc"/>
+  <rect width="1600" height="8" fill="#1d4ed8"/>
+  <text x="60" y="52" font-size="15" letter-spacing="3" fill="#64748b" font-weight="bold">CH LECTURE</text>
+  <text x="1540" y="52" font-size="15" fill="#94a3b8" text-anchor="end" font-weight="bold">03 / 06</text>
+
+  <text x="800" y="122" text-anchor="middle" font-size="42" font-weight="bold" fill="#0f172a">한 회차는 이렇게 진행됩니다</text>
+  <text x="800" y="160" text-anchor="middle" font-size="19" fill="#475569">듣고 끝나는 수업이 아니라, 매 회차 "만들고 끝나는" 수업</text>
+
+  <!-- 4 step cards -->
+  <g>
+    <rect x="80" y="210" width="320" height="230" rx="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/>
+    <circle cx="120" cy="252" r="19" fill="#1d4ed8"/>
+    <text x="120" y="259" text-anchor="middle" font-size="18" font-weight="bold" fill="#ffffff">1</text>
+    <text x="156" y="259" font-size="22" font-weight="bold" fill="#1e3a8a">핵심 개념 설명</text>
+    <text x="110" y="308" font-size="16" fill="#1e40af">암기용 이론이 아니라</text>
+    <text x="110" y="334" font-size="16" fill="#1e40af">"왜 이렇게 하는지"를</text>
+    <text x="110" y="360" font-size="16" fill="#1e40af">그림과 흐름으로 설명합니다.</text>
+    <text x="110" y="404" font-size="14" fill="#3b82f6">강의자료 사이트 문서 기반</text>
+  </g>
+  <g>
+    <rect x="453" y="210" width="320" height="230" rx="16" fill="#dcfce7" stroke="#16a34a" stroke-width="2.5"/>
+    <circle cx="493" cy="252" r="19" fill="#16a34a"/>
+    <text x="493" y="259" text-anchor="middle" font-size="18" font-weight="bold" fill="#ffffff">2</text>
+    <text x="529" y="259" font-size="22" font-weight="bold" fill="#14532d">바로 같이 구현</text>
+    <text x="483" y="308" font-size="16" fill="#166534">배운 그 시간에 직접</text>
+    <text x="483" y="334" font-size="16" fill="#166534">코드로 만들어 봅니다.</text>
+    <text x="483" y="360" font-size="16" fill="#166534">막히는 지점은 그 자리에서 해결.</text>
+    <text x="483" y="404" font-size="14" fill="#22c55e">복붙이 아닌 구조 이해 중심</text>
+  </g>
+  <g>
+    <rect x="826" y="210" width="320" height="230" rx="16" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+    <circle cx="866" cy="252" r="19" fill="#d97706"/>
+    <text x="866" y="259" text-anchor="middle" font-size="18" font-weight="bold" fill="#ffffff">3</text>
+    <text x="902" y="259" font-size="22" font-weight="bold" fill="#92400e">코드 리뷰 · 피드백</text>
+    <text x="856" y="308" font-size="16" fill="#78350f">회차별로 작성한 코드를</text>
+    <text x="856" y="334" font-size="16" fill="#78350f">함께 리뷰하고 더 나은 구조로</text>
+    <text x="856" y="360" font-size="16" fill="#78350f">개선하는 법을 배웁니다.</text>
+    <text x="856" y="404" font-size="14" fill="#f59e0b">실무식 리팩토링 습관</text>
+  </g>
+  <g>
+    <rect x="1199" y="210" width="320" height="230" rx="16" fill="#ffe4e6" stroke="#e11d48" stroke-width="2.5"/>
+    <circle cx="1239" cy="252" r="19" fill="#e11d48"/>
+    <text x="1239" y="259" text-anchor="middle" font-size="18" font-weight="bold" fill="#ffffff">4</text>
+    <text x="1275" y="259" font-size="22" font-weight="bold" fill="#881337">과제 → 결과물</text>
+    <text x="1229" y="308" font-size="16" fill="#9f1239">배운 것을 스스로 적용하는</text>
+    <text x="1229" y="334" font-size="16" fill="#9f1239">과제로 마무리 — 회차마다</text>
+    <text x="1229" y="360" font-size="16" fill="#9f1239">눈에 보이는 결과물이 남습니다.</text>
+    <text x="1229" y="404" font-size="14" fill="#f43f5e">어려우면 언제든 질문 OK</text>
+  </g>
+
+  <!-- arrows between steps -->
+  <g stroke="#94a3b8" stroke-width="4" fill="none" marker-end="url(#arrow)">
+    <line x1="402" y1="325" x2="448" y2="325"/>
+    <line x1="775" y1="325" x2="821" y2="325"/>
+    <line x1="1148" y1="325" x2="1194" y2="325"/>
+  </g>
+
+  <!-- support cards -->
+  <text x="800" y="510" text-anchor="middle" font-size="24" font-weight="bold" fill="#0f172a">수업 시간 밖에서도, 이렇게 돕습니다</text>
+  <g>
+    <rect x="100" y="540" width="440" height="160" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="100" y="540" width="440" height="6" rx="3" fill="#1d4ed8"/>
+    <text x="130" y="588" font-size="20" font-weight="bold" fill="#0f172a">강의자료 사이트 제공</text>
+    <text x="130" y="622" font-size="15.5" fill="#475569">모든 개념 문서·예제·문제/답안을 웹으로</text>
+    <text x="130" y="648" font-size="15.5" fill="#475569">공개 — 언제든 다시 찾아보며 복습</text>
+  </g>
+  <g>
+    <rect x="580" y="540" width="440" height="160" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="580" y="540" width="440" height="6" rx="3" fill="#16a34a"/>
+    <text x="610" y="588" font-size="20" font-weight="bold" fill="#0f172a">시간 외 질문 지원</text>
+    <text x="610" y="622" font-size="15.5" fill="#475569">혼자 실습하다 막히면 질문 — 가능한 한</text>
+    <text x="610" y="648" font-size="15.5" fill="#475569">빠르게(보통 2시간 이내) 피드백</text>
+  </g>
+  <g>
+    <rect x="1060" y="540" width="440" height="160" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="1060" y="540" width="440" height="6" rx="3" fill="#e11d48"/>
+    <text x="1090" y="588" font-size="20" font-weight="bold" fill="#0f172a">AI 코딩 도구 활용법</text>
+    <text x="1090" y="622" font-size="15.5" fill="#475569">AI를 "베끼는 도구"가 아니라 "생산성</text>
+    <text x="1090" y="648" font-size="15.5" fill="#475569">도구"로 쓰는 실무 노하우까지 전달</text>
+  </g>
+
+  <!-- footer band -->
+  <rect x="100" y="750" width="1400" height="90" rx="16" fill="#0f172a"/>
+  <text x="800" y="796" text-anchor="middle" font-size="20" fill="#f1f5f9" font-weight="bold">1:1 대면 수업 · 주 1~2회 협의 · 진도형 + 프로젝트형 병행 가능</text>
+  <text x="800" y="824" text-anchor="middle" font-size="15" fill="#94a3b8">수강생의 속도에 맞춰 진행합니다 — 못 따라올까 봐 걱정하지 않아도 됩니다</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+</svg>

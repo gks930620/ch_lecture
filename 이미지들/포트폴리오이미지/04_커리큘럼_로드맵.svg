@@ -4,7 +4,7 @@
 
   <!-- header -->
   <text x="60" y="52" font-size="15" letter-spacing="3" fill="#64748b" font-weight="bold">CH LECTURE</text>
-  <text x="1540" y="52" font-size="14" fill="#94a3b8" text-anchor="end">gks930620.github.io/ch_lecture</text>
+  <text x="1540" y="52" font-size="15" fill="#94a3b8" text-anchor="end" font-weight="bold">04 / 06</text>
   <text x="800" y="82" text-anchor="middle" font-size="40" font-weight="bold" fill="#0f172a">실전 웹개발 강의 커리큘럼</text>
   <text x="800" y="118" text-anchor="middle" font-size="19" fill="#475569">입문부터 실전 서비스 배포까지 — 하나의 흐름으로 배우는 12단계</text>
 

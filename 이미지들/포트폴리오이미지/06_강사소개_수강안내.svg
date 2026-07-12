@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif">
+  <rect width="1600" height="900" fill="#f8fafc"/>
+  <rect width="1600" height="8" fill="#1d4ed8"/>
+  <text x="60" y="52" font-size="15" letter-spacing="3" fill="#64748b" font-weight="bold">CH LECTURE</text>
+  <text x="1540" y="52" font-size="15" fill="#94a3b8" text-anchor="end" font-weight="bold">06 / 06</text>
+
+  <text x="800" y="122" text-anchor="middle" font-size="42" font-weight="bold" fill="#0f172a">믿고 시작해도 되는 이유</text>
+  <text x="800" y="160" text-anchor="middle" font-size="19" fill="#475569">가르쳐 본 사람이, 현업에서 만들고 있는 것을 가르칩니다</text>
+
+  <!-- left: instructor -->
+  <g>
+    <rect x="100" y="200" width="680" height="420" rx="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="100" y="200" width="680" height="8" rx="4" fill="#1d4ed8"/>
+    <text x="140" y="262" font-size="24" font-weight="bold" fill="#0f172a">강사 소개</text>
+
+    <circle cx="158" cy="322" r="7" fill="#1d4ed8"/>
+    <text x="182" y="329" font-size="18" font-weight="bold" fill="#1e3a8a">현직 시스템 개발자</text>
+    <text x="182" y="356" font-size="15.5" fill="#475569">실무 시스템 개발·운영 중 — 현장에서 쓰는 방식 그대로 지도</text>
+
+    <circle cx="158" cy="402" r="7" fill="#16a34a"/>
+    <text x="182" y="409" font-size="18" font-weight="bold" fill="#14532d">웹개발 강의 경력 약 4년, 수강생 약 500명</text>
+    <text x="182" y="436" font-size="15.5" fill="#475569">부트캠프(K-Digital Training)에서 입문자를 프로젝트 완성까지</text>
+
+    <circle cx="158" cy="482" r="7" fill="#d97706"/>
+    <text x="182" y="489" font-size="18" font-weight="bold" fill="#92400e">입문자 눈높이 전문</text>
+    <text x="182" y="516" font-size="15.5" fill="#475569">비전공자가 어디서 막히는지 알고, 그 지점부터 풀어줍니다</text>
+
+    <circle cx="158" cy="562" r="7" fill="#e11d48"/>
+    <text x="182" y="569" font-size="18" font-weight="bold" fill="#881337">Java부터 배포까지 통합 지도</text>
+    <text x="182" y="596" font-size="15.5" fill="#475569">파트별 강사가 아니라, 전체 흐름을 한 명이 끝까지 책임집니다</text>
+  </g>
+
+  <!-- right: operations -->
+  <g>
+    <rect x="820" y="200" width="680" height="420" rx="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <rect x="820" y="200" width="680" height="8" rx="4" fill="#e11d48"/>
+    <text x="860" y="262" font-size="24" font-weight="bold" fill="#0f172a">부담 없는 수강 운영</text>
+
+    <circle cx="878" cy="322" r="7" fill="#1d4ed8"/>
+    <text x="902" y="329" font-size="18" font-weight="bold" fill="#1e3a8a">선입금 없이 회차별 진행</text>
+    <text x="902" y="356" font-size="15.5" fill="#475569">긴 계약 부담 없이 시작 — 중단/재개도 협의 가능합니다</text>
+
+    <circle cx="878" cy="402" r="7" fill="#16a34a"/>
+    <text x="902" y="409" font-size="18" font-weight="bold" fill="#14532d">내 목표에 맞춘 커리큘럼</text>
+    <text x="902" y="436" font-size="15.5" fill="#475569">취업 / 외주 / 내 서비스 만들기 — 목표별로 진도를 설계합니다</text>
+
+    <circle cx="878" cy="482" r="7" fill="#d97706"/>
+    <text x="902" y="489" font-size="18" font-weight="bold" fill="#92400e">필요한 파트만 선택 수강 가능</text>
+    <text x="902" y="516" font-size="15.5" fill="#475569">예: Spring Security 집중, JWT 집중, 배포 집중</text>
+
+    <circle cx="878" cy="562" r="7" fill="#e11d48"/>
+    <text x="902" y="569" font-size="18" font-weight="bold" fill="#881337">주 1~2회, 시간 협의</text>
+    <text x="902" y="596" font-size="15.5" fill="#475569">직장인/학생 일정에 맞춰 유연하게 진행합니다</text>
+  </g>
+
+  <!-- contact band -->
+  <rect x="100" y="660" width="1400" height="130" rx="18" fill="#0f172a"/>
+  <text x="140" y="712" font-size="17" font-weight="bold" fill="#7dd3fc">지금 시작하기</text>
+  <text x="140" y="748" font-size="20" fill="#f1f5f9" font-weight="bold">문의 시 세 가지만 알려주세요 — ① 현재 수준(입문/중급)  ② 목표(취업/외주/창업)  ③ 가능 학습 시간</text>
+  <text x="1460" y="748" font-size="15" fill="#94a3b8" text-anchor="end"></text>
+
+  <text x="800" y="850" text-anchor="middle" font-size="17" font-weight="bold" fill="#334155">6개월 뒤, 스스로 기능을 설계하고 구현하는 나를 목표로 합니다</text>
+</svg>

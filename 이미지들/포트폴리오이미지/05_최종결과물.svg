@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif">
+  <rect width="1600" height="900" fill="#f8fafc"/>
+  <rect width="1600" height="8" fill="#1d4ed8"/>
+  <text x="60" y="52" font-size="15" letter-spacing="3" fill="#64748b" font-weight="bold">CH LECTURE</text>
+  <text x="1540" y="52" font-size="15" fill="#94a3b8" text-anchor="end" font-weight="bold">05 / 06</text>
+
+  <text x="800" y="122" text-anchor="middle" font-size="42" font-weight="bold" fill="#0f172a">수강이 끝나면, 이것들이 남습니다</text>
+  <text x="800" y="160" text-anchor="middle" font-size="19" fill="#475569">"본 것"이 아니라 전부 내 손으로 "만든 것" — 그대로 취업/외주 포트폴리오가 됩니다</text>
+
+  <!-- top row: 3 cards -->
+  <g>
+    <rect x="100" y="200" width="440" height="230" rx="16" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/>
+    <rect x="130" y="230" width="110" height="30" rx="15" fill="#1d4ed8"/>
+    <text x="185" y="250" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">결과물 1</text>
+    <text x="130" y="298" font-size="23" font-weight="bold" fill="#1e3a8a">커뮤니티 웹 서비스</text>
+    <text x="130" y="334" font-size="16" fill="#1e40af">글쓰기 · 댓글 · 파일 업로드/다운로드</text>
+    <text x="130" y="360" font-size="16" fill="#1e40af">페이징 · 검색 · 에디터 이미지 처리</text>
+    <text x="130" y="398" font-size="14" fill="#3b82f6">Spring Boot + JPA + MyBatis</text>
+  </g>
+  <g>
+    <rect x="580" y="200" width="440" height="230" rx="16" fill="#ffe4e6" stroke="#e11d48" stroke-width="2.5"/>
+    <rect x="610" y="230" width="110" height="30" rx="15" fill="#e11d48"/>
+    <text x="665" y="250" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">결과물 2</text>
+    <text x="610" y="298" font-size="23" font-weight="bold" fill="#881337">로그인 · 인증 시스템</text>
+    <text x="610" y="334" font-size="16" fill="#9f1239">일반 로그인 + 카카오 소셜 로그인</text>
+    <text x="610" y="360" font-size="16" fill="#9f1239">JWT Access/Refresh 토큰 인증</text>
+    <text x="610" y="398" font-size="14" fill="#f43f5e">Spring Security + OAuth2 + JWT</text>
+  </g>
+  <g>
+    <rect x="1060" y="200" width="440" height="230" rx="16" fill="#ccfbf1" stroke="#0d9488" stroke-width="2.5"/>
+    <rect x="1090" y="230" width="110" height="30" rx="15" fill="#0d9488"/>
+    <text x="1145" y="250" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">결과물 3</text>
+    <text x="1090" y="298" font-size="23" font-weight="bold" fill="#134e4a">실시간 채팅</text>
+    <text x="1090" y="334" font-size="16" fill="#115e59">채팅방 생성 · 입장 · 실시간 메시지</text>
+    <text x="1090" y="360" font-size="16" fill="#115e59">SSR/CSR 두 방식 모두 구현</text>
+    <text x="1090" y="398" font-size="14" fill="#14b8a6">WebSocket + STOMP</text>
+  </g>
+
+  <!-- bottom row: 2 cards -->
+  <g>
+    <rect x="340" y="460" width="440" height="230" rx="16" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/>
+    <rect x="370" y="490" width="110" height="30" rx="15" fill="#7c3aed"/>
+    <text x="425" y="510" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">결과물 4</text>
+    <text x="370" y="558" font-size="23" font-weight="bold" fill="#4c1d95">REST API 백엔드</text>
+    <text x="370" y="594" font-size="16" fill="#5b21b6">프론트-백 분리 구조의 API 서버 설계</text>
+    <text x="370" y="620" font-size="16" fill="#5b21b6">Swagger 문서화 · 테스트코드 · 코드리뷰</text>
+    <text x="370" y="658" font-size="14" fill="#8b5cf6">REST API + Swagger + Test</text>
+  </g>
+  <g>
+    <rect x="820" y="460" width="440" height="230" rx="16" fill="#cffafe" stroke="#0891b2" stroke-width="2.5"/>
+    <rect x="850" y="490" width="110" height="30" rx="15" fill="#0891b2"/>
+    <text x="905" y="510" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">결과물 5</text>
+    <text x="850" y="558" font-size="23" font-weight="bold" fill="#164e63">실제 배포된 서비스</text>
+    <text x="850" y="594" font-size="16" fill="#155e75">Docker 컨테이너화 → 클라우드 배포</text>
+    <text x="850" y="620" font-size="16" fill="#155e75">누구나 접속 가능한 "진짜 URL"이 생깁니다</text>
+    <text x="850" y="658" font-size="14" fill="#06b6d4">Docker + Railway 배포</text>
+  </g>
+
+  <!-- footer band -->
+  <rect x="100" y="740" width="1400" height="100" rx="16" fill="#0f172a"/>
+  <text x="800" y="784" text-anchor="middle" font-size="21" fill="#f1f5f9" font-weight="bold">면접에서 "이거 직접 만들었어요?"라는 질문에, 구조까지 설명할 수 있게 됩니다</text>
+  <text x="800" y="816" text-anchor="middle" font-size="15" fill="#94a3b8">설계 문서 · 프로젝트 구조 정리 · 코드리뷰 기록까지 함께 남는 커리큘럼</text>
+</svg>
