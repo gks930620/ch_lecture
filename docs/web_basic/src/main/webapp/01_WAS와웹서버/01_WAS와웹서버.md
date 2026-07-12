@@ -26,6 +26,9 @@
 - 데이터베이스, 캐시(예: Redis), 외부 API 등의 백엔드 서비스.
 
 3) 요청 처리 흐름(정적 vs 동적)
+
+![웹서버(WS)와 WAS의 정적/동적 요청 처리 흐름]({{ '/web_basic/web_basic_images/ch01/ws-was-flow.svg' | relative_url }})
+
 - 정적 요청 흐름
   1. 클라이언트가 URL로 요청
   2. 웹서버(Nginx 등)가 정적 파일인지 확인
@@ -47,7 +50,7 @@
   - 뷰(화면) 생성에 적합하며, JSTL/EL을 이용해 자바 코드 의존을 줄이는 것이 권장됨.
 
 5) 서블릿 생명주기(Lifecycle) — Spring 전 반드시 이해할 것
-- 서블릿은 싱글톤 인스턴스로 관리된다. 최초 요청 시 1회만 생성.
+- 서블릿은 싱글톤 인스턴스로 관리된다. 최초 요청 시 1회만 생성. (엄밀히는 "선언(등록)당 인스턴스 1개"라 순수 싱글톤과는 다르지만, 처음에는 "요청마다 새로 만들지 않고 하나를 공유한다" 정도로 이해하면 충분하다.)
 - 생명주기 순서:
   1. 클래스 로딩 + 인스턴스 생성 (최초 요청 시 또는 load-on-startup)
   2. `init(ServletConfig)` 호출 — 초기화 (1번만)
@@ -93,7 +96,12 @@
 - 로깅/모니터링: 접속 로그, 애플리케이션 로그, APM(예: NewRelic) 연동.
 
 참고 예제 코드
-- 간단한 서블릿 예제와 JSP 연동은 프로젝트의 `src/main/java/com/example/chlecture/forwardredirect/ForwardRedirectServlet.java`와 `src/main/webapp/01_WAS와웹서버/01_server_info.jsp`를 참고하세요.
+- 이 챕터의 실습 파일은 `src/main/webapp/01_WAS와웹서버/` 폴더에 4개가 있습니다.
+  - `01_intro.jsp` — 현재 시간을 출력해 "동적" 응답을 확인
+  - `01_basic.jsp` — JSP 3대 스크립트 요소(선언문 `<%! %>`, 스크립틀릿 `<% %>`, 표현식 `<%= %>`) 실습
+  - `01_dynamic_content.jsp` — 동적 콘텐츠와 정적 콘텐츠 비교 실습
+  - `01_server_info.jsp` — application/request의 서버·요청 정보 출력
+- 서블릿 예제는 `src/main/java/com/example/chlecture/lifecycle/LifecycleServlet.java`(생명주기)와 `.../forwardredirect/ForwardRedirectServlet.java`를 참고하세요.
 
 추가 자료(권장 읽기)
 - 서블릿 규격 문서(Servlet Specification)

@@ -15,12 +15,12 @@ public class P9자료구조 {
     //오름차순
     public static void bubbleSort(int[]  arr){  //return이 없고 매개변수로 받은 값의 내용을 변경
         for(int i=0 ; i<arr.length ; i++){
-            for(int j=i ; j<arr.length-i-1 ; j++){
+            for(int j=0 ; j<arr.length-i-1 ; j++){   //항상 맨 앞(0)부터 이웃끼리 비교. 한 바퀴 돌면 가장 큰 값이 맨 뒤로 감
                 if(arr[j] > arr[j+1])switchElement(arr,j,j+1);
             }
         }
     }
-    public static void sellectionSort(int[] arr){
+    public static void selectionSort(int[] arr){
         //가장큰값을 뒤로 or 가장 작은 값을 앞으로
         //이건 가장 작은 값을 앞으로
         for(int i=0 ; i<arr.length ; i++){

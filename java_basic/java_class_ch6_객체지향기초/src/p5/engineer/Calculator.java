@@ -9,10 +9,11 @@ public class Calculator {
      * @return  a^b
      */
     public int pow(int a, int b){
+        int result=1;
         for(int i=0 ; i<b ; i++){
-            a*=a;
+            result*=a;   //a를 b번 곱한다.  b가 0이면 1
         }
-        return a;
+        return result;
     }
 
 

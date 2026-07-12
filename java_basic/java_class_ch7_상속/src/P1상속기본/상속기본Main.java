@@ -2,33 +2,27 @@ package P1상속기본;
 
 public class 상속기본Main {
     public static void main(String[] args) {
-        //기본,  재정의,  , 타입변화 ,  다형성, 추상클래스
-        // 매우 중요
+        // ch7 전체 흐름:  기본 상속, 재정의(오버라이딩), 타입변환, 다형성, 추상클래스
+        // 여기(P1)에서는 기본 상속과 오버라이딩을 본다.
+        // Animal(부모)  <-  Dog, Cat (자식)
 
-        // 부모메소드 호출,생성자호출,  final,instanceof,  접근제한자, 봉인(seald)
-        // 중요
+        Dog dog = new Dog();
+        dog.name = "바둑이";   // 부모 Animal에서 물려받은 필드
+        dog.age = 3;
+        dog.info();    // 부모 Animal의 메소드를 그대로 재사용
+        dog.sound();   // 오버라이딩된 Dog.sound() 가 실행됨 -> 멍멍!
+        dog.fetch();   // Dog 고유 메소드
 
-        ChildrenBook childrenBook1=new ChildrenBook();
-        childrenBook1.title="흥부와놀부";
-        childrenBook1.author="작자미상";
-        childrenBook1.price=10000;
-        childrenBook1.checked=true;
-        childrenBook1.info();
+        Cat cat = new Cat();
+        cat.name = "나비";
+        cat.age = 2;
+        cat.info();
+        cat.sound();   // 오버라이딩된 Cat.sound() -> 야옹~
+        cat.scratch();
 
-        HorrorBook horrorBook1=new HorrorBook();
-        horrorBook1.title="그리고 아무도 없었다.";
-        horrorBook1.author="에드거 어쩌구?";
-        horrorBook1.price=20000;
-        horrorBook1.warningMark=true;
-        horrorBook1.info();
-
-        Book book1= new Book();
-        book1.title="그냥 책";
-        book1.author="한창희";
-        book1.price=5000;
-        //book1.warningMark=true;
-        book1.info();
-
-
+        Animal animal = new Animal();
+        animal.name = "이름없는동물";
+        animal.age = 1;
+        animal.sound();  // 재정의하지 않았으므로 부모의 기본 sound()
     }
 }

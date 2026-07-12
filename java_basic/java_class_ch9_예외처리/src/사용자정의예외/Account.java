@@ -6,7 +6,8 @@ public class Account {
     public void deposit(int money){
         this.money+=money;
     }
-    public void withdraw(int money) throws InsufficientException{
+    //실행예외(RuntimeException)라서 throws 선언이 강제되지 않는다.
+    public void withdraw(int money){
         if(this.money<money) throw new InsufficientException(); //의도적으로 이 에러를 발생시킴
         this.money-=money;
     }

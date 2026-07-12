@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 400" font-family="'Malgun Gothic','Apple SD Gothic Neo',sans-serif" font-size="14">
+  <defs>
+    <marker id="aw" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#374151"/></marker>
+    <marker id="awr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#dc2626"/></marker>
+  </defs>
+  <rect x="0" y="0" width="760" height="400" fill="#ffffff"/>
+  <text x="380" y="28" text-anchor="middle" font-size="17" font-weight="bold" fill="#111827">WEB-INF 직접 접근 차단 구조</text>
+
+  <!-- Browser -->
+  <rect x="30" y="150" width="120" height="70" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="90" y="190" text-anchor="middle" font-weight="bold" fill="#1e40af">브라우저</text>
+
+  <!-- Server container -->
+  <rect x="300" y="70" width="420" height="280" rx="10" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="510" y="94" text-anchor="middle" font-size="12" fill="#6b7280">웹 애플리케이션 (컨텍스트 루트)</text>
+
+  <!-- WEB-INF protected -->
+  <rect x="330" y="110" width="360" height="90" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <text x="510" y="132" text-anchor="middle" font-size="13" font-weight="bold" fill="#b91c1c">🔒 /WEB-INF/  (보호 영역)</text>
+  <rect x="350" y="145" width="320" height="42" rx="6" fill="#ffffff" stroke="#fca5a5"/>
+  <text x="510" y="171" text-anchor="middle" font-size="12" fill="#b91c1c">/WEB-INF/06_WEB-INF/hidden.jsp , web.xml, classes, lib</text>
+
+  <!-- Servlet -->
+  <rect x="330" y="245" width="200" height="60" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+  <text x="430" y="270" text-anchor="middle" font-size="12" font-weight="bold" fill="#065f46">WebInfForwardServlet</text>
+  <text x="430" y="290" text-anchor="middle" font-size="11" fill="#065f46">/06_WEB-INF/hidden</text>
+
+  <!-- Direct access blocked -->
+  <line x1="150" y1="170" x2="328" y2="165" stroke="#dc2626" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#awr)"/>
+  <text x="235" y="150" text-anchor="middle" font-size="11" fill="#dc2626">① 직접 접근</text>
+  <text x="235" y="135" text-anchor="middle" font-size="12" font-weight="bold" fill="#dc2626">✗ 404 차단</text>
+
+  <!-- Servlet access ok -->
+  <line x1="150" y1="205" x2="328" y2="270" stroke="#10b981" stroke-width="2" marker-end="url(#aw)"/>
+  <text x="235" y="255" text-anchor="middle" font-size="11" fill="#065f46">② 서블릿 경로 요청 ✓</text>
+
+  <!-- forward -->
+  <line x1="440" y1="245" x2="470" y2="200" stroke="#10b981" stroke-width="2" marker-end="url(#aw)"/>
+  <text x="560" y="228" text-anchor="middle" font-size="11" fill="#065f46">forward()로 내부 제공 ✓</text>
+
+  <text x="380" y="378" text-anchor="middle" font-size="11.5" fill="#6b7280">차단은 경로가 "/WEB-INF/"로 시작할 때만 적용. /a/WEB-INF/… 처럼 중첩되면 차단되지 않으니 반드시 루트 WEB-INF에 둘 것.</text>
+</svg>

@@ -20,7 +20,8 @@
 - 로그아웃은 기본적으로 logoutController보다는
   http.logout(logout -> logout  .logoutUrl("/api/logout").logoutSuccessHandler(customLogoutSuccessHandler));
   logoutSuccessHandler에서 jwt방식에 맞게 처리하면 됨.
-   웹 앱 구별해서 web일 때 쿠키 처리해서 토큰없애기
+   로그인 성공 처리(successfulAuthentication)와 달리 로그아웃은 웹/앱 분기가 없다.
+   `CustomLogoutSuccessHandler`는 항상 서버의 refresh 토큰을 삭제하고 → 쿠키를 무조건 만료시키고(앱은 쿠키를 안 쓰므로 그냥 무시됨) → 웹/앱 공통으로 동일한 JSON 응답을 내려준다.
 로그인 전 실패 처리 authenticationEntryPoint
 -  앱 웹 구분 없이 그냥 메세지보내고 이 메세지에 따라 동작하는건 client측에 맡긴다.
 

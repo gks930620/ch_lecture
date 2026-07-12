@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="610" viewBox="0 0 1100 610">
+  <defs>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#16a34a"/></marker>
+    <marker id="arrowAmber" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#d97706"/></marker>
+  </defs>
+
+  <rect width="1100" height="610" fill="#f8fafc"/>
+  <text x="550" y="42" text-anchor="middle" font-family="Arial" font-size="30" font-weight="bold" fill="#0f172a">Collectors.groupingBy</text>
+
+  <!-- left: stream elements -->
+  <text x="145" y="95" text-anchor="middle" font-family="Consolas, monospace" font-size="15" fill="#334155">Stream&lt;Person&gt;</text>
+
+  <rect x="70" y="110" width="150" height="50" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="145" y="141" text-anchor="middle" font-family="Arial" font-size="16" fill="#1e3a8a">Kim 20</text>
+
+  <rect x="70" y="172" width="150" height="50" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="145" y="203" text-anchor="middle" font-family="Arial" font-size="16" fill="#166534">Lee 35</text>
+
+  <rect x="70" y="234" width="150" height="50" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="145" y="265" text-anchor="middle" font-family="Arial" font-size="16" fill="#1e3a8a">Park 28</text>
+
+  <rect x="70" y="296" width="150" height="50" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="145" y="327" text-anchor="middle" font-family="Arial" font-size="16" fill="#92400e">Choi 42</text>
+
+  <rect x="70" y="358" width="150" height="50" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="145" y="389" text-anchor="middle" font-family="Arial" font-size="16" fill="#166534">Jung 31</text>
+
+  <rect x="70" y="420" width="150" height="50" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="145" y="451" text-anchor="middle" font-family="Arial" font-size="16" fill="#1e3a8a">Han 25</text>
+
+  <!-- arrows: elements -> classifier -->
+  <line x1="220" y1="135" x2="282" y2="255" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+  <line x1="220" y1="197" x2="282" y2="270" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+  <line x1="220" y1="259" x2="282" y2="285" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+  <line x1="220" y1="321" x2="282" y2="297" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+  <line x1="220" y1="383" x2="282" y2="310" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+  <line x1="220" y1="445" x2="282" y2="325" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+  <!-- center: classifier -->
+  <rect x="290" y="240" width="330" height="100" rx="12" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+  <text x="455" y="280" text-anchor="middle" font-family="Arial" font-size="15" font-weight="bold" fill="#334155">classifier</text>
+  <text x="455" y="310" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#334155">groupingBy(p -&gt; p.age / 10 * 10)</text>
+
+  <!-- arrows: classifier -> buckets -->
+  <line x1="620" y1="265" x2="732" y2="175" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <line x1="620" y1="290" x2="732" y2="300" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+  <line x1="620" y1="315" x2="732" y2="425" stroke="#d97706" stroke-width="2.5" marker-end="url(#arrowAmber)"/>
+
+  <!-- right: result map -->
+  <text x="890" y="105" text-anchor="middle" font-family="Consolas, monospace" font-size="15" fill="#334155">Map&lt;Integer, List&lt;Person&gt;&gt;</text>
+
+  <rect x="740" y="140" width="300" height="60" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="890" y="176" text-anchor="middle" font-family="Consolas, monospace" font-size="17" fill="#1e3a8a">20 &#8594; [Kim, Park, Han]</text>
+
+  <rect x="740" y="270" width="300" height="60" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="890" y="306" text-anchor="middle" font-family="Consolas, monospace" font-size="17" fill="#166534">30 &#8594; [Lee, Jung]</text>
+
+  <rect x="740" y="400" width="300" height="60" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="890" y="436" text-anchor="middle" font-family="Consolas, monospace" font-size="17" fill="#92400e">40 &#8594; [Choi]</text>
+
+  <!-- bottom note -->
+  <rect x="70" y="515" width="970" height="60" rx="12" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+  <text x="555" y="552" text-anchor="middle" font-family="Arial" font-size="16" fill="#334155">same key &#8594; same bucket. counting(), mapping() can aggregate each bucket.</text>
+</svg>

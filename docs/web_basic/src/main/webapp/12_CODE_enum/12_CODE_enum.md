@@ -20,14 +20,17 @@ if ("a".equals(board.getStatus())) { ... }  // 소문자 a로 잘못 씀 → 버
 ### ② DB 코드 테이블
 ```sql
 CREATE TABLE code (
+    id       INT AUTO_INCREMENT PRIMARY KEY,
     category VARCHAR(50),
-    code     VARCHAR(20),
+    code     VARCHAR(50),
     label    VARCHAR(100)
 );
-INSERT INTO code VALUES ('board_status', 'A', '활성');
-INSERT INTO code VALUES ('board_status', 'I', '비활성');
-INSERT INTO code VALUES ('board_status', 'D', '삭제');
+-- INSERT는 넣을 컬럼을 명시하는 것이 기본 (id는 AUTO_INCREMENT라 생략)
+INSERT INTO code(category, code, label) VALUES ('board_status', 'A', '활성');
+INSERT INTO code(category, code, label) VALUES ('board_status', 'I', '비활성');
+INSERT INTO code(category, code, label) VALUES ('board_status', 'D', '삭제');
 ```
+> 위 예시는 실제 `code_table.sql` 파일과 동일한 형태입니다. `INSERT INTO code VALUES(...)`처럼 컬럼명을 생략하면 테이블의 모든 컬럼 순서에 값을 맞춰야 해(예: `id`까지) 실수가 나기 쉽습니다. **넣을 컬럼을 항상 명시**하는 습관을 권장합니다.
 ```java
 // 서비스에서 DB 조회해서 코드값 사용
 String status = codeDao.getLabel("board_status", "A");  // "활성"
@@ -111,9 +114,10 @@ switch (status) {
     case ACTIVE:   /* 활성 로직 */ break;
     case INACTIVE: /* 비활성 로직 */ break;
     case DELETED:  /* 삭제 로직 */ break;
-    // 새 상태 추가 시 컴파일 경고 → 빠뜨릴 수 없음!
+    // 새 상태를 추가하면 IDE(IntelliJ 등)가 "이 case가 빠졌다"고 경고/제안해줘 놓치기 어렵다.
 }
 ```
+> 정확히: 전통적인 `switch` **문(statement)**은 enum case를 빠뜨려도 자바 컴파일러(javac, Java 8)가 강제로 에러/경고를 내지는 **않습니다.** 누락을 잡아주는 건 **IDE의 인스펙션**이거나, Java 14+의 `switch` **식(expression)**에서 컴파일러가 모든 case를 요구(exhaustiveness)하는 경우입니다. 즉 "컴파일러가 무조건 막아준다"고 기대하지 말고, IDE 경고를 켜 두는 습관이 중요합니다.
 
 ---
 

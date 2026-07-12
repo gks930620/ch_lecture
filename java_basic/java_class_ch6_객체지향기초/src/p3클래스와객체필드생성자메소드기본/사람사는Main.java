@@ -11,5 +11,8 @@ public class 사람사는Main {
 
         person1.earn(10000);
         person2.giveMoney(person1, 30000);
+
+        System.out.println(person1.name+"의 돈 : "+person1.money);   //10000+10000+30000 = 50000
+        System.out.println(person2.name+"의 돈 : "+person2.money);   //50000-30000 = 20000
     }
 }

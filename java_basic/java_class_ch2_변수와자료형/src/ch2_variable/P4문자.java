@@ -2,7 +2,7 @@ package ch2_variable;
 
 public class P4문자 {
     public static void main(String[] args) {
-        //asc22 코드 설명.  자바에서는 유니코드로 .
+        //ASCII 코드 설명.  자바에서는 유니코드로 .
         char var1='A';
         char var2='가';
         char a=65;
@@ -11,6 +11,10 @@ public class P4문자 {
         char b=(char)(a+1);
         System.out.println(b);
         
-        //알파벳 전부 출력
+        //알파벳 전부 출력 (반복문은 ch4에서 배움 — 지금은 참고만)
+        for (char c = 'A'; c <= 'Z'; c = (char)(c + 1)) {
+            System.out.print(c);
+        }
+        System.out.println();
     }
 }

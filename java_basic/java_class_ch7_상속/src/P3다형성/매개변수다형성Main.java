@@ -1,21 +1,16 @@
 package P3다형성;
 
-import P3다형성.driver.Autobike;
-import P3다형성.driver.Car;
-import P3다형성.driver.Driver;
-import P3다형성.driver.Vehicle;
-
 public class 매개변수다형성Main {
     public static void main(String[] args) {
-        Vehicle autobike=new Autobike();
-        Vehicle car=new Car();
-        Vehicle vehicle=new Vehicle();
+        // 하나의 feed(Animal) 메소드로 어떤 동물이든 처리할 수 있다 — 매개변수의 다형성
+        Zookeeper keeper = new Zookeeper();
 
-        Driver driver=new Driver();
-        driver.drive(vehicle);
-        driver.drive(autobike);
-        driver.drive(car);
+        Animal dog = new Dog();
+        Animal cat = new Cat();
+        Animal bird = new Bird();
 
-
+        keeper.feed(dog);   // 사육사가 먹이를 줍니다 → 멍멍!
+        keeper.feed(cat);   // 사육사가 먹이를 줍니다 → 야옹~
+        keeper.feed(bird);  // 사육사가 먹이를 줍니다 → 짹짹!
     }
 }

@@ -14,15 +14,16 @@ public class 스트림3요소기본집계 {
         list.add(new Person("해린",19));
         list.add(new Person("혜인",17));
 
-       //요소 집계 : count, findFirst, max, min
-       //           avreage , sum  (애네는 Stream<T>에 없음.  mapToInt->IntStream으로 변경해야됨
+       //요소 집계 : count, max, min
+       //           average , sum  (얘네는 Stream<T>에 없음. mapToInt->IntStream으로 변경해야 됨)
+       //요소 탐색 : findFirst
 
         long count = list.stream().count();
         System.out.println("전체 개수 : " + count);
-        Person maxPerson = list.stream().max((o1, o2) -> o1.age - o2.age).get();
+        Person maxPerson = list.stream().max((o1, o2) -> o1.age - o2.age).orElseThrow(); //get() 대신 orElseThrow() 권장
         System.out.println("나이 가장 많은 사람 : " + maxPerson);
         OptionalDouble average = list.stream().mapToInt(person -> person.age).average();
-        System.out.println(average.getAsDouble()); //optional은 단수히 값을 제공하는게 아니라 값 없는 상황에서 처리도 도우ㅏ줌
+        System.out.println(average.getAsDouble()); //optional은 단순히 값을 제공하는게 아니라 값 없는 상황에서 처리도 도와줌
         //average.orElse(0);
         //average.orElseThrow(() -> new NoSuchElementException());
 

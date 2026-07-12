@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" font-family="'Malgun Gothic','Segoe UI',sans-serif">
+  <rect width="720" height="400" fill="#f8fafc"/>
+  <text x="360" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#1e293b">스코프 체인과 클로저 (Closure)</text>
+
+  <!-- Global scope -->
+  <rect x="40" y="60" width="640" height="300" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="60" y="86" font-size="14" font-weight="700" fill="#1e40af">전역 스코프 (Global)</text>
+  <text x="60" y="106" font-size="12" fill="#475569" font-family="monospace">const g = "전역";</text>
+
+  <!-- outer function scope -->
+  <rect x="70" y="122" width="580" height="220" rx="10" fill="#ecfdf5" stroke="#22c55e" stroke-width="2"/>
+  <text x="90" y="148" font-size="14" font-weight="700" fill="#15803d">function makeCounter() 스코프</text>
+  <text x="90" y="170" font-size="12" fill="#166534" font-family="monospace">let count = 0;   ← 바깥 함수의 지역 변수</text>
+
+  <!-- inner function scope -->
+  <rect x="100" y="188" width="520" height="130" rx="10" fill="#fef9c3" stroke="#eab308" stroke-width="2"/>
+  <text x="120" y="214" font-size="14" font-weight="700" fill="#a16207">return function() 스코프 (클로저)</text>
+  <text x="120" y="238" font-size="12" fill="#854d0e" font-family="monospace">count++;   ← 바깥의 count를 계속 기억</text>
+  <text x="120" y="258" font-size="12" fill="#854d0e" font-family="monospace">return count;</text>
+  <text x="120" y="288" font-size="12" fill="#713f12">함수가 만들어진 위치의 스코프(렉시컬 환경)를</text>
+  <text x="120" y="306" font-size="12" fill="#713f12">기억하므로, 바깥 함수가 끝나도 count가 살아있음</text>
+
+  <!-- lookup arrow -->
+  <path d="M370 236 C 300 210, 300 190, 300 172" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#a)"/>
+  <text x="392" y="212" font-size="11" fill="#dc2626">변수는 안 → 밖 순서로 탐색</text>
+
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#ef4444"/>
+    </marker>
+  </defs>
+</svg>

@@ -239,7 +239,7 @@
 
                     // 내부 함수 - this가 window
                     function inner() {
-                        log('내부 일반 함수 this.name: ' + this.name); // undefined
+                        log('내부 일반 함수 this.name: ' + this.name); // "" (this=window, window.name은 빈 문자열)
                     }
                     inner();
 
@@ -250,7 +250,7 @@
                     arrowInner();
                 },
                 arrowFunc: () => {
-                    log('화살표 함수 this.name: ' + this.name); // undefined (window.name)
+                    log('화살표 함수 this.name: ' + this.name); // "" (this=window, window.name의 기본값은 빈 문자열)
                 }
             };
 
@@ -437,10 +437,8 @@
                 .subtract(5)
                 .multiply(2)
                 .getResult();
-            log('계산 결과: ' + result + ' (10 + (-5) * 2 = 10)');
+            log('계산 결과: ' + result + ' (순차 계산: ((0 + 10) - 5) × 2 = 10)');
         };
     </script>
 </body>
 </html>
-```
-

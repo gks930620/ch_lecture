@@ -1,10 +1,7 @@
 package P3메소드참조;
 
-import P2람다만들기.Workable;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class 메소드참조main {
@@ -16,5 +13,6 @@ public class 메소드참조main {
         list.add("c");list.add("a");list.add("b");
         Collections.sort(list, (o1, o2) -> { return o1.compareTo(o2) ;});
         Collections.sort(list, String :: compareTo);
+        System.out.println(list); //[a, b, c]
     }
 }

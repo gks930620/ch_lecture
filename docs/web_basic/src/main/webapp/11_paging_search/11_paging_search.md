@@ -18,7 +18,7 @@
 - offset 계산: `offset = (page - 1) * size`
 
 3) SQL 예제
-- 기본 페이징(MySQL)
+- 기본 페이징 + 검색(MySQL) — 아래는 **직접 작성해볼 목표 형태의 예시**입니다. 제공된 `BoardMapper.xml`의 `selectList`는 현재 `ORDER BY id DESC LIMIT #{offset},#{limit}`만 있고 **WHERE/LIKE 검색 절은 없으므로**, 검색 기능은 이 예시를 참고해 직접 추가해야 합니다.
   ```sql
   SELECT * FROM board
   WHERE title LIKE CONCAT('%', #{q}, '%')
@@ -31,7 +31,7 @@
 
 4) 검색과 페이징 연동
 - 검색어가 있는 경우 전체 카운트(total)를 재계산해야 정확한 페이지 수를 산출.
-- MyBatis 매퍼에서 `count` 쿼리와 `selectList` 쿼리를 분리해 구현.
+- MyBatis 매퍼에서 `count` 쿼리와 `selectList` 쿼리를 분리해 구현. (참고: 현재 `BoardMapper.xml`에는 `selectCount` 같은 전체 건수 조회 쿼리가 **아직 없으므로**, 총 페이지 수 계산을 위해 `SELECT COUNT(*) FROM board [WHERE ...]` 형태의 count 매퍼를 **직접 추가**해야 합니다.)
 
 5) UI/UX 권장사항
 - 페이지 네비게이션: 이전/다음, 숫자 페이지, 첫/끝 이동 버튼 제공
@@ -40,6 +40,7 @@
 
 6) 실습 지침
 - `11_paging_demo.jsp`에서 `page`, `size`, `q` 파라미터를 조작해 결과 변화를 확인.
+- 주의(데모의 한계): `11_paging_demo.jsp`는 `Integer.parseInt(pageStr)`를 try/catch 없이 사용하므로 `?page=abc`처럼 숫자가 아닌 값이 오면 `NumberFormatException`(500)이 납니다. 또 검색어 `q`를 이스케이프/URL 인코딩 없이 출력·링크에 넣어 반사형 XSS·링크 깨짐 소지가 있습니다. 실무에서는 파싱 방어 코드와 `<c:out>`/URL 인코딩을 적용하세요(`board_list.jsp`는 `<c:out>`으로 처리함).
 - `BoardController` 및 DAO(selectList)에서 offset/limit을 적용해 페이징 목록을 반환하도록 구현.
 - 추가: 전체 카운트 조회 후 총 페이지 수를 계산해 페이지 네비게이션 표시.
 

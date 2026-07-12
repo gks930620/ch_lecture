@@ -8,8 +8,8 @@ public class P2리플렉션필드Main {
         Class<?> clazz2 = Class.forName("리플렉션과어노테이션.Square");
 
         System.out.println("------------모든 필드에 대한 정보 ---------------");
-        Field[] fileds= clazz.getDeclaredFields();
-        for(Field field: fileds) {
+        Field[] fields= clazz.getDeclaredFields();
+        for(Field field: fields) {
             System.out.println("필드이름 : "+field.getName()+ "     필드 타입:"+field.getType());
         }
 

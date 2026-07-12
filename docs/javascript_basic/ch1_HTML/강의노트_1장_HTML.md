@@ -14,6 +14,8 @@
 - HTML은 **마크업 언어**이지 프로그래밍 언어가 아님을 강조
 - 웹 페이지의 3요소(HTML, CSS, JavaScript) 비유: 집을 짓는다면 HTML은 뼈대, CSS는 인테리어, JS는 가전제품
 
+![웹 3요소 집짓기 비유]({{ '/javascript_basic/javascript_basic_images/ch1/web-trio-house.svg' | relative_url }})
+
 ### 핵심 내용
 ```
 HTML (HyperText Markup Language)
@@ -24,7 +26,8 @@ HTML (HyperText Markup Language)
 
 ### 학생들이 자주 묻는 질문
 Q: HTML과 HTML5의 차이는?
-A: HTML5는 HTML의 최신 버전. 시맨틱 태그, 멀티미디어 지원 강화 등이 특징
+A: HTML5는 시맨틱 태그·멀티미디어 지원이 강화된 큰 변화였습니다.
+> 📌 참고: 요즘 HTML은 `HTML6`처럼 버전 번호를 새로 매기지 않고, 계속 갱신되는 단일 표준(**Living Standard**, WHATWG 관리) 방식으로 발전합니다. 그래서 "HTML5가 마지막 버전 번호"라고 이해하면 됩니다.
 
 Q: 태그는 왜 꺾쇠괄호를 쓰나요?
 A: 일반 텍스트와 구분하기 위한 약속입니다.
@@ -36,6 +39,8 @@ A: 일반 텍스트와 구분하기 위한 약속입니다.
 ### 강의 포인트
 - 모든 HTML 문서의 기본 뼈대는 동일함을 강조
 - head와 body의 역할 구분을 명확히 설명
+
+![HTML 문서 구조 트리]({{ '/javascript_basic/javascript_basic_images/ch1/html-document-tree.svg' | relative_url }})
 
 ### 기본 구조 설명
 ```html
@@ -86,10 +91,13 @@ A: 일반 텍스트와 구분하기 위한 약속입니다.
 #### 텍스트 포맷팅
 ```html
 <strong>중요한 텍스트</strong>  <!-- 의미적으로 중요 (SEO 영향) -->
-<b>굵은 텍스트</b>             <!-- 단순 시각적 효과 -->
+<b>굵은 텍스트</b>             <!-- 중요도 표시 없이 시선만 끌 때 (의미는 약함) -->
 <em>강조 텍스트</em>            <!-- 의미적 강조 -->
-<i>이탤릭</i>                  <!-- 단순 기울임 -->
+<i>이탤릭</i>                  <!-- 전문용어·외래어 등 '다른 결'의 텍스트 (의미는 약함) -->
 ```
+💡 **강의 팁**: 흔히 `b`/`i`를 "순수 시각용", `strong`/`em`을 "의미용"으로 대비해 가르칩니다.
+엄밀히는 `b`/`i`도 HTML5에서 *약한* 의미를 가집니다(`b`=중요도 없이 시선만, `i`=결이 다른 텍스트).
+다만 **"강조하고 싶다면 의미가 분명한 `strong`/`em`을 먼저 고른다"** 는 원칙만 기억하면 충분합니다.
 
 ### 실습 과제
 1. 자기소개 페이지 만들기 (h1, h2, p 사용)
@@ -152,7 +160,11 @@ A: 일반 텍스트와 구분하기 위한 약속입니다.
 <a href="url" target="_blank" rel="noopener noreferrer">안전한 새 창</a>
 ```
 
-💡 **보안 팁**: `target="_blank"` 사용 시 `rel="noopener noreferrer"` 추가하여 보안 취약점 방지
+💡 **보안 팁**: `target="_blank"`로 새 창을 열 때는 `rel="noopener"`를 붙이는 습관을 들이면 좋습니다.
+- `noopener`: 새로 열린 창이 **원래 창을 조작하지 못하게** 막음 (reverse tabnabbing 방지)
+- `noreferrer`: 어느 페이지에서 왔는지(**referrer**) 정보까지 숨김 — 목적이 다른 별개 옵션
+
+> 📌 참고: 최신 브라우저(Chrome 88+, Firefox 79+, Safari 12.1+, 2021년경~)는 `target="_blank"`에 `noopener`를 **자동 적용**합니다. 그래서 "안 붙이면 무조건 뚫린다"는 아니지만, 구형 환경 호환과 의도를 분명히 하기 위해 **명시하는 것을 권장**합니다.
 
 ### 페이지 내 이동 (앵커)
 ```html
@@ -261,6 +273,8 @@ A: 일반 텍스트와 구분하기 위한 약속입니다.
 - div 대신 시맨틱 태그를 사용하면 SEO, 접근성, 가독성 향상
 - "태그 이름만 봐도 용도를 알 수 있어야 한다"
 
+![시맨틱 태그 레이아웃]({{ '/javascript_basic/javascript_basic_images/ch1/semantic-layout.svg' | relative_url }})
+
 ### 주요 시맨틱 태그
 ```html
 <header>   <!-- 머리글 (로고, 네비게이션) -->
@@ -292,6 +306,8 @@ A: 일반 텍스트와 구분하기 위한 약속입니다.
 ### div vs span
 - **div**: 블록 레벨 (한 줄 전체 차지)
 - **span**: 인라인 레벨 (콘텐츠 크기만큼)
+
+![블록 vs 인라인]({{ '/javascript_basic/javascript_basic_images/ch1/block-vs-inline.svg' | relative_url }})
 
 ### 주요 속성
 #### id

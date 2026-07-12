@@ -111,7 +111,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎯 32.5-32.9: jQuery 선택자와 DOM 조작</h1>
+        <h1>🎯 7.5-7.9: jQuery 선택자와 DOM 조작</h1>
 
         <div class="section">
             <h2>1. jQuery 선택자 완벽 정리</h2>
@@ -411,7 +411,7 @@
 
             <div class="demo-box">
                 <h3>속성 조작 테스트</h3>
-                <img id="attr-demo" src="https://via.placeholder.com/200" alt="원본 이미지" width="200" style="border-radius: 10px;">
+                <img id="attr-demo" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='200'%20height='200'%3E%3Crect%20width='200'%20height='200'%20fill='%23cccccc'/%3E%3Ctext%20x='100'%20y='100'%20font-size='33'%20fill='%23333333'%20text-anchor='middle'%20dominant-baseline='central'%20font-family='Arial'%3E200x200%3C/text%3E%3C/svg%3E" alt="원본 이미지" width="200" style="border-radius: 10px;">
                 <br><br>
                 <button onclick="changeAttr()">attr() 변경</button>
                 <button onclick="removeAttrDemo()">width 속성 제거</button>
@@ -513,7 +513,7 @@
 
             window.changeAttr = function() {
                 $('#attr-demo').attr({
-                    'src': 'https://via.placeholder.com/300/FF6347/FFFFFF?text=Changed',
+                    'src': "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='300'%3E%3Crect%20width='300'%20height='300'%20fill='%23FF6347'/%3E%3Ctext%20x='150'%20y='150'%20font-size='50'%20fill='%23FFFFFF'%20text-anchor='middle'%20dominant-baseline='central'%20font-family='Arial'%3EChanged%3C/text%3E%3C/svg%3E",
                     'width': '300',
                     'alt': '변경된 이미지'
                 });
@@ -525,7 +525,7 @@
 
             window.resetAttr = function() {
                 $('#attr-demo').attr({
-                    'src': 'https://via.placeholder.com/200',
+                    'src': "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='200'%20height='200'%3E%3Crect%20width='200'%20height='200'%20fill='%23cccccc'/%3E%3Ctext%20x='100'%20y='100'%20font-size='33'%20fill='%23333333'%20text-anchor='middle'%20dominant-baseline='central'%20font-family='Arial'%3E200x200%3C/text%3E%3C/svg%3E",
                     'width': '200',
                     'alt': '원본 이미지'
                 });

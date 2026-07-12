@@ -13,7 +13,6 @@ public class 스트림1스트림얻기메인 {
         list.add(new Person("해린",19));
         list.add(new Person("혜인",17));
         Person[] array = list.toArray(new Person[list.size()]);
-        //List<Person> list2= new ArrayList<>(Arrays.asList());
 
         list.stream().forEach(person ->  {
             System.out.println(person);

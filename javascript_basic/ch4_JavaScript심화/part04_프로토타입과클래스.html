@@ -209,10 +209,12 @@
             log('arr.push (있음): ' + (typeof arr.push));
             log('arr.pop (있음): ' + (typeof arr.pop));
 
+            // toString은 Array.prototype이 오버라이드한 버전이 사용됨 (내부적으로 join 호출)
+            log('arr.toString (Array.prototype이 오버라이드): ' + (typeof arr.toString));
+
             // Object.prototype의 메소드
             log('');
             log('Object.prototype에서 상속:');
-            log('arr.toString (있음): ' + (typeof arr.toString));
             log('arr.hasOwnProperty (있음): ' + (typeof arr.hasOwnProperty));
 
             result.innerHTML = '✅ 프로토타입 체인을 통해 상위 프로토타입의 메소드를 사용할 수 있습니다!';
@@ -497,5 +499,3 @@
     </script>
 </body>
 </html>
-```
-

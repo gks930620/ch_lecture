@@ -21,9 +21,13 @@ public class P7예제 {
                     currentAmount+=amount;
                     break;
                 case  2:
-                    System.out.println("출금액을 입력하세요");
+                    System.out.print("출금액을 입력하세요");
                     amount=sc.nextInt();
-                    currentAmount-=amount;
+                    if(amount>currentAmount){   //잔고보다 많이 출금 못하게 검증
+                        System.out.println("잔고가 부족합니다. 현재 잔고: " + currentAmount);
+                    }else {
+                        currentAmount-=amount;
+                    }
                     break;
                 case  3:
                     System.out.println("현재 잔고는 " + currentAmount + " 입니다");
@@ -31,6 +35,8 @@ public class P7예제 {
                 case 4:
                     flag=false;
                     break;
+                default:
+                    System.out.println("1~4 중에서 선택하세요");
             }
 
         }

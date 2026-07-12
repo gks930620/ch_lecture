@@ -76,12 +76,13 @@ HTTP (HyperText Transfer Protocol)
 ```
 개선:
 ✅ Keep-Alive (연결 재사용)
-✅ Pipelining (요청 여러 개 동시 전송)
+✅ Pipelining (응답을 기다리지 않고 요청을 연속 전송 — 단, 응답은 보낸 순서대로 와야 함)
 ✅ Host 헤더 (가상 호스팅 지원)
 ✅ 캐시 제어 강화
 
 문제:
 ❌ Head-of-Line Blocking (앞 요청이 느리면 뒤도 대기)
+   ※ Pipelining은 '동시' 전송이 아니며 HOL Blocking이 남아 브라우저에서 거의 쓰이지 않음 (동시 처리는 HTTP/2 Multiplexing)
 ```
 
 ### HTTP/2 (2015년)
@@ -89,10 +90,10 @@ HTTP (HyperText Transfer Protocol)
 개선:
 ✅ Multiplexing (하나의 연결로 여러 요청/응답 동시 처리)
 ✅ Header 압축
-✅ Server Push (서버가 먼저 전송)
+⚠️ Server Push (서버가 먼저 전송) — 실효성 문제로 사실상 폐기(Chrome은 2022년 제거). 2026년 기준 권장하지 않음
 ✅ Binary Protocol (텍스트 → 바이너리)
 
-성능: 30-50% 향상
+성능: 상황에 따라 향상 (특히 요청이 많을 때 Multiplexing 효과)
 ```
 
 ### HTTP/3 (2022년)
@@ -172,7 +173,7 @@ fetch('https://api.example.com/users?page=1&size=10')
 ✅ 안전 (Safe): 서버 상태를 변경하지 않음
 ✅ 멱등성 (Idempotent): 여러 번 실행해도 같은 결과
 ✅ 캐시 가능
-❌ Body 사용 불가 (URL에 데이터 포함)
+📌 데이터는 본문(Body)이 아니라 URL(쿼리스트링)로 전달 (관례상 GET에 본문을 쓰지 않음)
 ```
 
 **예시**:
@@ -796,6 +797,9 @@ HTTPS: 클라이언트 ↔ SSL/TLS ↔ 서버 (암호화) ✅
 ```
 
 ### CORS (Cross-Origin Resource Sharing)
+
+![CORS Preflight 흐름]({{ '/javascript_basic/javascript_basic_images/ch8/cors-preflight.svg' | relative_url }})
+
 ```
 CORS = 다른 출처(도메인)의 리소스에 접근하기 위한 메커니즘
 
@@ -836,8 +840,10 @@ Access to fetch at 'https://api.example.com/data' from origin
 ```javascript
 // Node.js + Express
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');  // 모든 출처 허용
-    res.header('Access-Control-Allow-Origin', 'https://mysite.com');  // 특정 출처만
+    // ⚠️ Access-Control-Allow-Origin은 아래 둘 중 "하나만" 설정하세요.
+    //    두 번 설정하면 헤더가 덮어써져 의도와 다르게 동작합니다.
+    res.header('Access-Control-Allow-Origin', '*');                    // (A) 모든 출처 허용
+    // res.header('Access-Control-Allow-Origin', 'https://mysite.com'); // (B) 특정 출처만 (A와 택일)
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();

@@ -13,7 +13,7 @@ public class JDBC기본2Select에서매핑DTO2 {
         try{
             Class.forName("oracle.jdbc.driver.OracleDriver");
         }catch (ClassNotFoundException e){
-            new RuntimeException(e);
+            throw new RuntimeException(e);
         }
 
         Connection conn=null;
@@ -22,7 +22,7 @@ public class JDBC기본2Select에서매핑DTO2 {
         Scanner scanner=new Scanner(System.in);
         String memId=scanner.nextLine();
         try{
-            conn= DriverManager.getConnection("jdbc:oracle:thin:@nextit.or.kr:1521:xe","std225","oracle21c");  //2.연결
+            conn= DriverManager.getConnection("jdbc:oracle:thin:@DB주소:1521:xe","DB유저ID","DB비밀번호");  //2.연결 (DB주소·유저ID·비밀번호는 본인 환경에 맞게 변경)
             String sql=" SELECT  mem_id, mem_pass, mem_name, mem_bir ,mem_zip  "
                       +" FROM member   ";
             pstmt=conn.prepareStatement(sql);
@@ -41,7 +41,7 @@ public class JDBC기본2Select에서매핑DTO2 {
             System.out.println(memberList);
 
         }catch (SQLException e){
-            new RuntimeException(e);
+            throw new RuntimeException(e);
         }finally {
             try{
                 if(rs!=null) rs.close();

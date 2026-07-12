@@ -4,10 +4,10 @@ public class P5배열2 {
     public static void main(String[] args) {
         //다차원 배열.  행렬X,  N차원 확장으로 설명하기
         // 5명의 학생,    수학,과학,영어 점수
-        //    5X 2 배열  2차원 배열
+        //    5 X 3 배열  2차원 배열
         int[][] studentScores=new int[5][3];
         for(int i=0 ; i<studentScores.length  ; i++){
-            for(int j=0; j<studentScores[0].length ; j++){
+            for(int j=0; j<studentScores[i].length ; j++){   //행마다 길이가 다를 수 있으니 arr[i].length 사용
                 studentScores[i][j]=(int)(Math.random()*100);
             }
         }

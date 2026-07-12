@@ -102,8 +102,8 @@ public class LoginServlet extends HttpServlet {
     /**
      * "1주일간 공지 안보기" 쿠키 처리
      *
-     * action=hide  → 7일짜리 쿠키 설정
-     * action=close → 오늘만 (세션 쿠키, maxAge 설정 안함)
+     * action=hide  → 7일짜리 영속 쿠키 설정 (maxAge=7일)
+     * action=close → 이번 세션만 (세션 쿠키, maxAge 미설정=-1 → 브라우저 닫으면 삭제)
      * action=reset → 쿠키 삭제 (maxAge=0)
      *
      * 쿠키 핵심:
@@ -125,8 +125,14 @@ public class LoginServlet extends HttpServlet {
             resp.addCookie(cookie);
 
         } else if ("close".equals(action)) {
-            // 오늘만 닫기: 쿠키를 설정하지 않고 그냥 리다이렉트
-            // 브라우저가 닫히거나 새 요청을 보내면 다시 팝업이 뜬다
+            // 이번 브라우저 세션 동안만 닫기: 세션 쿠키(maxAge 미설정 = -1)
+            // 값은 "1주일간 안보기"와 동일한 hideNotice=true 지만, maxAge만 다르다.
+            // → 브라우저를 닫으면 쿠키가 사라져 팝업이 다시 뜬다(7일 쿠키와 대비되는 포인트).
+            Cookie cookie = new Cookie("hideNotice", "true");
+            cookie.setPath(req.getContextPath() + "/");
+            // setMaxAge를 호출하지 않으면 기본값 -1 → 세션 쿠키
+            cookie.setHttpOnly(true);
+            resp.addCookie(cookie);
 
         } else if ("reset".equals(action)) {
             // 쿠키 삭제: 같은 이름으로 maxAge=0 설정하면 삭제됨

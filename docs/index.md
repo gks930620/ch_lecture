@@ -7,6 +7,7 @@ description: Java, JavaScript, Web, Spring 실전 강의 문서 모음
 ## 문서 바로가기
 
 - [피피티]({{ '/피피티/' | relative_url }})
+- [DB기초]({{ '/DB기초/' | relative_url }})
 - [java_basic]({{ '/java_basic/' | relative_url }})
 - [javascript_basic]({{ '/javascript_basic/' | relative_url }})
 - [web_basic]({{ '/web_basic/' | relative_url }})
@@ -18,7 +19,6 @@ description: Java, JavaScript, Web, Spring 실전 강의 문서 모음
 - [spring_csr_jwt_oauth2]({{ '/spring_csr_jwt_oauth2/' | relative_url }})
 - [spring_csr_chat]({{ '/spring_csr_chat/' | relative_url }})
 - [spring_csr_final]({{ '/spring_csr_final/' | relative_url }})
-- [github 정적사이트 만들기 (Jekyll + HTML)]({{ '/정적서버github사이트만들기/' | relative_url }})
 
 ---
 

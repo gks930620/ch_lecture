@@ -71,9 +71,10 @@
                 <tr><td>margin, padding 변경</td><td>✅</td><td>✅</td><td>😢 높음</td></tr>
                 <tr><td>color 변경</td><td>❌</td><td>✅</td><td>😊 낮음</td></tr>
                 <tr><td>background 변경</td><td>❌</td><td>✅</td><td>😊 낮음</td></tr>
-                <tr><td>transform 변경</td><td>❌</td><td>❌</td><td>😍 매우 낮음</td></tr>
-                <tr><td>opacity 변경</td><td>❌</td><td>❌</td><td>😍 매우 낮음</td></tr>
+                <tr><td>transform 변경</td><td>❌</td><td>❌*</td><td>😍 매우 낮음</td></tr>
+                <tr><td>opacity 변경</td><td>❌</td><td>❌*</td><td>😍 매우 낮음</td></tr>
             </table>
+            <p style="font-size:14px;color:#666;">* 별도 합성(compositing) 레이어로 승격됐을 때만 리페인트 없이 GPU에서 처리됩니다. 레이어로 분리되지 않으면 상황에 따라 리페인트가 생길 수 있어요(무조건 공짜는 아님).</p>
         </div>
 
         <h2>2. DOM 조작 성능 비교</h2>
@@ -169,17 +170,17 @@
 
             const start = performance.now();
 
-            // ❌ 비효율적: 매번 DOM에 추가 (매번 리플로우!)
+            // ❌ 비효율적: 라이브 DOM을 1000번 직접 조작 (매번 레이아웃 무효화)
             for (let i = 0; i < 1000; i++) {
                 const div = document.createElement('div');
                 div.className = 'box';
                 div.style.width = '15px';
                 div.style.height = '15px';
-                demo.appendChild(div);  // 매번 리플로우!
+                demo.appendChild(div);  // 라이브 DOM에 직접 추가
             }
 
             const end = performance.now();
-            el.textContent = `❌ 개별 DOM 추가: ${(end - start).toFixed(2)}ms\n\n💡 매번 appendChild할 때마다 리플로우가 발생합니다!`;
+            el.textContent = `❌ 개별 DOM 추가: ${(end - start).toFixed(2)}ms\n\n💡 라이브 DOM을 매번 직접 건드리면 레이아웃이 계속 무효화(invalidate)되어 느립니다! (레이아웃 계산은 실제로 지연·배치됩니다)`;
         }
 
         function testFastDOM() {
@@ -241,8 +242,11 @@
             target.style.borderRadius = '50%';
             target.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
 
+            // 강제로 레이아웃을 읽어 리플로우 비용을 실제로 측정 구간에 포함시킴
+            void target.offsetWidth;
+
             const end = performance.now();
-            el.textContent = `❌ 개별 style 변경: ${(end - start).toFixed(4)}ms\n\n각 속성 변경마다 리플로우/리페인트가 발생할 수 있습니다.\n(브라우저가 최적화하지만 보장되지 않음)`;
+            el.textContent = `❌ 개별 style 변경: ${(end - start).toFixed(4)}ms\n\n각 속성 변경마다 리플로우/리페인트가 발생할 수 있습니다.\n(offsetWidth를 읽어 실제 레이아웃을 강제한 시간)`;
         }
 
         function testFastStyle() {
@@ -256,6 +260,9 @@
 
             // ✅ classList 사용 (1번만 리플로우)
             target.classList.add('styled-box');
+
+            // 강제로 레이아웃을 읽어 리플로우 비용을 동일 조건으로 측정
+            void target.offsetWidth;
 
             const end = performance.now();
             el.textContent = `✅ classList 사용: ${(end - start).toFixed(4)}ms\n\nelement.classList.add('styled-box');\n→ CSS 클래스 하나로 모든 스타일 한 번에 적용!\n→ 1번의 리플로우만 발생`;
@@ -271,6 +278,9 @@
 
             // ✅ cssText 사용 (1번만 리플로우)
             target.style.cssText = 'width:200px;height:200px;background:#e74c3c;border-radius:50%;display:inline-block;box-shadow:0 5px 15px rgba(0,0,0,0.3);';
+
+            // 강제로 레이아웃을 읽어 리플로우 비용을 동일 조건으로 측정
+            void target.offsetWidth;
 
             const end = performance.now();
             el.textContent = `✅ cssText 사용: ${(end - start).toFixed(4)}ms\n\nelement.style.cssText = '...';\n→ 모든 스타일을 한 줄로 설정!\n→ 1번의 리플로우만 발생`;

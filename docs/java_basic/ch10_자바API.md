@@ -1,16 +1,14 @@
 ﻿---
 layout: default
 title: ch10_자바API
-description: ch10_자바API 통합 문서
+description: java.time 날짜/시간, 문자열 처리, 입출력(I/O)
 ---
 
 # ch10_자바API
 
-통합 문서입니다.
 
 ---
 
-## 1. 날짜와 시간 API
 
 # 날짜와 시간 API (java.time)
 
@@ -44,7 +42,7 @@ description: ch10_자바API 통합 문서
 - `Period`: 날짜 단위 기간
 - `Duration`: 시간 단위 간격
 
-![java.time 타입 지도]({{ '/assets/images/java_basic/ch10/java-time-type-map.svg' | relative_url }})
+![java.time 타입 지도]({{ '/java_basic/java_basic_images/ch10/java-time-type-map.svg' | relative_url }})
 
 ---
 
@@ -84,6 +82,8 @@ Period p = Period.between(startDate, endDate);
 Duration d = Duration.between(startTime, endTime);
 ```
 
+`ChronoUnit`은 `java.time.temporal.ChronoUnit`으로, 일/시간/분 등 시간 단위를 나타내는 열거형이다.
+
 ---
 
 ## 5. 포맷팅과 파싱
@@ -105,6 +105,8 @@ LocalDateTime parsed = LocalDateTime.parse("2026-04-09 10:30:00", f);
 `LocalDateTime`은 타임존 정보가 없다.  
 서버/클라이언트가 다른 지역이면 `Instant` + `ZoneId` 기준 설계가 안전하다.
 
+![같은 Instant, 타임존별 다른 표시]({{ '/java_basic/java_basic_images/ch10/timezone-conversion.svg' | relative_url }})
+
 ```java
 Instant nowUtc = Instant.now();
 ZoneId seoul = ZoneId.of("Asia/Seoul");
@@ -117,13 +119,16 @@ ZonedDateTime seoulTime = nowUtc.atZone(seoul);
 
 ---
 
-## 7. 실무 패턴
+## 7. 실무 패턴 (실무 미리보기)
 
-1. DB에는 UTC 시점 저장
-2. API 응답은 ISO-8601 권장
-3. 테스트에서 `Clock` 주입으로 시간 고정
+> 💡 아래는 나중에 실무에서 만나게 될 패턴을 미리 눈에 익히는 정도로만 보면 됩니다. 지금 당장 외우거나 완전히 이해하지 않아도 됩니다.
+
+1. DB에는 UTC(세계 표준시) 시점으로 저장 — 여러 나라 사용자를 하나의 기준으로 맞추기 위함
+2. API 응답 날짜는 ISO-8601 형식(예: `2026-04-09T00:00:00Z`) 권장 — 전 세계 공통 표기법
+3. 테스트에서는 `Clock`을 주입해 "현재 시각"을 고정 — 실행할 때마다 결과가 바뀌지 않게 하려는 기법
 
 ```java
+// (참고용) 시간을 특정 시점으로 고정해서 테스트를 재현 가능하게 만드는 예시
 Clock fixed = Clock.fixed(Instant.parse("2026-04-09T00:00:00Z"), ZoneOffset.UTC);
 LocalDate today = LocalDate.now(fixed);
 ```
@@ -147,7 +152,6 @@ LocalDate today = LocalDate.now(fixed);
 
 ---
 
-## 2. 문자열 처리
 
 # 문자열 처리
 
@@ -185,7 +189,7 @@ s = s + "B";
 3. 파싱(split/substring)
 4. 저장/출력 포맷팅
 
-![문자열 처리 파이프라인]({{ '/assets/images/java_basic/ch10/string-processing-pipeline.svg' | relative_url }})
+![문자열 처리 파이프라인]({{ '/java_basic/java_basic_images/ch10/string-processing-pipeline.svg' | relative_url }})
 
 ---
 
@@ -201,6 +205,8 @@ System.out.println(a.equals(b)); // true
 ```
 
 문자열 내용 비교는 `equals`가 기본.
+
+참고로 `String a = "java"; String b = "java";`처럼 리터럴로 만든 문자열은 **문자열 풀(String Pool)**을 공유하므로 `a == b`가 true가 되지만, 이에 의존하지 말고 항상 `equals`를 쓰자. 자세한 내용은 ch2 참고.
 
 ### 3.2 null-safe 비교
 
@@ -244,11 +250,29 @@ for (int i = 0; i < 10000; i++) {
 String result = sb.toString();
 ```
 
-멀티스레드 동기화가 필요한 경우 `StringBuffer` 검토.
+멀티스레드용으로 `StringBuffer`도 있지만 실무에서 직접 쓸 일은 드물고, 주로 레거시 코드에서 만나게 된다.
 
 ---
 
-## 6. 정규표현식(Regex) 기초
+## 6. 텍스트 블록(Text Block)
+
+Java 15부터는 `"""`로 여러 줄 문자열을 그대로 작성할 수 있다.
+
+```java
+String json = """
+        {
+            "name": "Kim",
+            "age": 20
+        }
+        """;
+```
+
+이스케이프(`\"`, `\n`)와 `+` 연결 없이 여러 줄 문자열을 작성할 수 있어  
+JSON/SQL처럼 줄바꿈이 많은 문자열에 특히 유용하다.
+
+---
+
+## 7. 정규표현식(Regex) 기초
 
 검증/파싱에 자주 사용된다.
 
@@ -261,13 +285,16 @@ boolean ok = email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 ```java
 Pattern p = Pattern.compile("\\d+");
 Matcher m = p.matcher("ab12cd");
+while (m.find()) {
+    System.out.println(m.group()); // 12
+}
 ```
 
 ---
 
-## 7. 인코딩과 문자 깨짐
+## 8. 인코딩과 문자 깨짐
 
-문자열은 내부 UTF-16 표현을 사용하지만  
+문자열은 논리적으로 UTF-16(char) 단위로 다루지만  
 파일/네트워크 입출력 시 인코딩을 명시하지 않으면 깨질 수 있다.
 
 ```java
@@ -279,7 +306,7 @@ String restored = new String(bytes, StandardCharsets.UTF_8);
 
 ---
 
-## 8. 문자열 전처리 실무 패턴
+## 9. 문자열 전처리 실무 패턴
 
 1. 사용자 입력 trim
 2. 필요 시 대소문자 통일
@@ -296,7 +323,7 @@ if (normalized.isBlank()) throw new IllegalArgumentException("empty input");
 
 ---
 
-## 9. 자주 하는 실수
+## 10. 자주 하는 실수
 
 1. 문자열 비교에 `==` 사용
 2. `split(".")`처럼 정규식 메타문자 미인식
@@ -306,14 +333,13 @@ if (normalized.isBlank()) throw new IllegalArgumentException("empty input");
 
 ---
 
-## 10. 정리
+## 11. 정리
 
 - 문자열 처리는 기능 호출보다 "불변성/성능/인코딩/검증" 이해가 핵심이다.
 - `equals`, `StringBuilder`, 정규식, 인코딩 명시 습관이 실무 품질을 크게 높인다.
 
 ---
 
-## 3. 입출력 IO
 
 # 입출력 (I/O)
 
@@ -343,7 +369,7 @@ I/O는 프로그램과 외부 자원 간 데이터 이동이다.
 
 Java I/O는 스트림 기반이며, 여러 스트림을 감싸(layering) 기능을 조합한다.
 
-![I/O 스트림 계층 구조]({{ '/assets/images/java_basic/ch10/io-stream-layer.svg' | relative_url }})
+![I/O 스트림 계층 구조]({{ '/java_basic/java_basic_images/ch10/io-stream-layer.svg' | relative_url }})
 
 핵심 분류:
 - 바이트 스트림: `InputStream`, `OutputStream`
@@ -387,7 +413,7 @@ try (BufferedWriter bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) 
 
 ```java
 new BufferedInputStream(new FileInputStream("a.bin"));
-new BufferedReader(new FileReader("a.txt"));
+new BufferedReader(new FileReader("a.txt", StandardCharsets.UTF_8)); // Java 11+ 생성자, 인코딩 명시
 ```
 
 대량 파일 처리/반복 읽기에서는 버퍼 유무에 따라 성능 차이가 크다.
@@ -446,11 +472,13 @@ Files.copy(src, dst, StandardCopyOption.REPLACE_EXISTING);
 
 ---
 
-## 8. 대용량 파일 처리 전략
+## 8. 대용량 파일 처리 전략 (실무 미리보기)
 
-1. 전체 파일을 한 번에 메모리에 올리지 말 것
-2. 스트리밍 방식으로 라인/청크 단위 처리
-3. 버퍼 크기/Flush 시점 전략화
+> 💡 이 절은 아주 큰 파일(수 GB 등)을 다룰 때의 실무 고려사항입니다. 초보 단계에서는 "큰 파일은 통째로 읽으면 메모리가 터질 수 있어서 조금씩 나눠 읽는다" 정도만 알아 두면 충분합니다.
+
+1. 전체 파일을 한 번에 메모리에 올리지 말 것 — 메모리 부족(OOM)으로 프로그램이 죽을 수 있음
+2. 스트리밍 방식으로 라인/청크(덩어리) 단위로 나눠 처리
+3. 버퍼 크기/Flush(비우는) 시점 전략화
 4. 장애 시 부분 기록/재시도 전략 고려
 
 ---
@@ -489,11 +517,12 @@ try {
 
 ---
 
-## 4. 문제
 
 # 문제
 
 `ch10` 범위(`java.time`, 문자열 처리, I/O) 종합 문제입니다.
+
+> 정답 예시: [ch10 문제 답안](문제답안/ch10_문제답안.md)
 
 ---
 

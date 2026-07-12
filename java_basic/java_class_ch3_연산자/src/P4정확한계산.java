@@ -1,8 +1,8 @@
 public class P4정확한계산 {
     public static void main(String[] args) {
-        double pineUnit=0.1;
+        double priceUnit=0.1;
         double number=7.0;
-        System.out.println(pineUnit*number);
+        System.out.println(priceUnit*number);
 
         int unit=1;
         int numberInt=7;

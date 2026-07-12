@@ -11,7 +11,7 @@ public class JDBC기본2Select에서매핑 {
         try{
             Class.forName("oracle.jdbc.driver.OracleDriver");
         }catch (ClassNotFoundException e){
-            new RuntimeException(e);
+            throw new RuntimeException(e);
         }
 
         Connection conn=null;
@@ -21,7 +21,7 @@ public class JDBC기본2Select에서매핑 {
         String memId=scanner.nextLine();
         try{
 
-            conn= DriverManager.getConnection("jdbc:oracle:thin:@nextit.or.kr:1521:xe","std225","oracle21c");  //2.연결
+            conn= DriverManager.getConnection("jdbc:oracle:thin:@DB주소:1521:xe","DB유저ID","DB비밀번호");  //2.연결 (DB주소·유저ID·비밀번호는 본인 환경에 맞게 변경)
             String sql=" SELECT  mem_id, mem_pass, mem_name, mem_bir ,mem_zip  "
                       +" FROM member  where mem_id= ?  ";
             pstmt=conn.prepareStatement(sql);
@@ -30,18 +30,18 @@ public class JDBC기본2Select에서매핑 {
             Map<String, Object> map=new HashMap<>();
             while ( rs.next()){
                 System.out.print(rs.getString("mem_id"));
-                map.put(rs.getString("mem_id") , rs.getString("mem_id"));
-                map.put(rs.getString("mem_pass") , rs.getString("mem_pass"));
-                map.put(rs.getString("mem_name") , rs.getString("mem_name"));
-                map.put(rs.getString("mem_bir") , rs.getString("mem_bir"));
-                map.put(rs.getString("mem_zip") , rs.getString("mem_zip"));
+                map.put("mem_id" , rs.getString("mem_id"));      //key는 컬럼명, value는 컬럼 값
+                map.put("mem_pass" , rs.getString("mem_pass"));
+                map.put("mem_name" , rs.getString("mem_name"));
+                map.put("mem_bir" , rs.getString("mem_bir"));
+                map.put("mem_zip" , rs.getString("mem_zip"));
                 //map에다가 담을 수 있지만 보통은 테이블에 대응되는 데이터저장용 클래스를 만듦.
                 // 그 저장용 클래스를 DTO(VO)라고 합니다.
             }
             System.out.println(map);
 
         }catch (SQLException e){
-            new RuntimeException(e);
+            throw new RuntimeException(e);
         }finally {
             try{
                 if(rs!=null) rs.close();

@@ -9,7 +9,7 @@ Spring Security와 JWT를 이용해 인증 후
 웹에서는 ajax를 통해 `/api` 요청을 해서 화면을 구성한다.  
 *(따로 웹 서버 만들기 귀찮아서 채팅서버에 WebController → return 단순화면 추가)*
 
-즉 seucirty jwt (oatuh2제외) + stomp
+즉 security jwt (oauth2 제외) + stomp
 
 ---
 
@@ -38,8 +38,14 @@ STOMP는 WebSocket에는 없는 **Pub/Sub 구조**를 가지고 있다.
 - **메시지 브로커(Message Broker)** 가 발행된 메시지를 관리한다.
 - **구독자(Subscriber)** 는 특정 주제나 큐에 구독할 수 있고, 브로커는 등록된 모든 구독자에게 해당 주제의 메시지를 전달한다.
 
-WebSocket은 서버-클라이언트 1:1 통신이고, 간혹 연결이 끊기면 메세지가 사라질 수 있다.  
-반면 STOMP는 메세지 브로커로 **1:N 통신**을 지원하고, 메세지를 서버에 저장했다가 클라이언트에 송신하므로 더 안전하다.
+순수 WebSocket만 쓰면 "누가 어느 방에 있는지", "누구에게 메시지를 전달할지"를 서버가 직접 코드로 관리해야 한다.  
+반면 STOMP는 **Pub/Sub(구독) 구조**를 제공하므로, 특정 방(주제)을 구독한 모든 사람에게 한 번에 메시지를 보내는 **1:N 브로드캐스트**를 직접 구현하지 않아도 된다.
+
+> ⚠️ **메시지 보관/전달 보장에 대한 오해 주의**  
+> 이 프로젝트는 스프링 내장 **SimpleBroker**(`enableSimpleBroker`)를 브로커로 쓴다.  
+> SimpleBroker는 메시지를 **메모리에서 중계만** 할 뿐, 저장(영속화)하거나 전달을 보장하지 않는다.  
+> 즉 연결이 끊긴 동안 오지 못한 메시지는 되살아나지 않는다.  
+> 메시지 영속화·전달 보장·클러스터 확장이 필요하면 RabbitMQ 같은 **외부 메시지 브로커**를 STOMP 브로커로 연결해야 한다.
 
 > 여기서 발행자는 메세지를 보내는 사람이고,  
 > 구독자가 구독하는 '특정 주제'는 **채팅방** 정도로 생각하면 된다.  
@@ -52,14 +58,14 @@ WebSocket은 서버-클라이언트 1:1 통신이고, 간혹 연결이 끊기면
 
 ### 1. WebSocket 서버 생성
 
-![WebSocket 서버 생성](stomp설명이미지들/img.png)
+![WebSocket 서버 생성](spring_csr_chat_images/stomp설명이미지들/img.png)
 
 `WebSocketMessageBrokerConfigurer`를 구현한 `WebSocketConfig`를 Spring에 등록하면  
 Spring 서버 안에 WebSocket 서버가 생긴다.
 
 ### 2. HTTP 핸드쉐이크 (물리적 연결)
 
-![HTTP 핸드쉐이크](stomp설명이미지들/img_1.png)
+![HTTP 핸드쉐이크](spring_csr_chat_images/stomp설명이미지들/img_1.png)
 
 클라이언트가 `new SockJS("/ws-chat")`을 하는 순간 웹 소켓 서버와 **HTTP 핸드쉐이크**를 한다.  
 이 때 `localhost:8080/ws-chat` 요청은 HTTP 요청이기 때문에 **Spring Security의 HTTP 설정**의 영향을 받는다.  
@@ -67,13 +73,13 @@ Spring 서버 안에 WebSocket 서버가 생긴다.
 
 ### 3. STOMP 프로토콜 선언
 
-![STOMP over](stomp설명이미지들/img_2.png)
+![STOMP over](spring_csr_chat_images/stomp설명이미지들/img_2.png)
 
 물리적인 연결이 된 후에 STOMP 방식으로 메시지를 주고받겠다고 선언한다. (`Stomp.over`)
 
 ### 4. STOMP Connect + JWT 인증
 
-![STOMP Connect](stomp설명이미지들/img_3.png)
+![STOMP Connect](spring_csr_chat_images/stomp설명이미지들/img_3.png)
 
 Connect를 하는 순간부터 **웹 소켓 인터셉터(ChannelInterceptor)** 가 작동하는데, 여기서는 Connect 때 **JWT 인증**을 한다.
 
@@ -91,13 +97,13 @@ HttpSession처럼 웹 소켓 서버도 각각의 클라이언트를 식별할 �
 
 ### 5. Subscribe (방 입장)
 
-![Subscribe](stomp설명이미지들/img_4.png)
+![Subscribe](spring_csr_chat_images/stomp설명이미지들/img_4.png)
 
 그 후 `subscribe("/sub/room/1")`을 통해 1번 방에 입장한다.
 
 ### 6. Send (메시지 전송)
 
-![Send 1](stomp설명이미지들/img_5.png) ![Send 2](stomp설명이미지들/img_6.png)
+![Send 1](spring_csr_chat_images/stomp설명이미지들/img_5.png) ![Send 2](spring_csr_chat_images/stomp설명이미지들/img_6.png)
 
 이후에는 `send("/pub/room/1")`을 통해 C1이 메세지를 보내면  
 웹 소켓 서버는 room/1에 있는 c1, c2한테 메세지를 전부 보낸다.
@@ -116,15 +122,15 @@ msg를 서버가 받은 다음 유저정보를 같이 보낸다. (가공)
 
 ## 동작 이미지
 
-![웹 채팅방 입장](stomp설명이미지들/img_7.png)
+![웹 채팅방 입장](spring_csr_chat_images/stomp설명이미지들/img_7.png)
 
-![앱에서도 참여](stomp설명이미지들/img_8.png)
+![앱에서도 참여](spring_csr_chat_images/stomp설명이미지들/img_8.png)
 
 user1(왼쪽 브라우저), user3(앱), user2(오른쪽 브라우저) 순으로 입장했다.
 
-![채팅 진행](stomp설명이미지들/img_9.png)
+![채팅 진행](spring_csr_chat_images/stomp설명이미지들/img_9.png)
 
-![퇴장](stomp설명이미지들/img_10.png)
+![퇴장](spring_csr_chat_images/stomp설명이미지들/img_10.png)
 
 user1(왼쪽 브라우저), user3(앱)이 퇴장한 모습.
 
@@ -355,7 +361,7 @@ public class WebSocketEventListener {
         Authentication auth = (Authentication) accessor.getSessionAttributes().get("user");
         String roomId = (String) accessor.getSessionAttributes().get("roomId");
 
-        if (auth != null) {
+        if (auth != null && roomId != null) {  // roomId 없으면 "/sub/room/null"로 전송되므로 퇴장과 동일하게 체크
             String username = auth.getName();
             messagingTemplate.convertAndSend("/sub/room/" + roomId, username + "님이 입장했습니다.");
         }
@@ -379,6 +385,14 @@ public class WebSocketEventListener {
 **동작:**
 - **입장 이벤트:** STOMP Connect 성공 시 해당 방에 "~~님이 입장했습니다." 메시지 전송
 - **퇴장 이벤트:** Disconnect 시 (브라우저 종료, 뒤로가기 등 모두 감지) "~~님이 퇴장했습니다." 메시지 전송
+
+> **주의 — 메시지 형태가 두 가지다.**
+> - 일반 채팅은 `ChatController`가 `ChatMessage` **객체**(`{sender, content}`)를 보낸다.
+> - 입장/퇴장은 위 리스너가 `username + "님이 입장했습니다."` 같은 **순수 문자열**을 보낸다.
+>
+> 그래서 클라이언트에서 `JSON.parse(message.body)`를 그냥 호출하면 문자열 메시지에서 예외가 난다.
+> 아래 `room.html`이 `try/catch`로 감싸 문자열이면 `{ content: ... }`로 만들어 주는 이유가 이것이다.
+> (학습용으로는 입장/퇴장도 `ChatMessage`(sender=null)로 통일해 보내면 클라이언트 분기가 더 단순해진다.)
 
 ---
 
@@ -408,7 +422,12 @@ $(document).ready(function() {
         function(frame) {
             // 4. 구독 (방 입장)
             stompClient.subscribe(`/sub/room/${roomId}`, function(message) {
-                let msg = JSON.parse(message.body);
+                let msg;
+                try {
+                    msg = JSON.parse(message.body);        // 일반 채팅: {sender, content} 객체
+                } catch (e) {
+                    msg = { content: message.body };       // 입장/퇴장: 순수 문자열 → 객체로 감싸기
+                }
 
                 if (!msg.sender) {
                     // 시스템 메시지 (입장/퇴장)

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640">
+  <defs>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/></marker>
+  </defs>
+
+  <rect width="1100" height="640" fill="#f8fafc"/>
+  <text x="550" y="42" text-anchor="middle" font-family="Arial" font-size="30" fill="#0f172a" font-weight="bold">Throwable Hierarchy</text>
+
+  <!-- Throwable -->
+  <rect x="470" y="75" width="160" height="50" rx="10" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+  <text x="550" y="106" text-anchor="middle" font-family="Arial" font-size="18" fill="#334155" font-weight="bold">Throwable</text>
+
+  <line x1="550" y1="125" x2="256" y2="182" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <line x1="550" y1="125" x2="724" y2="182" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+  <!-- Error branch -->
+  <rect x="170" y="185" width="160" height="50" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="250" y="216" text-anchor="middle" font-family="Arial" font-size="18" fill="#991b1b" font-weight="bold">Error</text>
+
+  <line x1="250" y1="235" x2="250" y2="296" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <rect x="140" y="300" width="220" height="45" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="250" y="328" text-anchor="middle" font-family="Arial" font-size="15" fill="#991b1b">StackOverflowError</text>
+  <line x1="250" y1="345" x2="250" y2="361" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <rect x="140" y="365" width="220" height="45" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="250" y="393" text-anchor="middle" font-family="Arial" font-size="15" fill="#991b1b">OutOfMemoryError</text>
+  <text x="250" y="452" text-anchor="middle" font-family="Arial" font-size="14" fill="#dc2626" font-style="italic">system-level — do not catch</text>
+
+  <!-- Exception -->
+  <rect x="650" y="185" width="160" height="50" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="730" y="216" text-anchor="middle" font-family="Arial" font-size="18" fill="#1e3a8a" font-weight="bold">Exception</text>
+
+  <line x1="730" y1="235" x2="562" y2="296" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <line x1="730" y1="235" x2="872" y2="340" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+  <!-- Checked band -->
+  <rect x="410" y="300" width="290" height="290" rx="12" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+  <text x="555" y="330" text-anchor="middle" font-family="Arial" font-size="16" fill="#92400e" font-weight="bold">CHECKED</text>
+  <rect x="455" y="352" width="200" height="45" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="555" y="380" text-anchor="middle" font-family="Arial" font-size="15" fill="#92400e">IOException</text>
+  <rect x="455" y="417" width="200" height="45" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="555" y="445" text-anchor="middle" font-family="Arial" font-size="15" fill="#92400e">SQLException</text>
+  <text x="555" y="530" text-anchor="middle" font-family="Arial" font-size="14" fill="#92400e" font-style="italic">compiler forces handling</text>
+
+  <!-- Unchecked band -->
+  <rect x="740" y="300" width="320" height="290" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="900" y="330" text-anchor="middle" font-family="Arial" font-size="16" fill="#166534" font-weight="bold">UNCHECKED</text>
+  <rect x="780" y="345" width="240" height="45" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="900" y="374" text-anchor="middle" font-family="Arial" font-size="16" fill="#166534" font-weight="bold">RuntimeException</text>
+
+  <line x1="900" y1="390" x2="900" y2="411" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <rect x="780" y="415" width="240" height="40" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="900" y="440" text-anchor="middle" font-family="Arial" font-size="14" fill="#166534">NullPointerException</text>
+  <rect x="780" y="465" width="240" height="40" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="900" y="490" text-anchor="middle" font-family="Arial" font-size="14" fill="#166534">IllegalArgumentException</text>
+  <rect x="780" y="515" width="240" height="40" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="900" y="540" text-anchor="middle" font-family="Arial" font-size="14" fill="#166534">ArithmeticException</text>
+  <text x="900" y="576" text-anchor="middle" font-family="Arial" font-size="14" fill="#166534" font-style="italic">handling optional</text>
+</svg>

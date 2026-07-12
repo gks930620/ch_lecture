@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class P4String {
@@ -21,7 +19,7 @@ public class P4String {
 
         String member1New= new String("민지");
         System.out.println("member1==member1New: " + (member1==member1New) );
-        System.out.println("member1.eqauls(member1New) : " + member1.equals(member1New)); //참조값 비교가 아닌 내부의 문자열 값 비교
+        System.out.println("member1.equals(member1New) : " + member1.equals(member1New)); //참조값 비교가 아닌 내부의 문자열 값 비교
 
         //대부분 주소값 비교보다는 문자열 값 비교를 하는 경우가 많음.   ex: 사용자가 입력한 값이랑 DB에 저장된 값이 같은지.... 같다는게 주소가 같은지를 묻는건 아니겠죠?
         //==이 true일 때도 물론 있지만, 복잡한 프로그램에서 ==이 같다는 보장이 없음.

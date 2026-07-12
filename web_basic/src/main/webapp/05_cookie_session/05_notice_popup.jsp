@@ -32,7 +32,7 @@
         <button type="submit" name="action" value="hide">1주일간 안보기</button>
     </form>
     <form action="${pageContext.request.contextPath}/05_cookie_session/notice" method="post" style="display:inline;">
-        <button type="submit" name="action" value="close">닫기 (오늘만)</button>
+        <button type="submit" name="action" value="close">닫기 (이번 세션만 - 세션 쿠키)</button>
     </form>
 </div>
 <% } else { %>
@@ -45,7 +45,7 @@
 <% } %>
 
 <hr/>
-<p>현재 hideNotice 쿠키 값: <strong><%= hideNotice ? "true (1주일간 안보기 설정됨)" : "없음 (팝업 표시)" %></strong></p>
+<p>현재 hideNotice 쿠키 값: <strong><%= hideNotice ? "true (팝업 숨김 상태 - 세션 쿠키 또는 7일 쿠키)" : "없음 (팝업 표시)" %></strong></p>
 <p><a href="${pageContext.request.contextPath}/05_cookie_session/05_login.jsp">→ 세션 로그인 실습</a></p>
 <p><a href="${pageContext.request.contextPath}/05_cookie_session/05_cookie_demo.jsp">→ 쿠키 기본 실습</a></p>
 

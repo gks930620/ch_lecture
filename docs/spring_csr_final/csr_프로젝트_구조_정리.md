@@ -255,7 +255,7 @@ POST /api/login (JSON: {username, password})
 매 HTTP 요청 → 쿠키/헤더에서 access_token 추출
   → null이면 비인증 상태로 통과
   → refresh 토큰이면 통과 (/api/tokens/refresh로 갈 것)
-  → access 토큰 만료면 ERROR_CAUSE="토큰만료" → authenticationEntryPoint에서 401 응답
+  → access 토큰 만료면 ERROR_CAUSE="TOKEN_EXPIRED" → authenticationEntryPoint에서 401 응답
   → 유효하면 SecurityContext에 인증정보 저장 → 로그인 상태로 통과
 ```
 
@@ -268,9 +268,13 @@ POST /api/tokens/refresh (쿠키에서 refresh_token 자동 전송)
 ### SecurityConfig 경로 규칙
 ```
 permitAll()     → 페이지 URL, 정적 리소스, 공개 API, WebSocket
-                  GET /api/communities, GET /api/communities/{id}
+                  공개 GET: /api/communities, /api/communities/{id},
+                            /api/communities/{id}/comments,
+                            /api/files, /api/files/paths, /api/files/{id}/content
 authenticated() → /api/logout, /api/users/me, /api/rooms, /api/rooms/**,
-                  POST/PUT/DELETE /api/communities/**, /api/comments/**, /api/files
+                  POST /api/communities, POST /api/communities/{id}/comments, POST /api/files,
+                  PUT  /api/communities/**, /api/comments/**,
+                  DELETE /api/communities/**, /api/comments/**, /api/files/**
 anyRequest()    → permitAll() (개발 편의, 운영 시 변경 고려)
 ```
 

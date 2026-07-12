@@ -19,6 +19,24 @@
 3) 필터 체인
 - 여러 필터가 등록되면 지정된 순서로 체인을 형성. 각 필터는 다음 필터를 호출하거나, 특정 조건에서 체인을 중단하고 응답을 작성 가능.
 
+![필터 체인: 요청이 Filter → Servlet을 지나 응답이 역순으로 통과]({{ '/web_basic/web_basic_images/ch09/filter-chain.svg' | relative_url }})
+
+3-1) 필터 등록 방법
+- 필터는 두 가지로 등록할 수 있습니다.
+  1. **애노테이션**: 필터 클래스에 `@WebFilter("/*")`처럼 URL 패턴을 지정 (이 프로젝트의 `LoggingFilter`가 이 방식, `@WebFilter("/*")` → 모든 요청 대상).
+  2. **web.xml**: `<filter>`로 필터를 정의하고 `<filter-mapping>`으로 URL 패턴에 매핑.
+     ```xml
+     <filter>
+       <filter-name>loggingFilter</filter-name>
+       <filter-class>com.example.chlecture.filter.LoggingFilter</filter-class>
+     </filter>
+     <filter-mapping>
+       <filter-name>loggingFilter</filter-name>
+       <url-pattern>/*</url-pattern>
+     </filter-mapping>
+     ```
+- 여러 필터의 실행 순서: `@WebFilter`는 보통 클래스명(또는 필터명) 순서에 의존해 순서 보장이 약하므로, **순서가 중요하면 web.xml의 `<filter-mapping>` 선언 순서**로 제어합니다.
+
 4) 실습 예제
 - `LoggingFilter`(프로젝트에 포함): 모든 요청 URI를 콘솔에 출력.
 - 인코딩 필터: `request.setCharacterEncoding("UTF-8")`, `response.setCharacterEncoding("UTF-8")`를 설정해 한글 깨짐 방지.

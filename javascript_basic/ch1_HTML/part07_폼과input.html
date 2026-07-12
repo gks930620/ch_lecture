@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--
+  실습 07: 폼 요소와 Input 타입 (강의노트 1.8~1.9)
+  ------------------------------------------------
+  강의 포인트
+  - 폼은 사용자 입력을 받는 핵심 요소
+  - HTML5의 다양한 input type이 검증(validation)을 자동화해 준다
+  - label과 input을 연결(for=id)하면 접근성이 좋아진다
+  실습 방법
+  - 이메일 칸에 아무 글자나 넣고 '제출'을 눌러 자동 검증을 체험해 보세요.
+  - required 칸을 비우고 제출하면 브라우저가 막아줍니다.
+-->
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>실습 07 - 폼과 Input</title>
+</head>
+<body>
+    <h1>회원가입 폼 실습</h1>
+
+    <!-- action은 '폼을 보낼 주소'입니다. 지금은 보낼 서버가 없어 action 속성을 생략했습니다 -->
+    <form>
+        <p>
+            <label for="username">아이디</label><br>
+            <input type="text" id="username" placeholder="영문/숫자" required>
+        </p>
+        <p>
+            <label for="pw">비밀번호</label><br>
+            <input type="password" id="pw" minlength="8" maxlength="20" required>
+            <small>8~20자</small>
+        </p>
+        <p>
+            <label for="email">이메일</label><br>
+            <input type="email" id="email" placeholder="you@example.com" required>
+            <small>@ 형식이 아니면 제출이 막힙니다</small>
+        </p>
+        <p>
+            <label for="age">나이</label><br>
+            <input type="number" id="age" min="0" max="120">
+        </p>
+        <p>
+            <label for="birth">생일</label><br>
+            <input type="date" id="birth">
+        </p>
+        <p>
+            관심사 (다중 선택):
+            <label><input type="checkbox" name="interest"> 개발</label>
+            <label><input type="checkbox" name="interest"> 디자인</label>
+        </p>
+        <p>
+            성별 (하나만):
+            <label><input type="radio" name="gender"> 남</label>
+            <label><input type="radio" name="gender"> 여</label>
+        </p>
+        <button type="submit">제출</button>
+    </form>
+
+    <p>💡 checkbox는 여러 개 선택, radio는 같은 name끼리 하나만 선택됩니다.</p>
+</body>
+</html>

@@ -2,26 +2,16 @@ package P4추상클래스;
 
 public class 추상클래스Main {
     public static void main(String[] args) {
-        // 분명히 상위 클래스이고, 이거를 상속받는 하위클래스도 있지만
-        // 직접 객체를 만들지는 못하게 해야하는 경우 추상클래스로 선언합니다.
-        // Pet은 객체가 없다.  강아지 객체, 고양이 객체는 있다.
-        Pet puppy=new Puppy();
-        Pet turtle=new Turtle();
-        Cat cat= new Cat();
+        // Animal은 추상 클래스라 직접 생성할 수 없다:
+        //     Animal a = new Animal();  // 컴파일 에러!
+        // 하지만 하위 클래스의 객체는 만들 수 있고, Animal 타입으로 묶어서 다룰 수 있다(다형성).
+        Animal[] animals = { new Dog(), new Cat(), new Bird() };
 
-        puppy.walk();
-        puppy.eat();
-        puppy.call();
-
-        turtle.walk();
-        turtle.eat();
-        turtle.call();
-
-        cat.walk();
-        cat.eat();
-        cat.call();
-
-
-
+        for (Animal animal : animals) {
+            animal.sound();  // 각자 재정의한 소리 (추상 메소드 구현)
+            animal.move();   // 각자 재정의한 이동   (추상 메소드 구현)
+            animal.sleep();  // 공통 구현 (Bird만 재정의)
+            System.out.println();
+        }
     }
 }

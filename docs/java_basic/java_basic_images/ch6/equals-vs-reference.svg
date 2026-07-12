@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="600" viewBox="0 0 1100 600" font-family="Arial">
+  <defs>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#334155"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+  </defs>
+  <rect width="1100" height="600" fill="#f8fafc"/>
+  <text x="550" y="42" text-anchor="middle" font-size="30" fill="#0f172a">== vs equals()</text>
+
+  <!-- variables -->
+  <rect x="215" y="110" width="90" height="44" rx="10" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="260" y="138" text-anchor="middle" font-size="15" fill="#1e3a8a" font-family="Consolas, monospace">u1</text>
+  <rect x="355" y="110" width="90" height="44" rx="10" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="400" y="138" text-anchor="middle" font-size="15" fill="#1e3a8a" font-family="Consolas, monospace">u3</text>
+  <rect x="675" y="110" width="90" height="44" rx="10" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="720" y="138" text-anchor="middle" font-size="15" fill="#1e3a8a" font-family="Consolas, monospace">u2</text>
+
+  <!-- Heap -->
+  <rect x="100" y="200" width="900" height="200" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="150" y="228" text-anchor="middle" font-size="16" font-weight="bold" fill="#166534">Heap</text>
+
+  <rect x="200" y="250" width="240" height="110" rx="10" fill="#bbf7d0" stroke="#16a34a"/>
+  <text x="320" y="280" text-anchor="middle" font-size="15" font-weight="bold" fill="#166534">User object A</text>
+  <text x="320" y="308" text-anchor="middle" font-size="13" fill="#166534" font-family="Consolas, monospace">name = "Kim"</text>
+  <text x="320" y="334" text-anchor="middle" font-size="12" fill="#64748b" font-family="Consolas, monospace">@1a2b</text>
+
+  <rect x="620" y="250" width="240" height="110" rx="10" fill="#bbf7d0" stroke="#16a34a"/>
+  <text x="740" y="280" text-anchor="middle" font-size="15" font-weight="bold" fill="#166534">User object B</text>
+  <text x="740" y="308" text-anchor="middle" font-size="13" fill="#166534" font-family="Consolas, monospace">name = "Kim"</text>
+  <text x="740" y="334" text-anchor="middle" font-size="12" fill="#64748b" font-family="Consolas, monospace">@3c4d</text>
+
+  <line x1="450" y1="305" x2="610" y2="305" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="530" y="292" text-anchor="middle" font-size="13" fill="#166534">same content</text>
+
+  <!-- reference arrows -->
+  <line x1="260" y1="156" x2="285" y2="246" stroke="#334155" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <line x1="400" y1="156" x2="355" y2="246" stroke="#2563eb" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <line x1="720" y1="156" x2="740" y2="246" stroke="#334155" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <text x="470" y="178" text-anchor="middle" font-size="12" fill="#1e3a8a">same object as u1</text>
+
+  <!-- results -->
+  <rect x="100" y="430" width="430" height="58" rx="12" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="315" y="454" text-anchor="middle" font-size="16" fill="#991b1b" font-family="Consolas, monospace">u1 == u2  →  false</text>
+  <text x="315" y="477" text-anchor="middle" font-size="13" fill="#991b1b">different references</text>
+
+  <rect x="570" y="430" width="430" height="58" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="785" y="454" text-anchor="middle" font-size="16" fill="#166534" font-family="Consolas, monospace">u1.equals(u2)  →  true</text>
+  <text x="785" y="477" text-anchor="middle" font-size="13" fill="#166534">same value (if equals() is overridden)</text>
+
+  <rect x="100" y="502" width="430" height="58" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="315" y="526" text-anchor="middle" font-size="16" fill="#1e3a8a" font-family="Consolas, monospace">u1 == u3  →  true</text>
+  <text x="315" y="549" text-anchor="middle" font-size="13" fill="#1e3a8a">same reference</text>
+
+  <rect x="570" y="502" width="430" height="58" rx="12" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+  <text x="785" y="526" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">== compares references (identity)</text>
+  <text x="785" y="549" text-anchor="middle" font-size="13" fill="#334155">equals() compares values (equality)</text>
+</svg>

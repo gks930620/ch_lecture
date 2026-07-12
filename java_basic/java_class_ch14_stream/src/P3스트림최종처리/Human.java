@@ -13,7 +13,7 @@ public class Human {
     }
     @Override
     public String toString() {
-        return "Person{" +
+        return "Human{" +
                 "name='" + name + '\'' +
                 ", age=" + age +
                 '}';
@@ -22,8 +22,8 @@ public class Human {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Person person)) return false;
-        return age == person.age && Objects.equals(name, person.name);
+        if (!(o instanceof Human human)) return false;
+        return age == human.age && Objects.equals(name, human.name);
     }
 
     @Override

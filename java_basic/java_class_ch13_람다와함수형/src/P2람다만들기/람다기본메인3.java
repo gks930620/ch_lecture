@@ -12,11 +12,18 @@ public class 람다기본메인3 {
 //        };
 
         //(매개변수) -> {실행문}
-        Printable print1= (a)->{  //() 생략가능. 매개변수가 1개일때만
+        Printable print1= (a)->{  //괄호를 유지한 버전
             System.out.println(a+"을 출력합니다.");
             System.out.println(a+"이 출력되었습니다");
         };
         print1.print("newjeans");
+
+        //() 생략가능. 매개변수가 1개일때만
+        Printable print2= a->{
+            System.out.println(a+"을 출력합니다.");
+            System.out.println(a+"이 출력되었습니다");
+        };
+        print2.print("newjeans");
 
 
 

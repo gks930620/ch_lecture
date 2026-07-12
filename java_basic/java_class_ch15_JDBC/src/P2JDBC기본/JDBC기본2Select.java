@@ -17,9 +17,9 @@ public class JDBC기본2Select {
         Statement stmt=null;
         ResultSet rs=null;
         try {
-            conn= DriverManager.getConnection("jdbc:oracle:thin:@nextit.or.kr:1521:xe","std225","oracle21c");  //2.연결
+            conn= DriverManager.getConnection("jdbc:oracle:thin:@DB주소:1521:xe","DB유저ID","DB비밀번호");  //2.연결 (DB주소·유저ID·비밀번호는 본인 환경에 맞게 변경)
             //3.쿼리실행및 데이터처리
-            stmt = conn.createStatement();  //이 stmt는 위의 주소에서 리 실행하는 객체
+            stmt = conn.createStatement();  //이 stmt는 위의 주소에서 쿼리 실행하는 객체
             String sql= """
                     SELECT mem_id, mem_pass, mem_name, mem_bir
                     FROM member

@@ -5,15 +5,20 @@ public class Q2 {
         private int balance;
 
         void deposit(int amount) {
+            if (amount <= 0) {
+                throw new IllegalArgumentException("입금액은 0보다 커야 합니다.");
+            }
             balance += amount;
         }
 
-        boolean withdraw(int amount) {
+        void withdraw(int amount) {
+            if (amount <= 0) {
+                throw new IllegalArgumentException("출금액은 0보다 커야 합니다.");
+            }
             if (amount > balance) {
-                return false;
+                throw new IllegalStateException("잔액이 부족합니다.");
             }
             balance -= amount;
-            return true;
         }
 
         int getBalance() {

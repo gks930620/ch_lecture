@@ -1,18 +1,15 @@
 ﻿---
 layout: default
 title: ch15_JDBC
-description: ch15_JDBC 통합 문서
+description: JDBC 연결, PreparedStatement, 트랜잭션, 커넥션 풀
 ---
 
 # ch15_JDBC
 
-통합 문서입니다.
 
 ---
 
-## 1. JDBC
 
-# JDBC
 
 ## 학습 목표
 - JDBC의 계층 구조와 표준 실행 흐름을 이해할 수 있다.
@@ -31,18 +28,33 @@ JDBC(Java Database Connectivity)는 Java에서 RDBMS에 접근하는 표준 API�
 3. DB 벤더 드라이버
 4. 실제 데이터베이스
 
-![JDBC 아키텍처와 트랜잭션 흐름]({{ '/assets/images/java_basic/ch15/jdbc-architecture-transaction.svg' | relative_url }})
+![JDBC 아키텍처와 트랜잭션 흐름]({{ '/java_basic/java_basic_images/ch15/jdbc-architecture-transaction.svg' | relative_url }})
 
 ---
 
 ## 2. 기본 실행 흐름
 
-1. `DataSource` 또는 `DriverManager`로 `Connection` 획득
+1. `DataSource` 또는 `DriverManager`로 `Connection` 획득 (지금은 DriverManager로 시작, DataSource는 9절에서 다룬다)
 2. SQL 준비 (`PreparedStatement` 권장)
 3. 파라미터 바인딩
 4. 실행 (`executeQuery` / `executeUpdate`)
 5. 결과 매핑 (`ResultSet`)
 6. 자원 해제
+
+가장 단순한 연결 예제는 다음과 같다.
+
+```java
+String url = "jdbc:h2:mem:testdb";   // H2 인메모리 DB
+String user = "sa";
+String password = "";
+
+try (Connection conn = DriverManager.getConnection(url, user, password)) {
+    System.out.println("연결 성공: " + conn.getMetaData().getDatabaseProductName());
+}
+```
+
+이 코드가 동작하려면 DB 드라이버가 필요하다. Gradle 기준 `runtimeOnly 'com.h2database:h2:2.2.224'` (MySQL이면 `com.mysql:mysql-connector-j`)를 의존성에 추가한다.  
+드라이버 jar가 클래스패스에 있어야 DriverManager가 URL에 맞는 드라이버를 찾는다.
 
 ---
 
@@ -105,6 +117,8 @@ try {
 } catch (Exception e) {
     conn.rollback();
     throw e;
+} finally {
+    conn.setAutoCommit(true); // 커넥션 풀 사용 시 반환 전 auto-commit 복원 필요
 }
 ```
 
@@ -118,6 +132,8 @@ try {
 ## 7. 자원 관리
 
 `Connection`, `Statement`, `ResultSet`는 반드시 닫아야 한다.
+
+아래의 `ds`는 커넥션 풀이 제공하는 `DataSource` 객체다(9절에서 소개). 아직 커넥션 풀을 쓰지 않는다면 `DriverManager.getConnection(url, user, password)`로 바꿔 읽으면 된다.
 
 ```java
 try (Connection conn = ds.getConnection();
@@ -152,6 +168,8 @@ SQL 접근을 분리하면 테스트/유지보수성이 크게 향상된다.
 2. 지연 감소
 3. 연결 수 제한/모니터링 가능
 
+![DriverManager 매번 연결 vs 커넥션 풀 재사용]({{ '/java_basic/java_basic_images/ch15/connection-pool.svg' | relative_url }})
+
 ---
 
 ## 10. SQL 예외 처리 전략
@@ -179,11 +197,12 @@ SQL 접근을 분리하면 테스트/유지보수성이 크게 향상된다.
 
 ---
 
-## 2. 문제
 
 # 문제
 
 `ch15` 범위(Connection/PreparedStatement/ResultSet/Transaction/DAO) 문제입니다.
+
+> 정답 예시: [ch15 문제 답안](문제답안/ch15_문제답안.md)
 
 ---
 
@@ -191,7 +210,7 @@ SQL 접근을 분리하면 테스트/유지보수성이 크게 향상된다.
 
 1. JDBC `Connection`을 획득하고 연결 정보를 출력하시오.
 2. 단일 테이블 `SELECT`를 수행해 결과를 콘솔에 출력하시오.
-3. 조회 결과를 DTO 또는 record로 매핑하시오.
+3. 조회 결과를 DTO 또는 record로 매핑하시오. (record는 ch16에서 배움)
 
 ---
 

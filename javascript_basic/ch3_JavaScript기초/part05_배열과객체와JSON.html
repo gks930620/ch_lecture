@@ -374,11 +374,14 @@
             });
 
             result += '\n=== 구조 분해 할당 (Destructuring) ===\n';
+            result += '💡 객체에서 원하는 속성을 꺼내 같은 이름의 변수로 바로 담는 문법입니다.\n';
+            result += '   (원래는 name = user.name; age = user.age; 처럼 하나씩 꺼내야 했음)\n';
+            result += '   ...rest 는 "나머지 속성들"을 새 객체로 모아줍니다.\n\n';
             const { name, age, ...rest } = user;
             result += `const { name, age, ...rest } = user;\n`;
-            result += `name → "${name}"\n`;
-            result += `age  → ${age}\n`;
-            result += `rest → ${JSON.stringify(rest)}\n`;
+            result += `name → "${name}"  (user.name과 같음)\n`;
+            result += `age  → ${age}  (user.age와 같음)\n`;
+            result += `rest → ${JSON.stringify(rest)}  (name, age를 뺀 나머지)\n`;
 
             result += '\n=== 스프레드로 객체 합치기 ===\n';
             const merged = { ...user, email: "hong@test.com", age: 26 };

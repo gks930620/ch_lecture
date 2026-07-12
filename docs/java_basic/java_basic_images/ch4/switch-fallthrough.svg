@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="600" viewBox="0 0 1100 600" font-family="Arial">
+  <defs>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#16a34a"/></marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#dc2626"/></marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/></marker>
+  </defs>
+  <rect width="1100" height="600" fill="#f8fafc"/>
+  <text x="550" y="42" text-anchor="middle" font-size="30" fill="#0f172a">switch: break vs fall-through</text>
+
+  <!-- Left panel: with break -->
+  <rect x="60" y="90" width="460" height="470" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="290" y="122" text-anchor="middle" font-size="20" font-weight="bold" fill="#166534">with break</text>
+
+  <rect x="205" y="140" width="170" height="42" rx="10" fill="#e2e8f0" stroke="#64748b"/>
+  <text x="290" y="167" text-anchor="middle" font-size="15" fill="#334155" font-family="Consolas, monospace">switch (n)</text>
+  <line x1="290" y1="182" x2="290" y2="206" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+  <rect x="120" y="210" width="280" height="48" rx="10" fill="#bbf7d0" stroke="#16a34a"/>
+  <text x="260" y="239" text-anchor="middle" font-size="14" fill="#166534" font-family="Consolas, monospace">case 1: run(); break;</text>
+
+  <rect x="120" y="290" width="280" height="48" rx="10" fill="#bbf7d0" stroke="#16a34a"/>
+  <text x="260" y="319" text-anchor="middle" font-size="14" fill="#166534" font-family="Consolas, monospace">case 2: run(); break;</text>
+
+  <g opacity="0.55">
+    <rect x="120" y="370" width="280" height="48" rx="10" fill="#bbf7d0" stroke="#16a34a"/>
+    <text x="260" y="399" text-anchor="middle" font-size="14" fill="#166534" font-family="Consolas, monospace">default: other();</text>
+  </g>
+
+  <!-- break exit paths -->
+  <path d="M402,234 L432,234 L432,492 L379,492" fill="none" stroke="#16a34a" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <path d="M402,314 L462,314 L462,508 L379,508" fill="none" stroke="#16a34a" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <text x="417" y="228" text-anchor="middle" font-size="12" fill="#166534">break</text>
+  <text x="432" y="308" text-anchor="middle" font-size="12" fill="#166534">break</text>
+
+  <rect x="205" y="478" width="170" height="44" rx="10" fill="#ffffff" stroke="#16a34a"/>
+  <text x="290" y="505" text-anchor="middle" font-size="15" fill="#166534">exit switch</text>
+
+  <text x="290" y="450" text-anchor="middle" font-size="14" fill="#166534">n = 1 → runs case 1 only, then exits</text>
+
+  <!-- Right panel: without break -->
+  <rect x="580" y="90" width="460" height="470" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="810" y="122" text-anchor="middle" font-size="20" font-weight="bold" fill="#991b1b">without break = fall-through</text>
+
+  <rect x="725" y="140" width="170" height="42" rx="10" fill="#e2e8f0" stroke="#64748b"/>
+  <text x="810" y="167" text-anchor="middle" font-size="15" fill="#334155" font-family="Consolas, monospace">switch (n)</text>
+  <line x1="810" y1="182" x2="810" y2="206" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+  <rect x="640" y="210" width="340" height="48" rx="10" fill="#fef3c7" stroke="#d97706"/>
+  <text x="810" y="239" text-anchor="middle" font-size="14" fill="#92400e" font-family="Consolas, monospace">case 1: run();  // no break</text>
+
+  <line x1="810" y1="260" x2="810" y2="286" stroke="#dc2626" stroke-width="2" marker-end="url(#arrowRed)"/>
+  <text x="822" y="278" text-anchor="start" font-size="13" fill="#991b1b">falls through</text>
+
+  <rect x="640" y="290" width="340" height="48" rx="10" fill="#fef3c7" stroke="#d97706"/>
+  <text x="810" y="319" text-anchor="middle" font-size="14" fill="#92400e" font-family="Consolas, monospace">case 2: run();  // also runs!</text>
+
+  <line x1="810" y1="340" x2="810" y2="366" stroke="#dc2626" stroke-width="2" marker-end="url(#arrowRed)"/>
+  <text x="822" y="358" text-anchor="start" font-size="13" fill="#991b1b">falls through</text>
+
+  <rect x="640" y="370" width="340" height="48" rx="10" fill="#fef3c7" stroke="#d97706"/>
+  <text x="810" y="399" text-anchor="middle" font-size="14" fill="#92400e" font-family="Consolas, monospace">default: other(); // runs too!</text>
+
+  <line x1="810" y1="420" x2="810" y2="446" stroke="#dc2626" stroke-width="2" marker-end="url(#arrowRed)"/>
+
+  <rect x="725" y="450" width="170" height="44" rx="10" fill="#ffffff" stroke="#dc2626"/>
+  <text x="810" y="477" text-anchor="middle" font-size="15" fill="#991b1b">exit switch</text>
+
+  <text x="810" y="528" text-anchor="middle" font-size="14" font-weight="bold" fill="#991b1b">n = 1 → case 1, case 2 and default ALL run</text>
+</svg>

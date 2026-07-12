@@ -932,68 +932,28 @@ window.addEventListener('scroll', () => {});        // 스크롤
 
 ---
 
-## 🎯 강의 진행 팁
+## 📝 종합 프로젝트: Todo List 앱 만들어보기
 
-### 1-2교시: DOM 기초 (2시간)
-- DOM이란?
-- 요소 선택
-- **실습**: 선택자 테스트
+지금까지 배운 **요소 선택 · 생성/삭제 · 이벤트 · 이벤트 위임**만으로 충분히 만들 수 있습니다.
+정답 코드를 보지 말고 **직접 설계하고 구현**해 보세요. (풀이는 제공하지 않습니다.)
 
-### 3-4교시: DOM 조작 (2시간)
-- 요소 생성/추가/삭제
-- 속성 조작
-- **실습**: 동적 리스트 만들기
+### 만들 것
+간단한 할 일 목록: 입력 → 추가 → 완료 체크(토글) → 삭제.
 
-### 5-6교시: 이벤트 기초 (2시간)
-- addEventListener
-- 이벤트 객체
-- **실습**: 버튼 클릭 이벤트
+### 요구사항
+1. 입력창에 할 일을 적고 **추가 버튼**(또는 Enter)으로 목록에 추가
+2. 각 항목을 클릭하면 **완료/취소 토글** (예: 취소선 스타일)
+3. 각 항목의 **삭제 버튼**으로 제거
+4. 목록이 비었을 때 안내 문구 표시(선택)
 
-### 7-8교시: 이벤트 고급 (2시간)
-- 이벤트 버블링
-- 이벤트 위임
-- **실습**: Todo List 앱
+### 구현 힌트 (배운 개념과 연결)
+- 요소 선택: `getElementById` / `querySelector` (5.2)
+- 항목 추가: `createElement` + `appendChild` (5.4)
+- 삭제/완료: 항목마다 리스너를 다는 대신 **이벤트 위임**으로 목록(`ul`)에 한 번만 등록 (5.10)
+- 어떤 항목이 클릭됐는지: `e.target`, 필요하면 `closest()`로 항목 요소 찾기
+- 여유가 되면: 새로고침해도 유지되도록 **LocalStorage**(8장 8.12) 붙여보기 — 아직 안 배웠다면 건너뛰어도 됨
 
----
-
-## 📝 종합 프로젝트: Todo List 앱
-
-```javascript
-// 완전한 Todo List 구현
-const todoForm = document.querySelector('#todo-form');
-const todoInput = document.querySelector('#todo-input');
-const todoList = document.querySelector('#todo-list');
-
-// 할 일 추가
-todoForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const text = todoInput.value.trim();
-    if (text === '') return;
-    
-    addTodoItem(text);
-    todoInput.value = '';
-});
-
-// 이벤트 위임으로 삭제/완료 처리
-todoList.addEventListener('click', (e) => {
-    if (e.target.classList.contains('delete')) {
-        e.target.parentElement.remove();
-    }
-    
-    if (e.target.classList.contains('todo-text')) {
-        e.target.classList.toggle('completed');
-    }
-});
-
-function addTodoItem(text) {
-    const li = document.createElement('li');
-    li.innerHTML = `
-        <span class="todo-text">${text}</span>
-        <button class="delete">삭제</button>
-    `;
-    todoList.appendChild(li);
-}
-```
+> 💡 막히면 5.2~5.10 예제를 조합해 보세요. 처음부터 완벽할 필요 없이, "추가 → 삭제 → 완료" 순서로 하나씩 늘려가면 됩니다.
 
 **5장 DOM 조작을 완료했습니다! 🎯**
 

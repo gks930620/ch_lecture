@@ -440,8 +440,11 @@ $('#name').val('홍길동');
 // select 값
 $('#country').val('kr');
 
-// checkbox 값
+// checkbox의 value 속성 (주의: 체크 여부와 무관하게 항상 value만 반환, 기본값 "on")
 $('#agree').val();
+// 체크됐는지 확인하려면 val()이 아니라 prop/is 사용
+$('#agree').prop('checked');   // true / false
+$('#agree').is(':checked');    // true / false
 
 // 여러 input 값 한번에 설정
 $('#name').val('홍길동');
@@ -617,7 +620,7 @@ document.querySelectorAll('.box');
 // jQuery
 $('#box');
 $('.box');
-$('.box');  // 항상 배열 형태로 반환
+$('.box');  // 유사배열(array-like)인 jQuery 객체 반환 (진짜 Array는 아님)
 ```
 
 ### 예제 2: 텍스트 변경
@@ -778,12 +781,12 @@ if ($('#box').length) {
 
 ---
 
-## 🎓 다음 단계 예고
+## 🎓 이벤트와 AJAX (실습: part03_이벤트와AJAX.html)
 
-7장을 마스터한 후:
-1. **이벤트 핸들링** (click, hover, on)
+이 강의노트는 선택자·DOM 조작까지 다룹니다. 아래 주제는 **실습 파일 `part03_이벤트와AJAX.html`에서 직접 코드로 다룹니다.**
+1. **이벤트 핸들링** (click, hover, on/off, 폼 이벤트)
 2. **효과와 애니메이션** (fadeIn, slideDown)
 3. **AJAX** ($.ajax, $.get, $.post)
 
-**7장 jQuery 기초를 완료했습니다! 다음은 이벤트와 AJAX입니다! 💎**
+**7장 jQuery를 완료했습니다! 💎**
 

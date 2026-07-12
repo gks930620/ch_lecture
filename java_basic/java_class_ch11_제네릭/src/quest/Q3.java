@@ -3,9 +3,10 @@ package quest;
 import java.util.List;
 
 public class Q3 {
-    static double average(List<? extends Number> list) {
+    //C1: Number 상한 경계 타입 파라미터로 숫자 리스트의 평균 계산
+    static <T extends Number> double average(List<T> list) {
         double sum = 0;
-        for (Number number : list) {
+        for (T number : list) {
             sum += number.doubleValue();
         }
         return sum / list.size();

@@ -22,7 +22,7 @@
 
 **프론트는 인가코드만 백엔드로 전달**하고, 나머지는 전부 백엔드가 담당한다.
 
-![웹 session방식](jwt설명1/img.png)
+![웹 session방식](spring_csr_jwt_oauth2_images/jwt설명1/img.png)
 
 - **보안성 증가**: Access Token(카카오)이 클라이언트에 노출되지 않음
 - **클라이언트 부담 감소**: 인가코드만 받아서 서버로 넘기면 됨
@@ -34,7 +34,7 @@
 
 ### 2-1. 클라이언트가 로그인버튼 클릭 → 백엔드에 authorizationURL 요청
 
-![클라이언트 로그인버튼 클릭](jwt설명1/img_1.png)
+![클라이언트 로그인버튼 클릭](spring_csr_jwt_oauth2_images/jwt설명1/img_1.png)
 
 클라이언트가 `localhost:8080/custom-oauth2/login/kakao`에 요청한다.
 
@@ -138,8 +138,8 @@ public class InMemoryAuthorizationRequestRepository implements
 
 ### 2-2. 클라이언트가 카카오 로그인페이지 요청 → ID/PW 입력 → 인가코드 받기
 
-![카카오 로그인페이지 요청](jwt설명1/img_2.png)
-![인가코드 받기](jwt설명1/img_3.png)
+![카카오 로그인페이지 요청](spring_csr_jwt_oauth2_images/jwt설명1/img_2.png)
+![인가코드 받기](spring_csr_jwt_oauth2_images/jwt설명1/img_3.png)
 
 서버로부터 받은 authorizationURL로 카카오서버에 로그인페이지를 요청하고,  
 ID/PW를 입력하면 카카오서버가 인가코드를 발급한다.  
@@ -147,14 +147,14 @@ ID/PW를 입력하면 카카오서버가 인가코드를 발급한다.
 
 ### 2-3. 클라이언트가 redirect-uri로 백엔드서버에 요청
 
-![redirect-uri 요청](jwt설명1/img_4.png)
+![redirect-uri 요청](spring_csr_jwt_oauth2_images/jwt설명1/img_4.png)
 
 클라이언트는 **인가코드 + state**를 포함해서 백엔드 서버의 redirect-uri로 요청한다.  
 이 **state 값**이 처음에 저장한 OAuth2AuthorizationRequest를 식별하는 데 쓰인다.
 
 ### 2-4. 백엔드서버에서 카카오 OAuth2 로그인과정 → JWT 발급
 
-![백엔드 로그인과정](jwt설명1/img_5.png)
+![백엔드 로그인과정](spring_csr_jwt_oauth2_images/jwt설명1/img_5.png)
 
 OAuth2AuthorizationRequest 검사(같은 클라이언트인지 확인) 후:  
 **인가코드로 토큰요청 → access token 획득 → UserRequest → 유저정보 획득 → CustomOAuth2UserService → DB저장**
@@ -175,9 +175,9 @@ http.oauth2Login(oauth2 -> oauth2
 );
 ```
 
-![로그인과정 상세](jwt설명2/img_2.png)
+![로그인과정 상세](spring_csr_jwt_oauth2_images/jwt설명2/img_2.png)
 
-![successHandler JWT 발급](jwt설명1/img_6.png)
+![successHandler JWT 발급](spring_csr_jwt_oauth2_images/jwt설명1/img_6.png)
 
 이후 **OAuth2LoginSuccessHandler**에 의해 **Access Token + Refresh Token 발급**.
 
@@ -258,7 +258,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
 ### 2-5. 로그인 성공 이후
 
-![로그인 이후 access token 사용](jwt설명1/img_7.png)
+![로그인 이후 access token 사용](spring_csr_jwt_oauth2_images/jwt설명1/img_7.png)
 
 로그인 성공 후에는 카카오 유저정보가 우리 DB에 저장되어 있으므로  
 **일반 JWT 로그인과 완전히 동일하게** Access Token, Refresh Token을 사용하면 된다.
@@ -634,28 +634,26 @@ public class SecurityConfig {
 
 ### 8-1. 로그인 페이지 요청 → authorizationURL 응답
 
-![authorizationURL 응답](jwt설명2/img_3.png)
+![authorizationURL 응답](spring_csr_jwt_oauth2_images/jwt설명2/img_3.png)
 
 `/custom-oauth2/login/kakao`로 요청하면 authorizationURL을 응답받는다.
 
 ### 8-2. authorizationURL로 카카오 로그인 페이지
 
-![카카오 로그인 페이지](jwt설명2/img_4.png)
+![카카오 로그인 페이지](spring_csr_jwt_oauth2_images/jwt설명2/img_4.png)
 
 authorizationURL로 요청하면 카카오 로그인 화면이 나온다.  
 (테스트용으로 브라우저에서 직접 진행)
 
 ### 8-3. 로그인 → redirect-uri → JWT 발급
 
-![redirect-uri 요청](jwt설명2/img_5.png)
-![서버 로그 (인가코드 포함)](jwt설명2/img_6.png)
+![redirect-uri 요청](spring_csr_jwt_oauth2_images/jwt설명2/img_5.png)
+![서버 로그 (인가코드 포함)](spring_csr_jwt_oauth2_images/jwt설명2/img_6.png)
 
 브라우저는 로그인 후 자동으로 redirect-uri(`/login/oauth2/code/kakao?code=...`)로 요청한다.  
 **이 요청을 받는 순간** 서버에서는 카카오 인증서버 + 리소스서버 요청 → DB 저장 → JWT 발급까지 전부 처리한다.
 
 ### 8-4. Access Token으로 API 요청
-
-![access token으로 /my/info 요청](jwt설명2/img_7.png)
 
 발급받은 access token으로 `/api/my/info`에 요청하면 내 정보를 확인할 수 있다.  
 이후 토큰 만료, refresh token 재발급 등은 **일반 회원과 완전히 동일하게 처리**된다.

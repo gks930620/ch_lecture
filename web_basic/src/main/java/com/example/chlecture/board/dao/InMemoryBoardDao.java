@@ -22,8 +22,11 @@ public class InMemoryBoardDao implements BoardDao {
         if (params != null && params.containsKey("offset") && params.containsKey("limit")) {
             int offset = (int) params.get("offset");
             int limit = (int) params.get("limit");
-            int from = Math.max(0, offset);
-            int to = Math.min(list.size(), offset + limit);
+            // subList(from, to)는 from > to 이면 예외가 난다.
+            // offset이 데이터 개수보다 클 수 있으므로 from에도 상한(list.size())을 씌운다.
+            // → Math.max(0, ...)로 하한, Math.min(list.size(), ...)로 상한을 잡는 습관.
+            int from = Math.min(list.size(), Math.max(0, offset));
+            int to = Math.min(list.size(), from + limit);
             return list.subList(from, to);
         }
         return list;

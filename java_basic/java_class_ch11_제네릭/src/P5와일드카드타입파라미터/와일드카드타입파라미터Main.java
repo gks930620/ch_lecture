@@ -8,7 +8,9 @@ public class 와일드카드타입파라미터Main {
         Applicant<Student> studentApplicant = new Applicant<>(new Student());
         Applicant<Worker> workerApplicant = new Applicant<>(new Worker());
 
-        Course.register1(humanApplicant);  //Applicant<>에서 <>따라 달라지는것까지 오버로딩X
+        Course.register1(humanApplicant);
+        //참고: 타입 소거 때문에 Applicant<Human>과 Applicant<Student>는 컴파일 후 같은 타입이 됨.
+        //그래서 <>안의 타입만 다르게 해서 메소드 오버로딩하는건 불가능함.
         Course.register2(humanApplicant);
         Course.register3(humanApplicant);
 

@@ -1,18 +1,15 @@
 ﻿---
 layout: default
 title: ch9_예외처리
-description: ch9_예외처리 통합 문서
+description: 예외 계층, try-catch, checked/unchecked, 예외 설계
 ---
 
 # ch9_예외처리
 
-통합 문서입니다.
 
 ---
 
-## 1. 예외 처리
 
-# 예외 처리 (Exception Handling)
 
 ## 학습 목표
 - Java 예외 계층과 checked/unchecked 예외 차이를 정확히 이해할 수 있다.
@@ -35,6 +32,8 @@ description: ch9_예외처리 통합 문서
 ---
 
 ## 2. Throwable 계층 구조
+
+![Throwable 계층 — checked vs unchecked]({{ '/java_basic/java_basic_images/ch9/throwable-hierarchy.svg' | relative_url }})
 
 큰 구조:
 1. `Error`: JVM/시스템 수준 심각 문제(보통 애플리케이션 복구 대상 아님)
@@ -90,18 +89,41 @@ try {
 - finally는 예외 여부와 무관하게 실행
 - finally에서도 예외가 발생하면 원래 예외가 가려질 수 있으므로 주의
 
+실행 가능한 완결 예제:
+
+```java
+public class TryCatchDemo {
+    public static void main(String[] args) {
+        try {
+            int result = 10 / 0; // ArithmeticException 발생
+            System.out.println("이 줄은 실행되지 않는다");
+        } catch (ArithmeticException e) {
+            System.out.println("0으로 나눌 수 없습니다: " + e.getMessage());
+        }
+        System.out.println("프로그램은 계속 실행된다");
+    }
+}
+// 출력:
+// 0으로 나눌 수 없습니다: / by zero
+// 프로그램은 계속 실행된다
+```
+
+예외가 발생하지 않으면 catch 블록은 건너뛰고, 발생하면 그 즉시 catch 블록으로 점프한다.  
+발생한 예외가 catch 타입과 일치해 **잡히는 경우라면** try-catch 이후의 코드는 계속 실행된다. 즉, 예외를 잡으면 프로그램이 죽지 않고 이어진다.  
+단, catch 타입과 일치하지 않는 예외가 발생하거나 catch 안에서 예외를 다시 던지면, 이후 코드는 실행되지 않고 예외가 호출한 쪽으로 전파된다.
+
 ---
 
 ## 5. 예외 전파와 처리 위치
 
 예외는 호출 스택을 따라 위로 전파된다.
 
-![예외 전파와 처리 흐름]({{ '/assets/images/java_basic/ch9/exception-handling-flow.svg' | relative_url }})
+![예외 전파와 처리 흐름]({{ '/java_basic/java_basic_images/ch9/exception-handling-flow.svg' | relative_url }})
 
 처리 위치 가이드:
 1. 현재 레이어가 복구 가능하면 여기서 처리
 2. 복구 불가하면 상위로 전달
-3. 경계 레이어(Controller/Batch entry)에서 사용자 친화 메시지/로그 변환
+3. 경계 레이어(Controller/Batch entry)에서 사용자 친화 메시지/로그 변환 — 지금 단계에서는 `main` 메소드 같은 "프로그램 진입점"이라고 생각하면 된다
 
 ---
 
@@ -125,7 +147,8 @@ public void importFile(Path path) throws IOException {
 
 ## 7. try-with-resources (권장)
 
-I/O 자원은 반드시 닫아야 한다.
+I/O 자원은 반드시 닫아야 한다.  
+(파일 입출력 API 자체는 ch10에서 자세히 배운다. 여기서는 "외부 자원을 열면 반드시 닫아야 한다"는 흐름만 이해하면 된다.)
 
 ```java
 try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -136,7 +159,7 @@ try (BufferedReader br = Files.newBufferedReader(path)) {
 장점:
 - 정상/예외 여부와 무관하게 자동 close
 - 코드 간결
-- suppressed exception 정보도 유지
+- suppressed exception 정보도 유지 (close() 중 발생한 예외가 본 예외에 딸려 함께 보존된다는 뜻)
 
 ---
 
@@ -169,6 +192,8 @@ try {
     throw new OrderSaveException("주문 저장 실패", e);
 }
 ```
+
+Repository/DB는 ch15와 스프링 과정에서 배운다. 여기서는 "하부 기술의 예외를 우리 서비스의 예외로 바꿔 던진다"는 패턴만 기억하면 된다.
 
 효과:
 - 기술 세부사항 누수 방지
@@ -204,11 +229,12 @@ try {
 
 ---
 
-## 2. 문제
 
 # 문제
 
 `ch9` 범위(예외 계층, try-catch, throws, 사용자 정의 예외, 자원 관리) 문제입니다.
+
+> 정답 예시: [ch9 문제 답안](문제답안/ch9_문제답안.md)
 
 ---
 
@@ -245,7 +271,9 @@ try {
 
 ---
 
-## E. 예외 변환/전파
+> **⚠️ 여기서부터(E·F)는 심화 — 실무 맛보기입니다.** 실무에서 쓰는 계층 구조(Repository = 데이터 저장 담당, Service = 업무 로직 담당)·배치 처리·에러 코드 설계를 미리 살짝 경험해 보는 문제라, 지금 단계에서 어렵다면 **건너뛰어도 괜찮습니다.** 앞의 A~D를 확실히 익히는 것이 우선입니다.
+
+## E. 예외 변환/전파 (심화)
 
 1. Repository에서 발생한 기술 예외를 Service에서 도메인 예외로 변환하시오.
 2. 원인 예외(cause)를 유지한 채 재던지시오.
@@ -253,7 +281,7 @@ try {
 
 ---
 
-## F. 챌린지
+## F. 챌린지 (심화)
 
 1. 회원 가입 유스케이스에서 입력 검증 실패/중복 이메일/DB 실패 예외를 분리 설계하시오.
 2. 배치 처리 중 일부 레코드 실패 시 전체 중단 vs 계속 처리 전략을 구현하시오.

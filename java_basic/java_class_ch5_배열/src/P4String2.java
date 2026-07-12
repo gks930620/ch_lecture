@@ -1,5 +1,3 @@
-import java.util.*;
-
 public class P4String2 {
     public static void main(String[] args) {
         //어떤 메소드를 쓸 때
@@ -8,7 +6,7 @@ public class P4String2 {
         //추출과 잘라내기 ,
         String birth = "040507";
         char mz = birth.charAt(0);
-        String month = birth.substring(2, 4);   //include, exclude 화인
+        String month = birth.substring(2, 4);   //include, exclude 확인
         if (mz == '0') {
             System.out.println("아직까지는 형소리 듣는게 가능해요.");
         } else {
@@ -19,8 +17,10 @@ public class P4String2 {
         String ditto = "ditto ditto ditto";
         System.out.println(ditto.length());  //물론 \n, 빈칸 등에 대한것도 길이에 포함
 
-        //문자열 대체   replace,replaceFisrt, replaceAll
-        System.out.println(ditto);
+        //문자열 대체   replace, replaceFirst, replaceAll
+        System.out.println(ditto.replace("ditto", "hello"));   //모든 "ditto"를 "hello"로 바꾼 새 문자열을 반환
+        System.out.println(ditto.replaceFirst("ditto", "hello"));   //첫 번째 "ditto"만 바꿈
+        System.out.println(ditto);   //원본 문자열은 그대로 (Immutable)
 
         //문자열 찾기   index, last index
         int startStrDitto = ditto.indexOf("ditto");

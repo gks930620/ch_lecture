@@ -21,7 +21,7 @@ public class JDBC기본1 {
         ResultSet rs=null;
 
         try {
-            conn= DriverManager.getConnection("jdbc:oracle:thin:@nextit.or.kr:1521:xe","std225","oracle21c");  //2.연결
+            conn= DriverManager.getConnection("jdbc:oracle:thin:@DB주소:1521:xe","DB유저ID","DB비밀번호");  //2.연결 (DB주소·유저ID·비밀번호는 본인 환경에 맞게 변경)
 
             //3.쿼리실행및 데이터처리
             stmt = conn.createStatement();  //이 stmt는 위의 주소에서 쿼리 실행하는 객체
@@ -32,6 +32,15 @@ public class JDBC기본1 {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            //4.연결 종료 : 연 순서의 역순으로 닫는다. (안 닫으면 리소스 누수)
+            try{
+                if(rs!=null) rs.close();
+                if(stmt!=null) stmt.close();
+                if(conn!=null) conn.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
         }
 
 

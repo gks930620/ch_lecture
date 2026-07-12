@@ -1,10 +1,9 @@
 package ch2_variable;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 public class P7변수사용범위와입력 {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if(true){
             int a=3;
         }
@@ -12,5 +11,7 @@ public class P7변수사용범위와입력 {
         Scanner scanner=new Scanner(System.in);
         String next = scanner.next();
         int num= scanner.nextInt();
+        System.out.println("입력한 문자열 : " + next);
+        System.out.println("입력한 숫자 : " + num);
     }
 }

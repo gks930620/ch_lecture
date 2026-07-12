@@ -13,7 +13,11 @@
 | **OAuth2** | 사용자 정보를 **어떻게 얻느냐**에 대한 것 (카카오 등 외부 제공자로부터) |
 
 **전통적 SSR 방식**: OAuth2(인가코드) → 사용자정보 획득 → **세션에 저장**  
-**프론트/백엔드 분리**: OAuth2(인가코드) → 사용자정보 획득 → **JWT에 저장**  
+**프론트/백엔드 분리**: OAuth2(인가코드) → 사용자정보 획득 → **JWT로 인증 상태 관리**  
+
+> ⚠️ "JWT로 관리"가 사용자정보를 토큰 안에 다 담는다는 뜻은 아니다.  
+> 이 프로젝트에서 **사용자정보(email·nickname·roles 등)는 DB(UserEntity)** 에 저장되고,  
+> **JWT에는 username(subject) + token_type 정도만** 담긴다. (세션 대신 토큰으로 "로그인 상태"를 유지하는 것)
 
 이 프로젝트는 **프론트/백엔드 분리** 환경에서  
 **백엔드가 OAuth2 인가코드 방식으로 사용자정보를 얻고, JWT(Access + Refresh Token)로 관리**하는 방식이다.
@@ -22,7 +26,7 @@
 
 **프론트는 인가코드만 백엔드로 전달**하고, 나머지는 전부 백엔드가 담당한다.
 
-![웹 session방식](jwt설명1/img.png)
+![웹 session방식](spring_csr_jwt_oauth2_images/jwt설명1/img.png)
 
 - **보안성 증가**: Access Token(카카오)이 클라이언트에 노출되지 않음
 - **클라이언트 부담 감소**: 인가코드만 받아서 서버로 넘기면 됨
@@ -34,7 +38,7 @@
 
 ### 2-1. 클라이언트가 로그인버튼 클릭 → 백엔드에 authorizationURL 요청
 
-![클라이언트 로그인버튼 클릭](jwt설명1/img_1.png)
+![클라이언트 로그인버튼 클릭](spring_csr_jwt_oauth2_images/jwt설명1/img_1.png)
 
 클라이언트가 `localhost:8080/custom-oauth2/login/kakao`에 요청한다.
 
@@ -126,6 +130,11 @@ public class Oauth2LoginController {
 }
 ```
 
+> **카카오 URL엔 왜 `scope`가 없을까?**  
+> 구글 URL엔 `&scope=profile email`이 붙지만 카카오 URL엔 scope가 없다.  
+> 카카오는 개발자 콘솔의 **동의항목(기본 스코프)** 설정을 사용하기 때문에 URL에 scope를 명시하지 않아도 된다.  
+> (필요하면 카카오도 `&scope=...`로 추가 지정할 수 있다.)
+
 **InMemoryAuthorizationRequestRepository** — 세션 없이 OAuth2AuthorizationRequest를 관리하는 저장소.
 
 ```java
@@ -166,8 +175,8 @@ public class InMemoryAuthorizationRequestRepository implements
 
 ### 2-2. 클라이언트가 카카오 로그인페이지 요청 → ID/PW 입력 → 인가코드 받기
 
-![카카오 로그인페이지 요청](jwt설명1/img_2.png)
-![인가코드 받기](jwt설명1/img_3.png)
+![카카오 로그인페이지 요청](spring_csr_jwt_oauth2_images/jwt설명1/img_2.png)
+![인가코드 받기](spring_csr_jwt_oauth2_images/jwt설명1/img_3.png)
 
 서버로부터 받은 authorizationURL로 카카오서버에 로그인페이지를 요청하고,  
 ID/PW를 입력하면 카카오서버가 인가코드를 발급한다.  
@@ -175,7 +184,7 @@ ID/PW를 입력하면 카카오서버가 인가코드를 발급한다.
 
 ### 2-3. 클라이언트가 redirect-uri로 백엔드서버에 요청
 
-![redirect-uri 요청](jwt설명1/img_4.png)
+![redirect-uri 요청](spring_csr_jwt_oauth2_images/jwt설명1/img_4.png)
 
 클라이언트는 **인가코드 + state**를 포함해서 백엔드 서버의 redirect-uri로 요청한다.  
 이 **state 값**이 처음에 저장한 OAuth2AuthorizationRequest를 식별하는 데 쓰인다.
@@ -183,9 +192,13 @@ ID/PW를 입력하면 카카오서버가 인가코드를 발급한다.
 > **브라우저**: 카카오 서버가 HTTP 302 응답으로 브라우저를 **자동 redirect** 시킨다.  
 > **앱(CSR)**: redirect를 가로채서 클라이언트가 **직접** 백엔드에 인가코드+state를 요청해야 한다.
 
+> **이 프로젝트의 redirect-uri는 "백엔드" 주소다** (`application.yml`: `http://localhost:8080/login/oauth2/code/kakao`).  
+> 그래서 카카오가 이 백엔드 URL로 redirect하면 Spring의 `OAuth2LoginAuthenticationFilter`가 **코드→토큰→유저정보→JWT까지 자동으로** 처리한다. (학습 편의상 이렇게 구성)  
+> 진짜 프론트/백 분리(프론트가 다른 오리진)라면, redirect-uri를 **프론트 주소**로 두고 프론트가 받은 `code`를 백엔드 **커스텀 API**로 다시 보내며, 이때는 Spring 자동처리(`/login/oauth2/code/*`)가 아니라 별도의 코드 교환 로직이 필요하다.
+
 ### 2-4. 백엔드서버에서 카카오 OAuth2 로그인과정 → JWT 발급
 
-![백엔드 로그인과정](jwt설명1/img_5.png)
+![백엔드 로그인과정](spring_csr_jwt_oauth2_images/jwt설명1/img_5.png)
 
 OAuth2AuthorizationRequest 검사(같은 클라이언트인지 확인) 후:  
 **인가코드로 토큰요청 → 카카오 access token 획득 → UserRequest → 유저정보 획득 → CustomOAuth2UserService → DB저장**
@@ -210,9 +223,9 @@ http.oauth2Login(oauth2 -> oauth2
 );
 ```
 
-![로그인과정 상세](jwt설명2/img_2.png)
+![로그인과정 상세](spring_csr_jwt_oauth2_images/jwt설명2/img_2.png)
 
-![successHandler JWT 발급](jwt설명1/img_6.png)
+![successHandler JWT 발급](spring_csr_jwt_oauth2_images/jwt설명1/img_6.png)
 
 이후 **OAuth2LoginSuccessHandler**에 의해 **Access Token + Refresh Token 발급**.
 
@@ -248,9 +261,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } else {  // 재로그인 → provider에서 변경된 정보 반영
             user.setEmail(provider.extractEmail(attributes));
             user.setNickname(provider.extractNickname(attributes));
+            // save() 호출이 없지만 @Transactional + JPA 변경감지(dirty checking)로 커밋 시 자동 반영된다
         }
 
-        return new CustomUserAccount(user, attributes);
+        // Entity → DTO 변환 후 전달 (Entity는 Service 계층까지만)
+        return new CustomUserAccount(UserDTO.from(user), attributes);
     }
 }
 ```
@@ -290,7 +305,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
 ### 2-5. 로그인 성공 이후
 
-![로그인 이후 access token 사용](jwt설명1/img_7.png)
+![로그인 이후 access token 사용](spring_csr_jwt_oauth2_images/jwt설명1/img_7.png)
 
 로그인 성공 후에는 카카오 유저정보가 우리 DB에 저장되어 있으므로  
 **일반 JWT 로그인과 완전히 동일하게** Access Token, Refresh Token을 사용하면 된다.
@@ -307,6 +322,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 - Access Token 만료 시 → Refresh Token으로 재발급 요청
 - Refresh Token은 **서버 DB(RefreshEntity)에도 저장**하여 폐기(로그아웃) 관리
 - 재발급 시 기존 Refresh Token 삭제 후 새 토큰 발급 (**Refresh Token Rotation**)
+
+> **JWT secret 키 길이 주의** — 이 프로젝트는 HS256 서명(`Keys.hmacShaKeyFor`)을 쓴다.  
+> HS256은 **최소 256bit(=영문/숫자 32자 이상)** 키가 필요하며, 너무 짧으면 기동 시 `WeakKeyException`이 발생한다.  
+> `JWT_SECRET_KEY` 환경변수(`.env`)에 32자 이상의 문자열을 넣자.
 
 ### token_type claim
 
@@ -513,6 +532,12 @@ public class LogoutController {
 > 로그아웃 시 서버 DB에서 Refresh Token을 삭제하여 해당 토큰으로 재발급이 불가능해진다.  
 > 클라이언트 측에서도 저장된 Access Token, Refresh Token을 삭제해야 한다.
 
+> **헤더 규칙 주의 (초심자 혼동 포인트)** — refresh token을 넘기는 방식이 API마다 다르다.  
+> - `POST /api/refresh/reissue` : `Authorization: Bearer <refreshToken>` (인증 불필요)  
+> - `POST /api/logout` : **인증 필요**(`authenticated()`)라서 헤더 2개를 함께 보내야 한다.  
+>   - `Authorization: Bearer <accessToken>` — 로그인 상태 인증용  
+>   - `RefreshToken: <refreshToken>` — 삭제할 refresh token (Bearer 없이 raw 토큰)
+
 ### RefreshService
 
 ```java
@@ -673,8 +698,10 @@ public class SecurityConfig {
 
         http  // 경로와 인증/인가 설정
             .authorizeHttpRequests(auth -> auth
+                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()   // ✅ 예외→/error 포워드가 401로 가려지지 않도록
                 .requestMatchers("/login", "/api/join", "/api/refresh/reissue", "/custom-oauth2/login/**").permitAll()
                 .requestMatchers("/api/my/info", "/api/logout").authenticated()
+                .anyRequest().authenticated()   // ✅ 나열하지 않은 나머지 URL도 기본 인증 필요
             );
 
         http.oauth2Login(oauth2 -> oauth2  // ✅ OAuth2 로그인 설정
@@ -728,36 +755,56 @@ public class SecurityConfig {
 }
 ```
 
+> **`anyRequest()`로 마무리하는 습관** — Spring Security 6에서는 요청이 어떤 `requestMatchers`에도 매칭되지 않으면 인가 판단을 하지 않고 **그냥 허용**한다.  
+> 즉 위에서 나열하지 않은 URL은 전부 열려 있는 셈이다. 나중에 `/api/admin/...` 같은 컨트롤러를 추가하고 인가 규칙을 깜빡하면 그 URL이 무방비로 열린다.  
+> 그래서 인가 블록 마지막에 `.anyRequest().authenticated()`(또는 `.denyAll()`)로 **기본값을 닫아두는 것**이 안전하다.  
+> 단, 이렇게 하면 **존재하지 않거나 오타난 URL**도 토큰 없이 접근하면 404가 아니라 **401(인증 필요)** 로 응답된다는 점은 알아두자.
+
+> **`dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()`은 왜 넣나?**  
+> Spring Security 6의 인가필터는 **ERROR 디스패치**(컨트롤러 예외 → `/error` 포워드)에도 적용된다.  
+> 그런데 우리 JWT 필터는 `OncePerRequestFilter`라 ERROR 디스패치에서는 재실행되지 않아 SecurityContext가 비어 있다.  
+> 이때 `anyRequest().authenticated()`가 `/error`까지 막아버리면 **실제 500 에러가 401로 가려진다.**  
+> 그래서 ERROR 디스패치는 허용해, 예외 응답이 원래 상태코드로 나가게 한다.
+
 ---
 
 ## 8. 실행결과
 
 ### 8-1. 로그인 페이지 요청 → authorizationURL 응답
 
-![authorizationURL 응답](jwt설명2/img_3.png)
+![authorizationURL 응답](spring_csr_jwt_oauth2_images/jwt설명2/img_3.png)
 
 `/custom-oauth2/login/kakao`로 요청하면 authorizationURL을 응답받는다.
 
 ### 8-2. authorizationURL로 카카오 로그인 페이지
 
-![카카오 로그인 페이지](jwt설명2/img_4.png)
+![카카오 로그인 페이지](spring_csr_jwt_oauth2_images/jwt설명2/img_4.png)
 
 authorizationURL로 요청하면 카카오 로그인 화면이 나온다.  
 (테스트용으로 브라우저에서 직접 진행)
 
 ### 8-3. 로그인 → redirect-uri → JWT 발급
 
-![redirect-uri 요청](jwt설명2/img_5.png)
-![서버 로그 (인가코드 포함)](jwt설명2/img_6.png)
+![서버 로그 — redirect-uri로 인가코드(code) 수신](spring_csr_jwt_oauth2_images/jwt설명2/img_5.png)
 
 브라우저는 로그인 후 자동으로 redirect-uri(`/login/oauth2/code/kakao?code=...`)로 요청한다.  
 **이 요청을 받는 순간** 서버에서는 카카오 인증서버 + 리소스서버 요청 → DB 저장 → JWT 발급까지 전부 처리한다.
 
 ### 8-4. Access Token으로 API 요청
 
-![access token으로 /my/info 요청](jwt설명2/img_7.png)
+발급받은 access token을 `Authorization: Bearer <accessToken>` 헤더에 담아 `/api/my/info`에 요청하면 내 정보를 확인할 수 있다.
 
-발급받은 access token으로 `/api/my/info`에 요청하면 내 정보를 확인할 수 있다.  
+현재 `MainController`는 아래처럼 **JSON**으로 응답한다. (보안상 password는 응답에 포함하지 않는다)
+
+```json
+{
+  "username": "kakao3940259658",
+  "email": "hong@example.com",
+  "nickname": "홍길동",
+  "roles": ["USER"]
+}
+```
+
 이후 토큰 만료, refresh token 재발급 등은 **일반 회원과 완전히 동일하게 처리**된다.
 
 ---

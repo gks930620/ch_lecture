@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620">
+  <defs>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+    <marker id="arrowGreen2" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#16a34a"/></marker>
+  </defs>
+  <rect width="1100" height="620" fill="#f8fafc"/>
+  <text x="550" y="42" text-anchor="middle" font-family="Arial" font-size="30" fill="#0f172a" font-weight="bold">while vs do-while</text>
+
+  <!-- Left panel: while (blue) -->
+  <rect x="40" y="80" width="490" height="500" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="285" y="115" text-anchor="middle" font-family="Arial" font-size="20" font-weight="bold" fill="#1e3a8a">while — check first</text>
+
+  <!-- Start -->
+  <rect x="235" y="140" width="100" height="38" rx="19" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="285" y="165" text-anchor="middle" font-family="Arial" font-size="16" fill="#1e3a8a">Start</text>
+  <line x1="285" y1="178" x2="285" y2="212" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- condition diamond -->
+  <polygon points="285,215 372,262 285,309 198,262" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="285" y="268" text-anchor="middle" font-family="Arial" font-size="16" fill="#1e3a8a">condition?</text>
+
+  <!-- true: down to body -->
+  <line x1="285" y1="309" x2="285" y2="348" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <text x="302" y="335" font-family="Arial" font-size="14" font-weight="bold" fill="#1e3a8a">true</text>
+  <rect x="220" y="352" width="130" height="46" rx="10" fill="#bfdbfe" stroke="#2563eb" stroke-width="2"/>
+  <text x="285" y="381" text-anchor="middle" font-family="Arial" font-size="17" font-weight="bold" fill="#1e3a8a">body</text>
+
+  <!-- loop back: body -> condition -->
+  <path d="M220,375 L140,375 L140,262 L192,262" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <text x="140" y="330" text-anchor="middle" font-family="Arial" font-size="13" fill="#1e3a8a">repeat</text>
+
+  <!-- false: right to Exit -->
+  <line x1="372" y1="262" x2="424" y2="262" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <text x="398" y="250" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#1e3a8a">false</text>
+  <rect x="428" y="240" width="80" height="44" rx="19" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="468" y="268" text-anchor="middle" font-family="Arial" font-size="16" fill="#1e3a8a">Exit</text>
+
+  <!-- note -->
+  <rect x="110" y="470" width="350" height="60" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  <text x="285" y="500" text-anchor="middle" font-family="Arial" font-size="16" fill="#1e3a8a">condition is false at first?</text>
+  <text x="285" y="521" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="#1e3a8a">body may run 0 times</text>
+
+  <!-- Right panel: do-while (green) -->
+  <rect x="570" y="80" width="490" height="500" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="815" y="115" text-anchor="middle" font-family="Arial" font-size="20" font-weight="bold" fill="#166534">do-while — run first</text>
+
+  <!-- Start -->
+  <rect x="765" y="140" width="100" height="38" rx="19" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <text x="815" y="165" text-anchor="middle" font-family="Arial" font-size="16" fill="#166534">Start</text>
+  <line x1="815" y1="178" x2="815" y2="208" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrowGreen2)"/>
+
+  <!-- body first -->
+  <rect x="750" y="212" width="130" height="46" rx="10" fill="#bbf7d0" stroke="#16a34a" stroke-width="2"/>
+  <text x="815" y="241" text-anchor="middle" font-family="Arial" font-size="17" font-weight="bold" fill="#166534">body</text>
+  <line x1="815" y1="258" x2="815" y2="292" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrowGreen2)"/>
+
+  <!-- condition diamond -->
+  <polygon points="815,295 902,342 815,389 728,342" fill="#ffffff" stroke="#16a34a" stroke-width="2.5"/>
+  <text x="815" y="348" text-anchor="middle" font-family="Arial" font-size="16" fill="#166534">condition?</text>
+
+  <!-- true: loop back to body -->
+  <path d="M728,342 L670,342 L670,235 L744,235" fill="none" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrowGreen2)"/>
+  <text x="670" y="300" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#166534">true</text>
+
+  <!-- false: down to Exit -->
+  <line x1="815" y1="389" x2="815" y2="424" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrowGreen2)"/>
+  <text x="838" y="412" font-family="Arial" font-size="14" font-weight="bold" fill="#166534">false</text>
+  <rect x="775" y="428" width="80" height="40" rx="19" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <text x="815" y="454" text-anchor="middle" font-family="Arial" font-size="16" fill="#166534">Exit</text>
+
+  <!-- note -->
+  <rect x="640" y="490" width="350" height="60" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+  <text x="815" y="520" text-anchor="middle" font-family="Arial" font-size="16" fill="#166534">body runs before the first check:</text>
+  <text x="815" y="541" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="#166534">body always runs at least once</text>
+</svg>

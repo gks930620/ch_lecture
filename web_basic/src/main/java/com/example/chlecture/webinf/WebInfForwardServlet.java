@@ -11,6 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 public class WebInfForwardServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("/06_WEB-INF/WEB-INF/hidden.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/06_WEB-INF/hidden.jsp").forward(req, resp);
     }
 }

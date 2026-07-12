@@ -10,7 +10,6 @@ import java.util.Date;
 
 public class 날짜와시간Main {
     public static void main(String[] args) {
-        //진짜 날짜와시간은 할말이 많다. naver d2 localDate꼭 읽자.
         LocalDate dNow= LocalDate.now();
         LocalTime tNow=LocalTime.now();
         LocalDateTime dtNow=LocalDateTime.now();
@@ -20,14 +19,15 @@ public class 날짜와시간Main {
         LocalDateTime dateTime= LocalDateTime.of(day,time);
 
         //각종 메소드
-        dateTime.getDayOfYear();
-        dateTime.getDayOfMonth();
-        dateTime.getDayOfWeek();
-        dateTime.getHour();
-        dateTime.getMinute();
-        dateTime.plusDays(3);
-        dateTime.plusMonths(3);
-        dateTime.plusHours(3);
+        System.out.println(dateTime.getDayOfYear());
+        System.out.println(dateTime.getDayOfMonth());
+        System.out.println(dateTime.getDayOfWeek());
+        System.out.println(dateTime.getHour());
+        System.out.println(dateTime.getMinute());
+        //불변 객체라서 plusXxx는 기존 객체를 바꾸지 않고 새 객체를 리턴한다. 리턴값을 받아서 써야 함.
+        System.out.println(dateTime.plusDays(3));
+        System.out.println(dateTime.plusMonths(3));
+        System.out.println(dateTime.plusHours(3));
 
         DateTimeFormatter dayFormatter=DateTimeFormatter.ISO_LOCAL_DATE;
         DateTimeFormatter timeFormatter=DateTimeFormatter.ISO_LOCAL_TIME;

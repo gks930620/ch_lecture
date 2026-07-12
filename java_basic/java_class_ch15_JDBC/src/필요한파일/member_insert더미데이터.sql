@@ -4,9 +4,9 @@ INSERT INTO member (
                    ,mem_mail,mem_job,mem_hobby
                    ,mem_del_yn
 ) VALUES (
-                 'a00'||seq_member.nextval, '1004','한창희',sysdate
-         ,'34502','우리집 아파트','201호','010-8000-8000'
-         ,'gksbir@naver.com','JB01','HB01'
+                 'a00'||seq_member.nextval, '1004','홍길동',sysdate
+         ,'34502','예시 아파트','201호','010-0000-0000'
+         ,'hong@example.com','JB01','HB01'
          ,'N'
          );
 

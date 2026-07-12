@@ -1,5 +1,3 @@
-import java.time.LocalDateTime;
-
 public class P1메모리영역 {
     public static void main(String[] args) {
         //참조타입은 heap영역에 생기고

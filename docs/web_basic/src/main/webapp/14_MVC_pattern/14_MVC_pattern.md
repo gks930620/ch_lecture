@@ -37,6 +37,8 @@
 
 ## 2) MVC 패턴이란
 
+![MVC(Model2) 요청 흐름: 브라우저 → Controller(Servlet) → Model(DAO) → View(JSP) → 응답, Model1과 대비]({{ '/web_basic/web_basic_images/ch14/mvc-model2-flow.svg' | relative_url }})
+
 | 구분 | 역할 | Ch10에서 | Spring에서 |
 |------|------|---------|-----------|
 | **Model** | 데이터 + 비즈니스 로직 | `Board`, `BoardDao`, `InMemoryBoardDao` | 동일 (+ Service 계층) |
@@ -74,16 +76,32 @@ public interface BoardDao { List<Board> selectList(...); }
 
 ## 3) 왜 이렇게 분리하는가?
 
-### JSP에 다 넣으면 생기는 문제 (`14_bad_example.jsp` 참고)
+### JSP에 다 넣으면 생기는 문제
+
+`14_bad_example.jsp`는 데이터 접근·로직·화면을 한 파일에 몰아넣은 "나쁜 예"입니다. 실제 파일은 DB 대신 스크립틀릿에서 `List<Map<String,String>>`을 하드코딩해 "DB 접근이라고 가정"하고 있습니다.
+
 ```jsp
-<%-- ❌ JSP에 DB 접근 + 로직 + HTML이 전부 섞여있음 --%>
+<%-- ❌ 실제 14_bad_example.jsp: 데이터 생성 + 로직 + 출력이 JSP 한 곳에 --%>
+<%
+    // JSP 안에서 직접 데이터를 만든다 (DB 접근이라고 가정)
+    List<Map<String, String>> boards = new ArrayList<>();
+    Map<String, String> b1 = new HashMap<>();
+    b1.put("id", "1"); b1.put("title", "첫 번째 글"); b1.put("writer", "admin");
+    boards.add(b1);
+    int totalCount = boards.size();   // 비즈니스 로직까지 JSP에서
+%>
+<% for (Map<String, String> b : boards) { %>
+    <tr><td><%= b.get("id") %></td><td><%= b.get("title") %></td></tr>
+<% } %>
+```
+
+실무에서 이 자리에 아래처럼 **DB 접근 코드(JDBC 등)까지** 섞이면 문제가 더 심해집니다.
+```jsp
+<%-- 예를 들어 이런 DB 접근이 JSP에 직접 섞이면 (실제 파일엔 없는, 더 나쁜 형태) --%>
 <%
     Connection conn = DriverManager.getConnection(...);
     ResultSet rs = conn.prepareStatement("SELECT * FROM board").executeQuery();
 %>
-<% while(rs.next()) { %>
-    <p><%= rs.getString("title") %></p>
-<% } %>
 ```
 - 유지보수 불가능: 어디가 로직이고 어디가 화면인지 구분 안됨
 - 테스트 불가능: JSP를 단위 테스트할 수 없음

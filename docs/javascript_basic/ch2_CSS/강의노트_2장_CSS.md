@@ -36,7 +36,8 @@ HTML + CSS + JavaScript
 
 ### 강의 포인트
 - 3가지 방법이 있지만 **외부 CSS 파일 사용을 강력 권장**
-- 우선순위: 인라인 > 내부 > 외부 (하지만 !important가 최우선)
+- 우선순위: **인라인 > (내부 = 외부)**. 내부 `<style>`와 외부 `<link>`는 **가중치가 동일**하며, 선택자 명시도가 같으면 **나중에 선언된 것**이 이깁니다. (그리고 `!important`가 최우선)
+  - ⚠️ "내부가 외부보다 높다"는 흔한 오해입니다. 둘은 같은 author origin이라 우선순위가 같습니다.
 
 ### 1. 인라인 스타일 (Inline Style) ❌ 비권장
 ```html
@@ -342,6 +343,8 @@ p::first-letter {
 ---
 
 ## 📚 CSS 우선순위 (Specificity)
+
+![CSS 명시도 우선순위]({{ '/javascript_basic/javascript_basic_images/ch2/specificity.svg' | relative_url }})
 
 ### 강의 포인트
 - CSS에서 가장 헷갈리는 부분!

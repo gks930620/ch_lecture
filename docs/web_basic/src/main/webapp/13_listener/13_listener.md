@@ -62,7 +62,8 @@ public class SessionCountListener implements HttpSessionListener {
     public static int getActiveSessions() { return activeSessions; }
 }
 ```
-- 실시간 접속자 수 추적, 세션 모니터링에 활용
+> 참고(동시성): 위 예시는 이해를 돕기 위해 `int activeSessions` + `++/--`로 단순화한 것입니다. 세션은 여러 요청에서 **동시에** 생성/소멸될 수 있어 `activeSessions++`는 원자적이지 않아(경쟁 조건) 값이 틀어질 수 있습니다. 그래서 **실제 소스 `SessionCountListener.java`는 `AtomicInteger`의 `incrementAndGet()/decrementAndGet()`**을 사용해 스레드 안전하게 구현되어 있습니다.
+- 활성 세션 수 추적, 세션 모니터링에 활용. (엄밀히는 "접속자 수"와 "세션 수"가 정확히 같지는 않습니다. 한 사용자가 여러 브라우저로 여러 세션을 가질 수 있고, 세션은 타임아웃 전까지 유지되기 때문입니다. 증감 원리(생성 +1, 소멸 -1)는 정확합니다.)
 
 ### ServletRequestListener — 요청 시작/종료
 ```java

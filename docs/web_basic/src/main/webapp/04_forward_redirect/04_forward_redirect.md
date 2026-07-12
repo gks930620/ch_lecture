@@ -16,8 +16,11 @@
   - `HttpServletResponse.sendRedirect(url)` 사용. 요청이 새로 생성되므로 request 속성은 유지되지 않음.
 
 2) 동작 원리
-- Forward: 같은 서블릿 컨테이너 내에서 내부적으로 호출. 서버 내부에서 스택처럼 처리됨.
-- Redirect: 서버가 클라이언트에게 새 URL을 알려 클라이언트가 별도의 GET 요청을 보냄(브라우저 주소창 변경).
+
+![Forward와 Redirect의 요청 흐름 비교]({{ '/web_basic/web_basic_images/ch04/forward-vs-redirect.svg' | relative_url }})
+
+- Forward: 같은 서블릿 컨테이너 내부에서 요청을 다른 리소스로 넘김. 브라우저는 한 번만 요청하고, 서버가 내부에서 대상 리소스를 실행해 응답을 완성한다(브라우저는 이동을 인지하지 못함).
+- Redirect: 서버가 클라이언트에게 새 URL을 알려(302 + Location) 클라이언트가 **별도의 새 GET 요청**을 보냄(브라우저 주소창 변경).
 
 3) 장단점 및 사용 사례
 - Forward 사용 시
@@ -25,7 +28,7 @@
   - 단점: 브라우저 새로고침 시 폼 재전송 문제 발생 가능(POST 재전송).
 - Redirect 사용 시
   - 장점: PRG 패턴으로 중복 제출 방지, 브라우저 주소창이 변경되어 사용자 경험 일관.
-  - 단점: 클라이언트가 새 요청을 하기 때문에 request 데이터 유실 — 필요한 경우 session이나 쿼리스트링으로 전달.
+  - 단점: 클라이언트가 새 요청을 하기 때문에 request 데이터 유실 — 필요한 경우 세션(session, ch05에서 학습)이나 쿼리스트링으로 전달.
 
 4) PRG 패턴(Post-Redirect-Get)
 - 목적: 폼 제출 후 사용자가 새로고침으로 인해 중복 제출되는 문제 방지.
@@ -34,7 +37,7 @@
 
 5) 실습 지침
 - `04_form.jsp`에서 mode를 입력해 forward/redirect를 실습.
-- `ForwardRedirectServlet`을 통해 request 속성 설정 후 forward/redirect 동작 비교.
+- `ForwardRedirectServlet`을 통해 request 속성 설정 후 forward/redirect 동작 비교. 결과 화면은 각각 `04_result_forward.jsp`, `04_result_redirect.jsp`이며, redirect 쪽에서는 request 속성이 사라져 있음을 확인.
 - 연습 문제: 폼 검증(예: 제목 필수) 실패 시 에러 메시지를 보여주려면 어떤 전략(Forward vs Redirect+Flash Attribute)을 사용할지 설명하라.
 
 6) 고급: Flash Attributes 패턴

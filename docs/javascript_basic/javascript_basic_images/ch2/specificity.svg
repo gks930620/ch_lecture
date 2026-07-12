@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" font-family="'Malgun Gothic','Segoe UI',sans-serif">
+  <rect width="720" height="400" fill="#f8fafc"/>
+  <text x="360" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#1e293b">CSS 명시도 (Specificity)</text>
+  <text x="360" y="58" text-anchor="middle" font-size="13" fill="#64748b">숫자가 클수록 우선 적용 · 같으면 나중에 선언된 규칙이 이김</text>
+
+  <!-- rows -->
+  <g font-size="14">
+    <!-- inline -->
+    <rect x="60" y="80" width="600" height="48" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="80" y="110" font-weight="700" fill="#b91c1c">인라인 style="..."</text>
+    <text x="430" y="110" font-family="monospace" fill="#7f1d1d">1, 0, 0, 0</text>
+    <text x="600" y="110" fill="#b91c1c" font-weight="700">가장 강함</text>
+
+    <!-- id -->
+    <rect x="60" y="136" width="600" height="48" rx="8" fill="#ffedd5" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="80" y="166" font-weight="700" fill="#b45309">ID 선택자  #title</text>
+    <text x="430" y="166" font-family="monospace" fill="#78350f">0, 1, 0, 0</text>
+
+    <!-- class -->
+    <rect x="60" y="192" width="600" height="48" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
+    <text x="80" y="222" font-weight="700" fill="#a16207">클래스 .box / [attr] / :hover</text>
+    <text x="430" y="222" font-family="monospace" fill="#713f12">0, 0, 1, 0</text>
+
+    <!-- tag -->
+    <rect x="60" y="248" width="600" height="48" rx="8" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="80" y="278" font-weight="700" fill="#15803d">태그 선택자  h1, p, div</text>
+    <text x="430" y="278" font-family="monospace" fill="#14532d">0, 0, 0, 1</text>
+
+    <!-- universal -->
+    <rect x="60" y="304" width="600" height="48" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="80" y="334" font-weight="700" fill="#0369a1">전체 선택자  *</text>
+    <text x="430" y="334" font-family="monospace" fill="#075985">0, 0, 0, 0</text>
+    <text x="600" y="334" fill="#0369a1" font-weight="700">가장 약함</text>
+  </g>
+
+  <!-- arrow -->
+  <path d="M32 92 V344" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#a)"/>
+  <text x="22" y="220" font-size="11" fill="#64748b" transform="rotate(-90 22 220)">우선순위 높음 → 낮음</text>
+
+  <text x="360" y="388" text-anchor="middle" font-size="12" fill="#475569">※ !important는 이 표를 무시하고 최우선 · 내부&lt;style&gt;와 외부&lt;link&gt;는 가중치가 동일</text>
+
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+</svg>

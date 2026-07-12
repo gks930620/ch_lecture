@@ -16,7 +16,12 @@ public class Q1 {
     }
 
     public static void main(String[] args) {
-        Person person = new Person("홍길동", 25);
-        person.introduce();
+        Person person1 = new Person("홍길동", 25);
+        Person person2 = new Person("김영희", 31);
+        Person person3 = new Person("이철수", 28);
+
+        person1.introduce();
+        person2.introduce();
+        person3.introduce();
     }
 }

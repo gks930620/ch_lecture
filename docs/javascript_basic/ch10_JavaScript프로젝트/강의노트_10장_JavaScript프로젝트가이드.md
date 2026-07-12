@@ -81,9 +81,10 @@ my-project/
 
 ---
 
-# 🟢 입문 프로젝트 (1~3장 수준)
+# 🟢 입문 프로젝트 (1~3장 + 5장 DOM 기초)
 
-> HTML/CSS 기초 + JavaScript 기초만 알면 만들 수 있는 프로젝트
+> HTML/CSS 기초 + JavaScript 기초에 더해, **5장의 DOM 조작·이벤트 리스너(5.7)**까지 익히면 만들 수 있는 프로젝트
+> (각 프로젝트의 "필요한 기술" 표를 함께 확인하세요.)
 
 ---
 
@@ -180,7 +181,7 @@ my-project/
 
 ### 💡 구현 힌트
 - 명언 데이터는 배열 안에 객체로: `[{ text: "명언", author: "저자" }, ...]`
-- 랜덤 색상: `` `#${Math.floor(Math.random()*16777215).toString(16)}` ``
+- 랜덤 색상: `` `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}` `` (padStart로 6자리 보정 — 안 하면 `#fff`처럼 자리수가 모자란 잘못된 코드가 나올 수 있음)
 - 글자색은 배경 밝기에 따라 자동 전환 (밝으면 검정, 어두우면 흰색)
 - `navigator.clipboard.writeText()`로 복사 기능
 
@@ -191,9 +192,9 @@ my-project/
 
 ---
 
-# 🟡 초급 프로젝트 (3~5장 수준)
+# 🟡 초급 프로젝트 (3~5장 + 일부 8장 LocalStorage)
 
-> JavaScript 기초 + DOM 조작을 활용하는 프로젝트
+> JavaScript 기초 + DOM 조작을 활용하는 프로젝트 (Todo 등 일부는 **8.12 LocalStorage** 필요)
 
 ---
 
@@ -973,7 +974,8 @@ const newPost = await api('/posts', {
 
 ```javascript
 function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    // substr은 레거시(deprecated)이므로 slice 사용
+    return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 // 예: "m1abc23_def456gh"
 ```

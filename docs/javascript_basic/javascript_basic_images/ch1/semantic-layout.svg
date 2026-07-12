@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520">
+  <rect width="960" height="520" fill="#f8fafc"/>
+  <text x="480" y="44" text-anchor="middle" font-size="26" font-family="Arial" fill="#0f172a" font-weight="bold">시맨틱 태그로 짠 페이지 레이아웃</text>
+
+  <!-- header -->
+  <rect x="120" y="72" width="720" height="64" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="3"/>
+  <text x="480" y="102" text-anchor="middle" font-size="20" font-family="Arial" fill="#1e3a8a" font-weight="bold">&lt;header&gt;</text>
+  <text x="480" y="124" text-anchor="middle" font-size="13" font-family="Arial" fill="#1e3a8a">로고 · 사이트 제목</text>
+
+  <!-- nav -->
+  <rect x="120" y="144" width="720" height="44" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="3"/>
+  <text x="480" y="172" text-anchor="middle" font-size="18" font-family="Arial" fill="#5b21b6" font-weight="bold">&lt;nav&gt;  (메뉴 · 내비게이션 링크)</text>
+
+  <!-- main + aside -->
+  <rect x="120" y="196" width="480" height="220" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+  <text x="360" y="226" text-anchor="middle" font-size="20" font-family="Arial" fill="#166534" font-weight="bold">&lt;main&gt;</text>
+  <text x="360" y="248" text-anchor="middle" font-size="13" font-family="Arial" fill="#166534">이 페이지의 핵심 콘텐츠 (페이지당 하나)</text>
+
+  <rect x="150" y="266" width="420" height="60" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+  <text x="360" y="302" text-anchor="middle" font-size="15" font-family="Arial" fill="#166534">&lt;article&gt; 독립적으로 배포 가능한 글</text>
+  <rect x="150" y="336" width="420" height="60" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+  <text x="360" y="372" text-anchor="middle" font-size="15" font-family="Arial" fill="#166534">&lt;section&gt; 주제별 구획</text>
+
+  <rect x="616" y="196" width="224" height="220" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+  <text x="728" y="226" text-anchor="middle" font-size="20" font-family="Arial" fill="#92400e" font-weight="bold">&lt;aside&gt;</text>
+  <text x="728" y="252" text-anchor="middle" font-size="13" font-family="Arial" fill="#92400e">사이드바</text>
+  <text x="728" y="272" text-anchor="middle" font-size="13" font-family="Arial" fill="#92400e">부가 정보 · 광고</text>
+
+  <!-- footer -->
+  <rect x="120" y="424" width="720" height="56" rx="10" fill="#e2e8f0" stroke="#475569" stroke-width="3"/>
+  <text x="480" y="452" text-anchor="middle" font-size="18" font-family="Arial" fill="#334155" font-weight="bold">&lt;footer&gt;</text>
+  <text x="480" y="472" text-anchor="middle" font-size="13" font-family="Arial" fill="#334155">저작권 · 연락처</text>
+
+  <text x="480" y="506" text-anchor="middle" font-size="15" font-family="Arial" fill="#64748b">태그 이름만 봐도 그 구역의 용도를 알 수 있다 = 시맨틱(의미 있는) 마크업</text>
+</svg>

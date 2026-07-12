@@ -3,7 +3,7 @@ public class P5NanInfinity인데굳이하지말자 {
 
 
         System.out.println(0/0.0);
-        System.out.println(3/0.0);   //int 0으로 나누면 에러
+        System.out.println(3/0.0);   //실수 0.0으로 나누면 에러가 아니라 Infinity. (정수끼리 3/0은 ArithmeticException 에러)
 
         double nan=0/0.0;
         double infinity= 3/0.0;

@@ -3,7 +3,7 @@ INSERT INTO free_board (
                        ,bo_pass,bo_content
                        ,bo_reg_date,bo_mod_date,bo_del_yn
 ) VALUES (
-             SEQ_FREE_BOARD.nextval, '제목1', 'BC01','한창희'
+             SEQ_FREE_BOARD.nextval, '제목1', 'BC01','홍길동'
          ,'1004','내용은 길게'
          ,sysdate,null,'N'
          );

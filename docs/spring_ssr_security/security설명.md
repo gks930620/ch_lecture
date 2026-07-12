@@ -12,7 +12,7 @@ Spring Security의 모든 보안 정책을 한 곳에서 설정하는 클래스.
 @EnableWebSecurity   // Security 보안 설정 활성화 (Boot 3에선 생략 가능하지만 명시 권장)
 public class SecurityConfig {
 
-    @Bean  // 비밀번호를 BCrypt로 인코딩해서 DB에 저장, 비교 시 자동 디코딩
+    @Bean  // 회원가입 시 encode()로 해시 저장, 로그인 시 matches()로 해시 비교 (단방향 — 복호화 불가)
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -58,6 +58,15 @@ public class SecurityConfig {
 | `logoutUrl("/logout")` | 로그아웃 URL → **Controller 없음**, Security가 자동 처리 |
 | `permitAll()` | 로그인 페이지 자체는 비로그인 상태에서도 접근 가능 |
 
+> ⚠️ **`anyRequest().permitAll()`에 대한 참고 (중요)**
+> 이 예제는 학습용이라 "명시하지 않은 나머지 URL을 전부 허용(`permitAll`)"으로 열어두었다.
+> 하지만 **실무에서는 반대로** `anyRequest().authenticated()`(명시 안 한 URL은 로그인 필수)로 두고,
+> 공개해도 되는 URL만 `permitAll()`로 하나씩 여는 **화이트리스트 방식**을 쓴다.
+> URL 하나를 깜빡 열어둬도 로그인 벽에 막히는(fail-close) 쪽이 안전하기 때문이다.
+> ```java
+> .anyRequest().authenticated()   // 실무 권장: 명시 안 한 URL은 로그인 필수 (안전한 기본값)
+> ```
+
 ---
 
 ## 2. 로그인 페이지 지정
@@ -96,7 +105,7 @@ public class UserController {
 - `action="/loginProc"` → SecurityConfig의 `loginProcessingUrl("/loginProc")`과 일치해야 함
 - `name="username"`, `name="password"` → **반드시 이 이름**이어야 Security가 인식
 
-![로그인 페이지 화면](./seucirty%20이미지/security1.png)
+![로그인 페이지 화면]({{ '/spring_ssr_security/spring_ssr_security_images/security1.png' | relative_url }})
 
 ---
 
@@ -107,13 +116,13 @@ public class UserController {
 
 > Security 세션 방식에서 이 과정을 이해하는 것이 핵심이다.
 
-![로그인 과정 흐름도 1](./seucirty%20이미지/security2.png)
+![로그인 과정 흐름도 1]({{ '/spring_ssr_security/spring_ssr_security_images/security2.png' | relative_url }})
 
-![로그인 과정 흐름도 2](./seucirty%20이미지/security3.png)
+![로그인 과정 흐름도 2]({{ '/spring_ssr_security/spring_ssr_security_images/security3.png' | relative_url }})
 
 > 참고: 공식 문서 Architecture 그림
 
-![Spring Security 공식 문서 Architecture](./seucirty%20이미지/security4.png)
+![Spring Security 공식 문서 Architecture]({{ '/spring_ssr_security/spring_ssr_security_images/security4.png' | relative_url }})
 
 ### 전체 흐름
 
@@ -185,7 +194,7 @@ public class CustomUserAccount implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
         for (String role : sessionUser.getRoles()) {  // roles는 List<String>
-            collection.add(() -> role);  // 람다로 GrantedAuthority 구현
+            collection.add(new SimpleGrantedAuthority(role));  // 문자열 → GrantedAuthority (관례적 구현체)
         }
         return collection;
     }
@@ -197,7 +206,8 @@ public class CustomUserAccount implements UserDetails {
     public List<String> getRoles()   { return sessionUser.getRoles(); }
 
     // isAccountNonExpired, isAccountNonLocked, isCredentialsNonExpired, isEnabled
-    // → Spring Boot 3부터는 default 메소드로 제공되어 구현 생략 가능
+    // → Spring Security 6.1(= Spring Boot 3.1)부터 UserDetails의 default 메소드로 제공되어 구현 생략 가능
+    //   (이 프로젝트는 Boot 3.3.4라 해당됨. Boot 3.0에서는 직접 구현해야 했음)
 }
 ```
 
@@ -255,13 +265,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 다시 로그인 과정을 보면, 위에서 만든 UserDetailsService와 UserDetails가 어디에 들어가는지 알 수 있다.
 
-![로그인 과정 — UserDetailsService 호출](./seucirty%20이미지/security5.png)
+![로그인 과정 — UserDetailsService 호출]({{ '/spring_ssr_security/spring_ssr_security_images/security5.png' | relative_url }})
 
-![로그인 과정 — UserDetails 반환 후 비밀번호 비교](./seucirty%20이미지/security6.png)
+![로그인 과정 — UserDetails 반환 후 비밀번호 비교]({{ '/spring_ssr_security/spring_ssr_security_images/security6.png' | relative_url }})
 
 로그인 성공 시 Security가 로그인 정보를 자동으로 저장한다.
 
-![로그인 성공 — 세션에 로그인 정보 저장](./seucirty%20이미지/security7.png)
+![로그인 성공 — 세션에 로그인 정보 저장]({{ '/spring_ssr_security/spring_ssr_security_images/security7.png' | relative_url }})
 
 ---
 
@@ -269,7 +279,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 로그인 성공 시 Security가 자동으로 세션에 로그인 정보를 저장한다.
 
-![SecurityContextHolder 구조](./seucirty%20이미지/security8.png)
+![SecurityContextHolder 구조]({{ '/spring_ssr_security/spring_ssr_security_images/security8.png' | relative_url }})
 
 ```
 SecurityContextHolder (싱글톤, ThreadLocal 기반)

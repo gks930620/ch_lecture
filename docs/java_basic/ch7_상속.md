@@ -1,18 +1,15 @@
 ﻿---
 layout: default
 title: ch7_상속
-description: ch7_상속 통합 문서
+description: 상속, 오버라이딩, 다형성, 업캐스팅과 다운캐스팅
 ---
 
 # ch7_상속
 
-통합 문서입니다.
 
 ---
 
-## 1. 상속과 다형성
 
-# 상속과 다형성
 
 ## 학습 목표
 - 상속이 필요한 상황과 피해야 할 상황을 구분할 수 있다.
@@ -70,7 +67,15 @@ class Dog extends Animal {
 1. 메소드 시그니처 동일
 2. 접근 제어는 더 좁힐 수 없음
 3. 반환 타입은 공변 반환 허용 범위 내
-4. `@Override`를 반드시 붙여 컴파일 타임 검증 권장
+4. `@Override`를 붙여 컴파일 타임 검증을 받을 것을 권장 (실수를 컴파일 오류로 잡아준다)
+5. `final` 메소드는 오버라이딩할 수 없고, `final` 클래스는 상속 자체가 불가능하다 — 더 이상 확장을 허용하지 않겠다는 의도를 표현할 때 사용
+
+오버로딩 vs 오버라이딩:
+
+| 구분 | 오버로딩(Overloading) | 오버라이딩(Overriding) |
+|------|----------------------|----------------------|
+| 정의 | 같은 이름, 다른 매개변수로 여러 메소드 정의 (ch5) | 부모 메소드를 자식이 재정의 |
+| 관계 | 같은 클래스 안에서 성립 | 상속 관계에서 성립 |
 
 ---
 
@@ -84,11 +89,15 @@ a.sound(); // Dog.sound()
 컴파일 시 타입은 `Animal`, 실행 시 실제 객체는 `Dog`이므로  
 호출 메소드는 런타임에 결정된다(동적 디스패치).
 
-![상속과 다형성 디스패치]({{ '/assets/images/java_basic/ch7/inheritance-polymorphism.svg' | relative_url }})
+![상속과 다형성 디스패치]({{ '/java_basic/java_basic_images/ch7/inheritance-polymorphism.svg' | relative_url }})
 
 다형성 장점:
 - 호출 코드를 바꾸지 않고 구현체를 교체 가능
-- OCP(개방-폐쇄 원칙)에 유리
+- OCP(개방-폐쇄 원칙)에 유리 — 기존 코드를 수정하지 않고(폐쇄) 새 기능을 추가(개방)할 수 있다는 원칙
+
+주의할 원칙 — 리스코프 치환 원칙(LSP):  
+자식 객체는 부모 타입이 쓰이는 곳에 대신 넣어도 프로그램이 올바르게 동작해야 한다.  
+오버라이딩할 때 부모가 약속한 동작(계약)을 깨면 다형성 코드 전체가 위험해진다.
 
 ---
 
@@ -109,8 +118,33 @@ Animal a = new Dog();
 Dog d = (Dog) a; // 명시적
 ```
 
-실제 객체 타입이 다르면 `ClassCastException` 발생.  
+실제 객체 타입이 다르면 `ClassCastException` 발생:
+
+```java
+Animal a = new Cat();
+Dog d = (Dog) a; // 컴파일은 되지만 실행 시 ClassCastException
+```
+
 필요 시 `instanceof`로 안전성 점검.
+
+Java 16+에서는 instanceof 패턴 매칭으로 검사와 캐스팅을 한 번에 처리할 수 있다.  
+Java 17 기준인 이 강의에서는 이 스타일을 권장한다:
+
+```java
+// Dog에만 있는 고유 메소드 bark()가 있다고 하자
+class Dog extends Animal {
+    @Override
+    void sound() { System.out.println("멍멍"); }
+    void bark() { System.out.println("왈왈!"); } // Dog 고유 메소드
+}
+
+Animal a = new Dog();
+if (a instanceof Dog d) {
+    d.bark(); // 검사와 캐스팅을 한 번에 — Dog 고유 메소드 호출 가능
+}
+```
+
+![참조 타입에 따라 보이는 멤버 범위]({{ '/java_basic/java_basic_images/ch7/reference-type-casting.svg' | relative_url }})
 
 ---
 
@@ -194,11 +228,12 @@ class Car {
 
 ---
 
-## 2. 문제
 
 # 문제
 
 `ch7` 범위(상속/오버라이딩/다형성/추상클래스) 문제입니다.
+
+> 정답 예시: [ch7 문제 답안](문제답안/ch7_문제답안.md)
 
 ---
 
@@ -233,7 +268,7 @@ class Car {
 
 1. `Shape` 추상 클래스를 만들고 `area()` 추상 메소드를 선언하시오.
 2. `Circle`, `Rectangle` 자식 클래스를 구현하시오.
-3. `Shape` 타입 컬렉션으로 전체 넓이 합계를 계산하시오.
+3. `Shape` 타입 배열(`Shape[]`)로 전체 넓이 합계를 계산하시오.
 4. 추상 클래스에 공통 구현 메소드(`printInfo`)를 추가하시오.
 
 ---
@@ -248,7 +283,7 @@ class Car {
 
 ## F. 챌린지
 
-1. 게임 캐릭터 계층(`Character`, `Warrior`, `Mage`)을 설계하고 스킬 오버라이딩을 구현하시오.
+1. 게임 캐릭터 계층(`GameCharacter`, `Warrior`, `Mage`)을 설계하고 스킬 오버라이딩을 구현하시오. (`Character`는 `java.lang.Character`와 이름이 겹치므로 피한다.)
 2. `final` 메소드/클래스를 적용해 확장을 제한해야 하는 케이스를 구현하시오.
 3. 리스코프 치환 원칙(LSP)을 깨는 예시를 만들고 개선하시오.
 

@@ -1,5 +1,11 @@
 -- Hibernate DDL 이후 실행됨 (defer-datasource-initialization: true)
 -- users 테이블만 FK 체크 없이 강제 재생성 (이전 스키마 잔재 제거용)
+--
+-- ※ 주의: ddl-auto: create가 이미 UserEntity 기준으로 users 테이블을 만든 뒤,
+--   아래 DROP/CREATE가 SQL 기준으로 다시 정의한다(스키마가 Entity+SQL 두 곳에서 정의됨, SQL이 최종).
+--   따라서 UserEntity에 컬럼을 추가/변경하면 아래 CREATE TABLE도 함께 수정해야 한다.
+--   (테이블 생성을 Hibernate에 일임하고 INSERT만 남기면 이중정의를 없앨 수 있으나,
+--    여기서는 스키마를 눈으로 확인 가능하도록 명시적 DROP/CREATE를 유지한다.)
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS users;

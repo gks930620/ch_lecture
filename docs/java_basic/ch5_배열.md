@@ -1,16 +1,14 @@
 ﻿---
 layout: default
 title: ch5_배열
-description: ch5_배열 통합 문서
+description: 메소드와 스코프, 배열 메모리 모델과 복사
 ---
 
 # ch5_배열
 
-통합 문서입니다.
 
 ---
 
-## 1. 메소드와 스코프
 
 # 메소드와 스코프
 
@@ -70,7 +68,7 @@ public static int add(int a, int b) {
 3. `return` 시 프레임 제거
 4. 호출 지점으로 복귀
 
-![메소드 호출과 스코프]({{ '/assets/images/java_basic/ch5/method-scope-callstack.svg' | relative_url }})
+![메소드 호출과 스코프]({{ '/java_basic/java_basic_images/ch5/method-scope-callstack.svg' | relative_url }})
 
 실무 포인트:
 - 깊은 재귀나 과도한 중첩 호출은 스택 사용량을 키운다.
@@ -96,6 +94,8 @@ System.out.println(n); // 10
 
 `n`의 값이 복사되어 `x`로 들어가므로 원본은 바뀌지 않는다.
 
+![기본형 전달 vs 참조형 전달]({{ '/java_basic/java_basic_images/ch5/pass-by-value.svg' | relative_url }})
+
 ### 4.2 reference 전달
 
 ```java
@@ -103,6 +103,8 @@ static void rename(User u) {
     u.setName("Lee");
 }
 ```
+
+> 클래스/객체/`this`는 ch6에서 자세히 배운다. 지금은 "객체를 가리키는 주소(참조)가 복사된다" 정도로 이해하면 충분하다.
 
 참조값 자체가 복사된다.  
 복사된 참조가 같은 객체를 가리키므로 객체 내부 상태는 바뀔 수 있다.
@@ -133,9 +135,16 @@ public int divide(int a, int b) {
     }
     return a / b;
 }
+
+public int sumOf(int[] arr) {
+    if (arr.length == 0) return 0; // 조기 반환
+    int sum = 0;
+    for (int v : arr) sum += v;
+    return sum;
+}
 ```
 
-조건 예외를 빨리 반환하면 중첩을 줄일 수 있다.
+조건이 안 맞으면 즉시 반환(return)하거나 예외를 던져 빠져나오면 중첩을 줄일 수 있다.
 
 ---
 
@@ -248,7 +257,6 @@ static int factorial(int n) {
 
 ---
 
-## 2. 배열
 
 # 배열 (Array)
 
@@ -272,7 +280,7 @@ int[] scores = new int[5];
 - 인덱스 기반 랜덤 접근 O(1)
 - 요소 타입이 모두 동일
 
-![배열 인덱스 구조]({{ '/assets/images/java_basic/ch5/array-layout-index.svg' | relative_url }})
+![배열 인덱스 구조]({{ '/java_basic/java_basic_images/ch5/array-layout-index.svg' | relative_url }})
 
 ---
 
@@ -310,8 +318,8 @@ int[] arr = {10, 20, 30};
 - `boolean[]` -> `false`
 - `String[]` -> `null`
 
-기본값 자동 초기화는 "배열 요소"에만 해당한다.  
-지역 변수 자체는 자동 초기화되지 않는다.
+지역 변수는 자동 초기화되지 않지만,  
+배열 요소와 필드(멤버 변수)는 기본값으로 자동 초기화된다.
 
 ---
 
@@ -386,7 +394,9 @@ int[] c3 = new int[a.length];
 System.arraycopy(a, 0, c3, 0, a.length);
 ```
 
-참조형 배열의 경우 요소 객체까지 깊게 복사되지 않을 수 있다.
+참조형 배열의 경우 위 방법 모두 요소 객체까지 깊게 복사되지 않는다(얕은 복사). 배열 자체는 새로 만들어지지만, 각 요소는 같은 객체를 가리킨다.
+
+![참조 복사 vs 얕은 복사 vs 깊은 복사]({{ '/java_basic/java_basic_images/ch5/array-copy-shallow-deep.svg' | relative_url }})
 
 ---
 
@@ -430,6 +440,8 @@ Arrays.fill(arr, 0);
 
 ## 9. 알고리즘 관점 기초
 
+O(n)은 데이터 개수 n에 비례해 시간이 걸린다는 표기이고, O(1)은 개수와 무관하게 일정한 시간이 걸린다는 표기다.
+
 배열 연산의 시간복잡도:
 - 인덱스 접근: O(1)
 - 끝에 쓰기(범위 내): O(1)
@@ -459,11 +471,12 @@ Arrays.fill(arr, 0);
 
 ---
 
-## 3. 문제
 
 # 문제
 
 `ch5` 범위(메소드/스코프/배열) 문제입니다.
+
+> 정답 예시: [ch5 문제 답안](문제답안/ch5_문제답안.md)
 
 ---
 

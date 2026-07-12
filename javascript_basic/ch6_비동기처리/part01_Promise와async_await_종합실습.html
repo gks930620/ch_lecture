@@ -111,7 +111,7 @@
             <h3>async/await 문법</h3>
             <button onclick="testAsyncAwait()">async/await 테스트</button>
             <button onclick="testErrorHandling()">에러 처리</button>
-            <button onclick="testSequentialVsParallel()">순차 vs 병렬 비교</button>
+            <button onclick="testSequentialVsParallel()">순차 vs 동시 진행 비교</button>
             <div id="asyncResult" class="output"></div>
         </div>
 
@@ -188,8 +188,8 @@
 
         async function testPromiseAll() {
             clearLog('promiseResult');
-            log('=== Promise.all (병렬 실행) ===', 'promiseResult');
-            log('3개의 비동기 작업 동시 실행...', 'promiseResult');
+            log('=== Promise.all (동시 진행) ===', 'promiseResult');
+            log('3개의 비동기 작업을 한꺼번에 시작(대기시간 겹침, CPU 병렬 아님)...', 'promiseResult');
 
             const start = Date.now();
 
@@ -274,8 +274,8 @@
             await delay(1000);
             log(`소요 시간: ${Date.now() - start}ms (약 3초)`, 'asyncResult');
 
-            // 병렬 실행
-            log('--- 병렬 실행 ---', 'asyncResult');
+            // 동시 진행 (대기시간 겹침)
+            log('--- 동시 진행 ---', 'asyncResult');
             start = Date.now();
             await Promise.all([
                 delay(1000),
@@ -456,5 +456,3 @@
     </script>
 </body>
 </html>
-```
-

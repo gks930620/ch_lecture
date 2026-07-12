@@ -2,7 +2,9 @@ package ch2_variable;
 
 public class P1변수 {
     public static void main(String[] args) {
-        int score=90;
+        int score=90;   //선언과 동시에 초기화
+        System.out.println(score);
+
         int x=10;
         int y=x;   //x에 있는 값을 복사해서 y에 저장
 

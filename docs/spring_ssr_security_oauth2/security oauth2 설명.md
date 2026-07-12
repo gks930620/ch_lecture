@@ -230,12 +230,14 @@ spring:
 
 | 값 | 동작 | 용도 |
 |---|---|---|
-| `client_secret_basic` (기본값) | client_id:secret을 **Authorization 헤더**로 전송 | 구글 등 |
+| `client_secret_basic` (구글 등 일반 기본값) | client_id:secret을 **Authorization 헤더**로 전송 | 구글 등 |
 | `client_secret_post` | client_id, secret을 **POST body**로 전송 | - |
 | `none` | 인증 없이 client_id만 **POST body**로 전송 | **카카오** (secret 불필요) |
 
-> 카카오에 `client_secret_basic`(기본값)이 적용되면 **401 에러** 발생.  
-> 카카오 토큰 엔드포인트는 Authorization 헤더 인증을 지원하지 않기 때문.
+> 카카오는 client_secret이 없어 인증방식이 `none`이어야 한다. 만약 `client_secret_basic`(과거 기본값)이 적용되면
+> 카카오 토큰 엔드포인트는 Authorization 헤더 인증을 지원하지 않아 **401 에러**가 난다.  
+> 참고: Spring Boot 3.4+ 에서는 secret이 없으면 자동으로 `none`이 잡히기도 하지만, 버전과 무관하게 안전하도록
+> `none`을 **명시**하는 것을 권장한다 (이 프로젝트도 명시함).
 
 ---
 

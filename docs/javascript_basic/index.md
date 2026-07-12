@@ -9,7 +9,6 @@ title: javascript_basic
 
 ## 문서 목록
 
-- [`00_완성현황.md`](00_완성현황.md)
 - [`ch1_HTML/강의노트_1장_HTML.md`](ch1_HTML/강의노트_1장_HTML.md)
 - [`ch10_JavaScript프로젝트/강의노트_10장_JavaScript프로젝트가이드.md`](ch10_JavaScript프로젝트/강의노트_10장_JavaScript프로젝트가이드.md)
 - [`ch2_CSS/강의노트_2장_CSS.md`](ch2_CSS/강의노트_2장_CSS.md)
@@ -20,4 +19,3 @@ title: javascript_basic
 - [`ch7_jQuery/강의노트_7장_jQuery.md`](ch7_jQuery/강의노트_7장_jQuery.md)
 - [`ch8_HTTP통신/강의노트_8장_HTTP통신.md`](ch8_HTTP통신/강의노트_8장_HTTP통신.md)
 - [`ch9_웹브라우저동작원리/강의노트_9장_웹브라우저동작원리.md`](ch9_웹브라우저동작원리/강의노트_9장_웹브라우저동작원리.md)
-- [`PART3_웹기초.md`](PART3_웹기초.md)

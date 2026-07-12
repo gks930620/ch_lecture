@@ -19,6 +19,9 @@
 
 3) 왜 직접 접근이 차단되나?
 - 보안과 응용 구조상의 이유로 컨테이너가 WEB-INF 내부 자원에 대해 직접 URL 접근을 허용하지 않습니다. 대신 서블릿(또는 컨트롤러)이 내부 자원을 `RequestDispatcher.forward()`로 제공할 수 있습니다.
+- ⚠️ **차단 규칙은 "경로가 `/WEB-INF/` 또는 `/META-INF/`로 시작할 때"만 적용됩니다.** 톰캣은 요청 경로가 이 접두어로 **시작**하는 경우에만 404로 막습니다. 따라서 `/WEB-INF/hidden.jsp`는 직접 접근이 차단되지만, `/something/WEB-INF/hidden.jsp`처럼 **중첩된 WEB-INF**는 경로가 `/WEB-INF/`로 시작하지 않아 **차단되지 않고 그대로 열립니다.** 보호하려면 반드시 컨텍스트 루트 바로 아래의 `WEB-INF/`에 두어야 합니다.
+
+![WEB-INF 직접 접근 차단 구조 (직접 접근 ✗ / 서블릿 forward ○)]({{ '/web_basic/web_basic_images/ch06/web-inf-access.svg' | relative_url }})
 
 4) web.xml 개요(핵심 태그)
 - `<servlet>` / `<servlet-mapping>`: 서블릿 클래스와 URL 매핑
@@ -38,10 +41,12 @@
   <location>/error/500.jsp</location>
 </error-page>
 ```
+> 위 `<location>`은 형식을 보여주는 **일반 예시**입니다. 이 프로젝트의 실제 에러 페이지 경로는 `/07_error_handling/error/404.jsp`, `/07_error_handling/error/500.jsp`이므로, 실제 web.xml에는 그 경로가 들어갑니다(ch07 참고).
 
 5) 실습 안내
-- `WEB-INF/hidden.jsp`는 직접 브라우저에서 접근 불가함을 확인한다.
-- `WebInfForwardServlet`에서 `req.getRequestDispatcher("/06_WEB-INF/WEB-INF/hidden.jsp").forward(req, resp)`로 제공하는 흐름을 실습.
+- 실습 파일은 컨텍스트 루트의 `WEB-INF/06_WEB-INF/hidden.jsp`에 있습니다(컨텍스트 루트 바로 아래 `WEB-INF/`이므로 실제로 보호됨).
+- 브라우저로 `.../WEB-INF/06_WEB-INF/hidden.jsp`에 직접 접근하면 **404**가 나는 것을 확인한다(직접 접근 불가).
+- 반면 서블릿 경로 `/06_WEB-INF/hidden`으로 접근하면, `WebInfForwardServlet`이 `req.getRequestDispatcher("/WEB-INF/06_WEB-INF/hidden.jsp").forward(req, resp)`로 내부 forward 하여 **정상적으로 렌더링**된다. → "직접 접근은 막히지만 서블릿 forward로는 제공된다"를 대비 실습.
 - `web.xml`에 서블릿/필터/에러 페이지 매핑을 추가하고 동작을 확인.
 
 6) 운영 팁

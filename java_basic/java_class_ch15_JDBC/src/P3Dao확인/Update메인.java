@@ -15,7 +15,7 @@ public class Update메인 {
         member.setMemAdd1("우와우우");
         member.setMemAdd2("904-903");
         member.setMemHp("000-000-0000");
-        member.setMemMail("gks930620@gmail.com");
+        member.setMemMail("hong@example.com");
         member.setMemJob("JB01");  //그냥 JB00  형식으로만
         member.setMemHobby("HB01");   //HB00형식으로만
 

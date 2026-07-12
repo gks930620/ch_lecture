@@ -5,7 +5,8 @@ public class P2switch문2 {
         //입력받은 문자열
         Scanner scanner=new Scanner(System.in);
         String next = scanner.next();
-        switch (next){  // switch변수에는 타입 뭐가 오든 상관없음.
+        switch (next){  // switch변수에 올 수 있는 타입: byte, short, char, int(와 그 래퍼), String, enum뿐.
+                        // long, float, double, boolean은 컴파일 오류남.
             case "민지" :
                 System.out.println("킴민지");
                 break;
@@ -16,7 +17,7 @@ public class P2switch문2 {
                 System.out.println("다니엘 준 마쉬");
                 break;
             case  "해린":
-                System.out.println("다니엘");
+                System.out.println("강해린");
                 break;
             case "혜인" :
                 System.out.println("이혜인");
@@ -38,6 +39,9 @@ public class P2switch문2 {
             }
             case  "혜인" -> {
                 System.out.println("막내");
+            }
+            default -> {                    // default 없으면 일치하는 case가 없을 때 아무것도 출력 안 됨
+                System.out.println("뉴진스 몰라요?");
             }
 
         }

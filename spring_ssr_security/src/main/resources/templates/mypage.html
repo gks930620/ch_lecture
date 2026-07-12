@@ -136,8 +136,8 @@
                     </div>
                     <div class="info-content">
                         <div class="info-label">이메일</div>
-                        <div class="info-value" th:classappend="${user.email == null} ? 'empty'"
-                             th:text="${user.email != null ? user.email : '설정되지 않음'}">email@example.com</div>
+                        <div class="info-value" th:classappend="${#strings.isEmpty(user.email)} ? 'empty'"
+                             th:text="${!#strings.isEmpty(user.email) ? user.email : '설정되지 않음'}">email@example.com</div>
                     </div>
                 </div>
             </div>

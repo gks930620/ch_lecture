@@ -320,7 +320,9 @@
 
             result += '=== Falsy 값 (false로 평가) - 7개 ===\n';
             falsyValues.forEach(val => {
-                let display = val === "" ? '""(빈문자열)' : String(val);
+                let display = val === "" ? '""(빈문자열)'
+                            : Object.is(val, -0) ? '-0'   // String(-0)은 "0"이라 화면에서 0과 안 구분됨
+                            : String(val);
                 result += `  ${display.padEnd(18)} → Boolean() = ${Boolean(val)}\n`;
             });
 

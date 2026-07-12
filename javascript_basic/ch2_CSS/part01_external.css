@@ -1,0 +1,9 @@
+/* part01_external.css — "외부 스타일시트" 데모용 실제 외부 CSS 파일 */
+/* 이 규칙이 외부 파일에서 로드되어 적용되는지 확인하세요. */
+.method-external {
+    background: #2196f3;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+}

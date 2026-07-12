@@ -39,6 +39,7 @@
 ```
 
 - 동작:
+  - 이름 검증은 2계층: 먼저 `RoomCreateRequest`의 `@Valid`(`@NotBlank`, `@Size(max = 50)`)가 컨트롤러 진입 시 검사(위반 시 400), 이후 서비스에서 한 번 더 검증
   - 공백 제거(trim)
   - 빈 이름 거부
   - 이름 중복(대소문자 무시) 거부
@@ -52,7 +53,8 @@
 
 ### 프론트
 - `templates/stomp/rooms.html`에 "채팅방 만들기" 폼 추가
-- 생성 성공 시 생성된 방(`/room/{id}`)으로 즉시 이동
+- 생성 성공 시 생성된 방(`/rooms/{id}`)으로 즉시 이동
+  (뷰 매핑은 `HomeController`의 `@GetMapping("/rooms/{roomId}")` 하나이고 SecurityConfig도 `/rooms/**`만 허용 → `/room/1`처럼 단수형으로 접속하면 404)
 - 실패 시 에러 메시지 표시
 
 ## 4) 테스트 방법

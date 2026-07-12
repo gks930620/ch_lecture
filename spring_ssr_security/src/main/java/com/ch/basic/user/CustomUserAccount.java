@@ -2,6 +2,7 @@ package com.ch.basic.user;
 
 import com.ch.basic.user.dto.SessionUserDTO;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -65,7 +66,9 @@ public class CustomUserAccount implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
         for (String role : sessionUser.getRoles()) {
-            collection.add(() -> role);
+            // 문자열 권한("USER", "ADMIN")을 GrantedAuthority로 변환
+            // SimpleGrantedAuthority: Security가 제공하는 관례적 구현체 (람다 () -> role 로도 가능)
+            collection.add(new SimpleGrantedAuthority(role));
         }
         return collection;
     }

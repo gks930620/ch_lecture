@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--
+  실습 09: div/span과 속성 (강의노트 1.11~1.12)
+  ------------------------------------------------
+  강의 포인트
+  - div = 블록(한 줄 전체 차지), span = 인라인(콘텐츠 크기만큼)
+  - id = 페이지당 하나(고유), class = 여러 개·재사용 가능
+  - data-* = 개발자가 직접 만드는 사용자 정의 속성
+  참고: 블록/인라인 차이가 보이도록 배경색 style만 넣었습니다.
+-->
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>실습 09 - div/span과 속성</title>
+    <style>
+        .box { background: #dbeafe; margin: 4px 0; }   /* class는 재사용 가능 */
+        .tag { background: #dcfce7; }
+        #headline { color: #b91c1c; }                  /* id는 고유 */
+    </style>
+</head>
+<body>
+    <h1 id="headline">div vs span, 그리고 속성</h1>
+
+    <h2>div (블록) — 세로로 쌓임</h2>
+    <div class="box">첫 번째 div (한 줄 전체 차지)</div>
+    <div class="box">두 번째 div (다음 줄로 내려감)</div>
+
+    <h2>span (인라인) — 옆으로 나란히</h2>
+    <p>
+        문장 속에서 <span class="tag">이 단어</span>와
+        <span class="tag">저 단어</span>만 부분적으로 감쌀 때 씁니다.
+    </p>
+
+    <h2>id vs class</h2>
+    <ul>
+        <li><strong>id</strong>: 페이지당 하나만 (예: <code>#headline</code>)</li>
+        <li><strong>class</strong>: 여러 요소가 공유·재사용 (예: <code>.box</code>가 위에서 2번 쓰임)</li>
+    </ul>
+
+    <h2>data-* 사용자 정의 속성</h2>
+    <button data-user-id="123" data-role="admin" onclick="showData(this)">
+        내 정보 보기 (클릭)
+    </button>
+    <p id="output"></p>
+
+    <script>
+        // data-* 속성은 자바스크립트에서 element.dataset 으로 읽습니다 (3장에서 자세히!)
+        function showData(el) {
+            document.getElementById('output').textContent =
+                'user-id = ' + el.dataset.userId + ' / role = ' + el.dataset.role;
+        }
+    </script>
+</body>
+</html>

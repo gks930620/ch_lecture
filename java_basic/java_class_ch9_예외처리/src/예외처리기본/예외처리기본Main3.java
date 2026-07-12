@@ -9,7 +9,7 @@ public class 예외처리기본Main3 {
         //printArr(null); //nullPointerException
     }
 
-    //RuntimeException은 try-cath 안 해도 컴파일에러X
+    //RuntimeException은 try-catch 안 해도 컴파일에러X
 
     public static void printArr(int[] arr) {
         try {

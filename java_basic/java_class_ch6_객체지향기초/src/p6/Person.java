@@ -23,6 +23,10 @@ public class Person {
         this.money-=amount;
     }
 
+    public void printMoney(){
+        System.out.println(name+"의 보유 금액 : "+money);   //내부에서는 private 필드 사용 가능
+    }
+
 
 
 }

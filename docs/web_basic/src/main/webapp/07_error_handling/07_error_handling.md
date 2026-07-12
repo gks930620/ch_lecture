@@ -25,8 +25,8 @@
 - 이 정보는 JSP에서 `${requestScope['javax.servlet.error.exception']}` 등으로 접근 가능
 
 4) 실습 지침
-- `07_error_demo.jsp`에서 인위적으로 `throw new RuntimeException("테스트 예외")`를 발생시켜 에러 페이지로 이동시키기.
-- `WEB-INF/web.xml` 또는 `web.xml`에 `<error-page>`를 추가하고, 에러 발생 시 커스텀 페이지가 나타나는지 확인.
+- `07_error_demo.jsp`는 실습 메뉴 페이지이고, 실제 예외를 던지는 파일은 `07_error_throw.jsp`입니다. `07_error_throw.jsp`에서 `throw new RuntimeException("테스트 예외")`가 발생하여 에러 페이지로 이동합니다.
+- `WEB-INF/web.xml`에 `<error-page>`를 추가하고(web.xml은 항상 `WEB-INF` 안에 있음), 에러 발생 시 커스텀 페이지가 나타나는지 확인.
 - 에러 페이지에서 예외 메시지와 스택트레이스를 로그로 남기고, 사용자에게는 친절한 안내문을 보여줄 것.
 
 5) 운영 관점

@@ -7,6 +7,8 @@
 
 spring:
   # ─── 파일 업로드 설정 ───
+  # ※ 이 로그인(Security/OAuth2) 예제에는 파일 업로드 기능이 없습니다(MultipartFile을 받는 Controller 0개).
+  #   아래 설정과 하단의 file.upload-dir는 다른 프로젝트와 공유하는 보일러플레이트이며 본 예제에서는 미사용입니다.
   # MultipartFile 처리 시 허용할 최대 파일 크기
   servlet:
     multipart:
@@ -20,6 +22,8 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver # JDBC 드라이버 (MariaDB)
     username: test                              # DB 접속 계정
     password: test                              # DB 접속 비밀번호
+                                                # ※ 학습용 로컬 DB라 평문이지만, 실무에서는 OAuth 키처럼
+                                                #   DB 접속정보도 .env/환경변수로 분리한다(예: ${DB_USERNAME}).
     hikari:
       # HikariCP: Spring Boot 기본 커넥션 풀 (DB 연결을 미리 만들어두고 재사용)
       connection-init-sql: SET FOREIGN_KEY_CHECKS = 0  # 커넥션 생성 시 실행할 SQL
@@ -45,6 +49,7 @@ spring:
         format_sql: true            # SQL 출력 시 포맷팅 (줄바꿈, 들여쓰기) → 가독성 향상
         default_batch_fetch_size: 100  # N+1 문제 완화 — IN 쿼리로 한번에 최대 100건 조회
                                         # 예: WHERE id IN (1,2,3,...100)
+                                        # ※ 이 예제엔 연관관계 엔티티가 없어 실제 효과는 없음(공용 보일러플레이트)
 
     open-in-view: false  # OSIV (Open Session In View) 비활성화
                           # true(기본값): Controller/View까지 영속성 컨텍스트 유지 → 지연 로딩 가능하지만 DB 커넥션 오래 잡음
@@ -113,6 +118,7 @@ spring:
 # ─── 커스텀 설정 ───
 # Spring Boot 기본 설정이 아닌, 프로젝트에서 직접 정의한 설정
 # @Value("${file.upload-dir}") 로 Java 코드에서 주입받아 사용
+# ※ 이 로그인 예제에서는 파일 업로드를 쓰지 않으므로 실제로 참조되지 않습니다(공용 보일러플레이트).
 file:
   upload-dir: ./uploads   # 파일 업로드 저장 경로 (프로젝트 루트 기준 상대경로)
 

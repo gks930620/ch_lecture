@@ -26,6 +26,8 @@ HTTP는 무상태(Stateless) 프로토콜이다.
 각 요청은 독립적이며 서버는 이전 요청을 기억하지 못한다.
 Cookie와 Session은 이 무상태 문제를 해결하기 위한 수단이다.
 
+![쿠키(브라우저 저장) vs 세션(서버 저장 + JSESSIONID 쿠키) 구조]({{ '/web_basic/web_basic_images/ch05/cookie-vs-session.svg' | relative_url }})
+
 ---
 
 ## 2. 쿠키 구조와 주요 속성
@@ -107,8 +109,8 @@ session.invalidate();
 | `05_session_demo.jsp` | 세션 정보 확인 기본 실습 |
 | `05_login.jsp` | 세션 기반 로그인 폼 |
 | `05_dashboard.jsp` | 로그인 후 대시보드 (미로그인 시 자동 리다이렉트) |
-| `CookieSessionServlet` | 쿠키 생성/삭제 처리 (`/05_cookie_session/cookie`) |
-| `LoginServlet` | 로그인/로그아웃/공지팝업 처리 |
+| `CookieSessionServlet` | 쿠키 처리(`/05_cookie_session/cookie`) 및 세션 처리(`/05_cookie_session/session`) |
+| `LoginServlet` | 로그인/로그아웃/공지팝업 처리 (공지팝업 "닫기"는 세션 쿠키, "1주일간 안보기"는 7일 영속 쿠키) |
 
 ---
 
@@ -146,7 +148,9 @@ session.invalidate();
 ```java
 HttpSession session = request.getSession(false);  // 없으면 null
 if (session == null || session.getAttribute("loginUser") == null) {
-    response.sendRedirect("/login");  // 미인증 → 로그인으로
+    // 실제 매핑/컨텍스트 경로를 포함해야 404가 안 난다.
+    // (이 프로젝트의 로그인 폼 경로 예: contextPath + "/05_cookie_session/05_login.jsp")
+    response.sendRedirect(request.getContextPath() + "/05_cookie_session/05_login.jsp");  // 미인증 → 로그인으로
     return;
 }
 ```
@@ -170,6 +174,7 @@ session.invalidate();  // 서버의 세션 데이터 전부 삭제
 - `HttpOnly` 쿠키로 XSS 방어
 - 로그인 후 세션 ID 재발급으로 세션 고정 공격 방어
 - HTTPS 환경에서는 `Secure` 쿠키 속성 사용
+- ⚠️ 실습 데모(`05_cookie_demo.jsp`, `05_session_demo.jsp`)는 사용자가 입력한 값을 `<%= %>`로 이스케이프 없이 출력한다. 이는 **반사형 XSS**에 취약한 안티패턴이므로 학습용으로만 사용하고, 실제 화면 출력에는 `<c:out>`이나 EL(JSTL) 이스케이프를 쓸 것. 또한 `Integer.parseInt(...)`로 파라미터를 파싱하는 부분은 숫자가 아닌 입력에 `NumberFormatException`(500)이 나므로 실무에선 try/catch·검증이 필요하다.
 
 ---
 

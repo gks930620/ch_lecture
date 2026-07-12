@@ -9,7 +9,7 @@ title: spring_csr_jwt_oauth2
 
 ## 문서 목록
 
-- [`jwt_oauth2설명 부족한점 적용내역.md`](jwt_oauth2설명 부족한점 적용내역.md)
+- [`jwt_oauth2설명 부족한점 적용내역.md`](<jwt_oauth2설명 부족한점 적용내역.md>)
 - [`jwt_oauth2설명.md`](jwt_oauth2설명.md)
 - [`jwt_oauth2설명_back.md`](jwt_oauth2설명_back.md)
 - [`나만의참고.md`](나만의참고.md)

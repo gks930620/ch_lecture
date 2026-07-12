@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="500" viewBox="0 0 1100 500">
+  <defs>
+    <marker id="arrowB" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+  </defs>
+
+  <rect width="1100" height="500" fill="#f8fafc"/>
+  <text x="550" y="42" text-anchor="middle" font-family="Arial" font-size="30" font-weight="bold" fill="#0f172a">Function Composition: andThen</text>
+
+  <!-- andThen group frame -->
+  <text x="555" y="120" text-anchor="middle" font-family="Consolas, monospace" font-size="20" font-weight="bold" fill="#1e3a8a">f.andThen(g)</text>
+  <rect x="260" y="135" width="590" height="150" rx="14" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="6 5"/>
+
+  <!-- input -->
+  <rect x="75" y="190" width="150" height="80" rx="12" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+  <text x="150" y="228" text-anchor="middle" font-family="Consolas, monospace" font-size="17" fill="#334155">" Hello "</text>
+  <text x="150" y="254" text-anchor="middle" font-family="Arial" font-size="13" fill="#64748b">input</text>
+
+  <!-- arrow input -> f -->
+  <line x1="225" y1="230" x2="267" y2="230" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowB)"/>
+
+  <!-- f box -->
+  <rect x="275" y="190" width="150" height="80" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="350" y="222" text-anchor="middle" font-family="Arial" font-size="15" font-weight="bold" fill="#1e3a8a">f</text>
+  <text x="350" y="248" text-anchor="middle" font-family="Consolas, monospace" font-size="17" fill="#1e3a8a">trim</text>
+
+  <!-- arrow f -> mid -->
+  <line x1="425" y1="230" x2="467" y2="230" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowB)"/>
+
+  <!-- intermediate -->
+  <rect x="475" y="190" width="130" height="80" rx="12" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+  <text x="540" y="228" text-anchor="middle" font-family="Consolas, monospace" font-size="17" fill="#334155">"Hello"</text>
+  <text x="540" y="254" text-anchor="middle" font-family="Arial" font-size="13" fill="#64748b">after f</text>
+
+  <!-- arrow mid -> g -->
+  <line x1="605" y1="230" x2="647" y2="230" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowB)"/>
+
+  <!-- g box -->
+  <rect x="655" y="190" width="180" height="80" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="745" y="222" text-anchor="middle" font-family="Arial" font-size="15" font-weight="bold" fill="#1e3a8a">g</text>
+  <text x="745" y="248" text-anchor="middle" font-family="Consolas, monospace" font-size="17" fill="#1e3a8a">toLowerCase</text>
+
+  <!-- arrow g -> result -->
+  <line x1="835" y1="230" x2="877" y2="230" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowB)"/>
+
+  <!-- result -->
+  <rect x="885" y="190" width="140" height="80" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="955" y="228" text-anchor="middle" font-family="Consolas, monospace" font-size="17" fill="#166534">"hello"</text>
+  <text x="955" y="254" text-anchor="middle" font-family="Arial" font-size="13" fill="#16a34a">output</text>
+
+  <!-- comparison band -->
+  <rect x="75" y="340" width="950" height="115" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="550" y="380" text-anchor="middle" font-family="Consolas, monospace" font-size="20" font-weight="bold" fill="#92400e">f.andThen(g)  =  g.compose(f)</text>
+  <text x="550" y="410" text-anchor="middle" font-family="Arial" font-size="15" fill="#92400e">andThen: f first, then g</text>
+  <text x="550" y="434" text-anchor="middle" font-family="Arial" font-size="15" fill="#92400e">compose: g(f(x)) — same result, different reading order</text>
+</svg>

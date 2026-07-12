@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" font-family="'Malgun Gothic','Apple SD Gothic Neo',sans-serif" font-size="14">
+  <defs>
+    <marker id="af" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
+    <marker id="afb" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#f59e0b"/></marker>
+  </defs>
+  <rect x="0" y="0" width="760" height="340" fill="#ffffff"/>
+  <text x="380" y="30" text-anchor="middle" font-size="17" font-weight="bold" fill="#111827">필터 체인 (Filter Chain)</text>
+
+  <!-- boxes -->
+  <rect x="30" y="130" width="110" height="70" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="85" y="170" text-anchor="middle" font-weight="bold" fill="#1e40af">브라우저</text>
+
+  <rect x="190" y="130" width="120" height="70" rx="8" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="250" y="162" text-anchor="middle" font-size="13" font-weight="bold" fill="#0369a1">Filter 1</text>
+  <text x="250" y="182" text-anchor="middle" font-size="11" fill="#0369a1">인코딩</text>
+
+  <rect x="360" y="130" width="120" height="70" rx="8" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="420" y="162" text-anchor="middle" font-size="13" font-weight="bold" fill="#0369a1">Filter 2</text>
+  <text x="420" y="182" text-anchor="middle" font-size="11" fill="#0369a1">로깅/인증</text>
+
+  <rect x="530" y="130" width="120" height="70" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+  <text x="590" y="162" text-anchor="middle" font-size="13" font-weight="bold" fill="#065f46">Servlet</text>
+  <text x="590" y="182" text-anchor="middle" font-size="11" fill="#065f46">/ JSP</text>
+
+  <!-- forward flow (request) top -->
+  <line x1="140" y1="150" x2="188" y2="150" stroke="#2563eb" stroke-width="2" marker-end="url(#af)"/>
+  <line x1="310" y1="150" x2="358" y2="150" stroke="#2563eb" stroke-width="2" marker-end="url(#af)"/>
+  <line x1="480" y1="150" x2="528" y2="150" stroke="#2563eb" stroke-width="2" marker-end="url(#af)"/>
+  <text x="250" y="120" text-anchor="middle" font-size="11" fill="#2563eb">요청 → chain.doFilter() 로 다음 단계 호출</text>
+
+  <!-- return flow bottom -->
+  <line x1="528" y1="185" x2="482" y2="185" stroke="#f59e0b" stroke-width="2" marker-end="url(#afb)"/>
+  <line x1="358" y1="185" x2="312" y2="185" stroke="#f59e0b" stroke-width="2" marker-end="url(#afb)"/>
+  <line x1="188" y1="185" x2="142" y2="185" stroke="#f59e0b" stroke-width="2" marker-end="url(#afb)"/>
+  <text x="360" y="235" text-anchor="middle" font-size="11" fill="#b45309">응답은 역순으로 되돌아 나옴 (doFilter 호출 이후 코드가 실행됨)</text>
+
+  <text x="380" y="285" text-anchor="middle" font-size="12" fill="#6b7280">각 필터는 chain.doFilter() 앞에서 "전처리", 뒤에서 "후처리"를 한다.</text>
+  <text x="380" y="308" text-anchor="middle" font-size="12" fill="#6b7280">doFilter()를 호출하지 않으면 다음 단계로 넘어가지 않고 여기서 응답을 끝낼 수도 있다(예: 인증 실패 시 리다이렉트).</text>
+</svg>

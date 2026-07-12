@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="480" viewBox="0 0 960 480">
+  <rect width="960" height="480" fill="#f8fafc"/>
+  <text x="480" y="44" text-anchor="middle" font-size="26" font-family="Arial" fill="#0f172a" font-weight="bold">HTML 문서 구조 트리</text>
+
+  <!-- connectors -->
+  <g stroke="#94a3b8" stroke-width="2" fill="none">
+    <path d="M480 116 L480 150"/>
+    <path d="M480 150 L280 200 M480 150 L680 200"/>
+    <path d="M280 244 L280 300 M280 244 L280 300"/>
+    <path d="M280 244 L180 300 M280 244 L400 300"/>
+  </g>
+
+  <!-- html root -->
+  <rect x="380" y="80" width="200" height="40" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="3"/>
+  <text x="480" y="106" text-anchor="middle" font-size="20" font-family="Arial" fill="#1e3a8a" font-weight="bold">&lt;html&gt;</text>
+  <text x="600" y="106" font-size="14" font-family="Arial" fill="#64748b">문서 전체를 감싸는 최상위 태그</text>
+
+  <!-- head -->
+  <rect x="180" y="176" width="200" height="44" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+  <text x="280" y="204" text-anchor="middle" font-size="19" font-family="Arial" fill="#166534" font-weight="bold">&lt;head&gt;</text>
+  <text x="280" y="240" text-anchor="middle" font-size="13" font-family="Arial" fill="#166534">화면에 안 보이는 메타정보</text>
+
+  <!-- body -->
+  <rect x="580" y="176" width="200" height="44" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+  <text x="680" y="204" text-anchor="middle" font-size="19" font-family="Arial" fill="#92400e" font-weight="bold">&lt;body&gt;</text>
+  <text x="680" y="240" text-anchor="middle" font-size="13" font-family="Arial" fill="#92400e">실제 화면에 보이는 내용</text>
+
+  <!-- head children -->
+  <rect x="80" y="300" width="200" height="44" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="180" y="328" text-anchor="middle" font-size="16" font-family="Arial" fill="#075985">&lt;meta charset&gt;</text>
+  <text x="180" y="364" text-anchor="middle" font-size="12" font-family="Arial" fill="#075985">한글 깨짐 방지</text>
+
+  <rect x="300" y="300" width="200" height="44" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="400" y="328" text-anchor="middle" font-size="16" font-family="Arial" fill="#075985">&lt;title&gt;</text>
+  <text x="400" y="364" text-anchor="middle" font-size="12" font-family="Arial" fill="#075985">브라우저 탭 제목</text>
+
+  <!-- body children -->
+  <rect x="580" y="300" width="95" height="44" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="627" y="328" text-anchor="middle" font-size="16" font-family="Arial" fill="#9a3412">&lt;h1&gt;</text>
+  <rect x="685" y="300" width="95" height="44" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="732" y="328" text-anchor="middle" font-size="16" font-family="Arial" fill="#9a3412">&lt;p&gt;</text>
+  <text x="680" y="364" text-anchor="middle" font-size="12" font-family="Arial" fill="#9a3412">제목·문단 등 보이는 요소</text>
+
+  <g stroke="#94a3b8" stroke-width="2" fill="none">
+    <path d="M280 220 L180 300 M280 220 L400 300"/>
+    <path d="M680 220 L627 300 M680 220 L732 300"/>
+  </g>
+
+  <text x="480" y="440" text-anchor="middle" font-size="16" font-family="Arial" fill="#334155">&lt;html&gt; 안에 &lt;head&gt;(정보)와 &lt;body&gt;(내용)가 나란히 들어간다</text>
+</svg>

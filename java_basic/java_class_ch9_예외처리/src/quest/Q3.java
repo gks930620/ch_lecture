@@ -1,7 +1,8 @@
 package quest;
 
 public class Q3 {
-    static class InsufficientBalanceException extends Exception {
+    //비즈니스 규칙 위반은 RuntimeException(실행예외)을 상속하는 방침 (ch9 문서 8절과 동일)
+    static class InsufficientBalanceException extends RuntimeException {
         InsufficientBalanceException(String message) {
             super(message);
         }
@@ -14,7 +15,7 @@ public class Q3 {
             this.balance = balance;
         }
 
-        void withdraw(int amount) throws InsufficientBalanceException {
+        void withdraw(int amount) {
             if (amount > balance) {
                 throw new InsufficientBalanceException("잔액 부족: 현재 잔액 " + balance);
             }

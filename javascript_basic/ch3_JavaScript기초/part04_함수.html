@@ -348,7 +348,9 @@
             let result = '';
 
             result += '=== 즉시 실행 함수 (IIFE) ===\n';
-            result += 'Immediately Invoked Function Expression\n\n';
+            result += 'Immediately Invoked Function Expression\n';
+            result += '💡 함수를 만들자마자 바로 () 로 실행하는 문법입니다.\n';
+            result += '   (function(){ ... })()  ← 정의 + 즉시 호출\n\n';
 
             // IIFE 실행
             const iifeResult = (function() {
@@ -377,6 +379,8 @@
             result += `counter.getCount()  → ${counter.getCount()}\n`;
 
             result += '\n💡 IIFE는 변수를 외부로부터 보호합니다 (캡슐화)\n';
+            result += '   ※ 이 "모듈 패턴"이 왜 count를 기억하는지 원리(클로저)는 4장에서 배웁니다.\n';
+            result += '     지금은 "이렇게 감출 수 있구나" 정도만 이해하면 충분!\n';
             result += '💡 최근에는 모듈 시스템(import/export)이 대체';
 
             el.textContent = result;

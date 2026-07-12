@@ -1,6 +1,11 @@
 # 🔄 API 요청 흐름 및 에러 처리 가이드
 
 > 이 문서는 프로젝트의 모든 API 요청이 어떻게 처리되는지, 성공/실패 시 어떤 코드가 실행되어 어떤 응답이 생성되는지를 정리합니다.
+>
+> ℹ️ 본문에 표기된 `(Line xx-yy)` 줄 번호는 **작성 시점 기준의 대략적인 위치**입니다. 코드가 수정되면 어긋날 수 있으니
+> **파일명과 메서드명**(예: `SecurityConfig`의 `authenticationEntryPoint`)을 기준으로 찾아주세요.
+> API 응답의 `message` 필드는 **영어로 통일**되어 있습니다 — 성공(`"Community created"` 등), 인증/보안(`"Authentication required"`, `"Access token expired"`), 검증(`"Invalid input"` + 필드별 메시지), 비즈니스 예외(`"Community not found: 5"`, `"You can only delete your own Community"`, `"Community is already deleted"`) 모두 영어입니다.
+> (화면 HTML·채팅 입장/퇴장 안내 같은 UI 텍스트는 한국어로 유지됩니다.)
 
 ---
 
@@ -176,7 +181,7 @@ Content-Type: application/json
     │   response.setContentType("application/json;charset=UTF-8");
     │   
     │   ErrorResponse errorResponse = ErrorResponse.of(
-    │       "아이디 또는 비밀번호가 일치하지 않습니다.",
+    │       "Invalid username or password",
     │       "AUTHENTICATION_FAILED"
     │   );
     │   response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
@@ -189,7 +194,7 @@ Content-Type: application/json
 ```json
 {
   "success": false,
-  "message": "아이디 또는 비밀번호가 일치하지 않습니다.",
+  "message": "Invalid username or password",
   "errorCode": "AUTHENTICATION_FAILED",
   "timestamp": "2026-01-16T14:30:00"
 }
@@ -224,7 +229,7 @@ Content-Type: application/json
     ├─ 📁 CustomUserDetailsService.java (Line 20-22)
     │   UserEntity userEntity = userRepository.findByUsername(username)
     │       .orElseThrow(() -> new UsernameNotFoundException(
-    │           "사용자를 찾을 수 없습니다: " + username));
+    │           "User not found: " + username));
     │   // UsernameNotFoundException 발생!
     │
     ↓
@@ -283,7 +288,7 @@ Content-Type: application/json
 [3] Spring Security Authorization
     │
     ├─ 📁 SecurityConfig.java (Line 107-109)
-    │   .requestMatchers(HttpMethod.POST, "/api/communities", "/api/communities/**")
+    │   .requestMatchers(HttpMethod.POST, "/api/communities", "/api/communities/*/comments", "/api/files")
     │   .authenticated()
     │   // SecurityContext에 인증 정보 있음 → 통과!
     │
@@ -298,8 +303,9 @@ Content-Type: application/json
     │       
     │       Long communityId = communityService.createCommunity(
     │           createDTO, userAccount.getUsername());
-    │       return ResponseEntity.status(HttpStatus.CREATED)
-    │           .body(ApiResponse.success("게시글이 작성되었습니다", communityId));
+    │       // 201 Created + Location 헤더(/api/communities/{id})로 REST 규약을 지킴
+    │       return ResponseEntity.created(URI.create("/api/communities/" + communityId))
+    │           .body(ApiResponse.success("Community created", communityId));
     │   }
     │
     ↓
@@ -313,14 +319,14 @@ Content-Type: application/json
     │   return savedCommunity.getId();
     │
     ↓
-[응답] HTTP 201 Created
+[응답] HTTP 201 Created + Location: /api/communities/123
 ```
 
 **응답:**
 ```json
 {
   "success": true,
-  "message": "게시글이 작성되었습니다",
+  "message": "Community created",
   "data": 123
 }
 ```
@@ -360,7 +366,7 @@ Content-Type: application/json
 [3] Spring Security Authorization
     │
     ├─ 📁 SecurityConfig.java (Line 107-109)
-    │   .requestMatchers(HttpMethod.POST, "/api/communities", "/api/communities/**")
+    │   .requestMatchers(HttpMethod.POST, "/api/communities", "/api/communities/*/comments", "/api/files")
     │   .authenticated()
     │   // SecurityContext에 인증 정보 없음 → 차단!
     │
@@ -374,7 +380,7 @@ Content-Type: application/json
     │           response.setContentType("application/json;charset=UTF-8");
     │           
     │           String errorCode = "NOT_AUTHENTICATED";
-    │           String errorMessage = "인증이 필요합니다.";
+    │           String errorMessage = "Authentication required";
     │           
     │           // ErrorResponse 형식으로 응답
     │           String jsonResponse = String.format(
@@ -392,7 +398,7 @@ Content-Type: application/json
 ```json
 {
   "success": false,
-  "message": "인증이 필요합니다.",
+  "message": "Authentication required",
   "errorCode": "NOT_AUTHENTICATED",
   "timestamp": "2026-01-16T14:30:00"
 }
@@ -423,7 +429,7 @@ Content-Type: application/json
     │   String token = getTokenFromRequest(request);  // 토큰 있음
     │   
     │   if (!jwtUtil.validateToken(token)) {  // ❌ 만료됨!
-    │       request.setAttribute("ERROR_CAUSE", "토큰만료");
+    │       request.setAttribute("ERROR_CAUSE", "TOKEN_EXPIRED");
     │       chain.doFilter(request, response);  // 인증 없이 통과
     │       return;
     │   }
@@ -435,10 +441,10 @@ Content-Type: application/json
 [3] AuthenticationEntryPoint 실행
     │
     ├─ 📁 SecurityConfig.java (Line 178-205)
-    │   String errorCause = request.getAttribute("ERROR_CAUSE");  // "토큰만료"
+    │   String errorCause = request.getAttribute("ERROR_CAUSE");  // "TOKEN_EXPIRED"
     │   
-    │   if ("토큰만료".equals(errorCause)) {
-    │       errorMessage = "Access Token이 만료되었습니다. 토큰을 재발급해주세요.";
+    │   if ("TOKEN_EXPIRED".equals(errorCause)) {
+    │       errorMessage = "Access token expired";
     │       errorCode = "TOKEN_EXPIRED";
     │   }
     │
@@ -450,7 +456,7 @@ Content-Type: application/json
 ```json
 {
   "success": false,
-  "message": "Access Token이 만료되었습니다. 토큰을 재발급해주세요.",
+  "message": "Access token expired",
   "errorCode": "TOKEN_EXPIRED",
   "timestamp": "2026-01-16T14:30:00"
 }
@@ -531,7 +537,7 @@ Cookie: access_token=eyJhbGc...(userB의 토큰)
 ```json
 {
   "success": false,
-  "message": "본인의 게시글만 삭제할 수 있습니다.",
+  "message": "You can only delete your own Community",
   "errorCode": "ACCESS_DENIED",
   "timestamp": "2026-01-16T14:30:00"
 }
@@ -576,7 +582,7 @@ GET /api/communities/999999
     ├─ 📁 GlobalExceptionHandler.java (Line 31-37)
     │   // EntityNotFoundException extends BusinessException
     │   // e.getStatus() = HttpStatus.NOT_FOUND (404)
-    │   // e.getMessage() = "게시글을(를) 찾을 수 없습니다: 999999"
+    │   // e.getMessage() = "Community not found: 999999"
     │   // e.getErrorCode() = "NOT_FOUND"
     │
     ↓
@@ -587,7 +593,7 @@ GET /api/communities/999999
 ```json
 {
   "success": false,
-  "message": "게시글을(를) 찾을 수 없습니다: 999999",
+  "message": "Community not found: 999999",
   "errorCode": "NOT_FOUND",
   "timestamp": "2026-01-16T14:30:00"
 }
@@ -609,7 +615,7 @@ if (entity.getIsDeleted()) {
 }
 
 // 예: 특정 조건에 따른 비즈니스 규칙 위반
-throw new BusinessRuleException("해당 작업은 허용되지 않습니다.");
+throw new BusinessRuleException("This action is not allowed");
 ```
 
 **흐름:**
@@ -637,7 +643,7 @@ throw new BusinessRuleException("해당 작업은 허용되지 않습니다.");
 ```json
 {
   "success": false,
-  "message": "해당 작업은 허용되지 않습니다.",
+  "message": "This action is not allowed",
   "errorCode": "BUSINESS_RULE_VIOLATION",
   "timestamp": "2026-01-16T14:30:00"
 }
@@ -699,7 +705,7 @@ Cookie: access_token=eyJhbGc...(작성자 본인)
 ```json
 {
   "success": false,
-  "message": "이미 삭제된 게시글입니다.",
+  "message": "Community is already deleted",
   "errorCode": "DUPLICATE_RESOURCE",
   "timestamp": "2026-01-16T14:30:00"
 }
@@ -738,7 +744,7 @@ Content-Type: application/json
     │       ...
     │
     ├─ 📁 CommunityCreateDTO.java (Line 16-17)
-    │   @NotBlank(message = "제목은 필수입니다")
+    │   @NotBlank(message = "Title is required")
     │   @Size(max = 200, message = "제목은 200자 이하여야 합니다")
     │   private String title;
     │   
@@ -758,13 +764,13 @@ Content-Type: application/json
     │           .stream()
     │           .map(error -> ErrorResponse.FieldError.builder()
     │               .field(error.getField())           // "title"
-    │               .message(error.getDefaultMessage()) // "제목은 필수입니다"
+    │               .message(error.getDefaultMessage()) // "Title is required"
     │               .rejectedValue(error.getRejectedValue()) // ""
     │               .build())
     │           .collect(Collectors.toList());
     │       
     │       ErrorResponse response = ErrorResponse.of(
-    │           "입력값이 올바르지 않습니다.",
+    │           "Invalid input",
     │           "VALIDATION_ERROR",
     │           fieldErrors
     │       );
@@ -779,13 +785,13 @@ Content-Type: application/json
 ```json
 {
   "success": false,
-  "message": "입력값이 올바르지 않습니다.",
+  "message": "Invalid input",
   "errorCode": "VALIDATION_ERROR",
   "timestamp": "2026-01-16T14:30:00",
   "errors": [
     {
       "field": "title",
-      "message": "제목은 필수입니다",
+      "message": "Title is required",
       "rejectedValue": ""
     }
   ]
@@ -836,28 +842,28 @@ Content-Type: application/json
 ```json
 {
   "success": false,
-  "message": "입력값이 올바르지 않습니다.",
+  "message": "Invalid input",
   "errorCode": "VALIDATION_ERROR",
   "timestamp": "2026-01-16T14:30:00",
   "errors": [
     {
       "field": "username",
-      "message": "아이디는 4~20자여야 합니다",
+      "message": "Username must be 4-20 characters",
       "rejectedValue": "ab"
     },
     {
       "field": "password",
-      "message": "비밀번호는 4자 이상이어야 합니다",
+      "message": "Password must be at least 4 characters",
       "rejectedValue": "12"
     },
     {
       "field": "email",
-      "message": "이메일 형식이 올바르지 않습니다",
+      "message": "Invalid email format",
       "rejectedValue": "invalid-email"
     },
     {
       "field": "nickname",
-      "message": "닉네임은 필수입니다",
+      "message": "Nickname is required",
       "rejectedValue": ""
     }
   ]
@@ -873,17 +879,18 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "message": "작업이 완료되었습니다.",
+  "message": "Success",
   "data": { ... }  // 실제 데이터 (없을 수도 있음)
 }
 ```
+> 메시지는 API마다 다릅니다(`"Community created"` 등). 데이터만 반환하는 `success(data)`의 기본 메시지는 `"Success"`입니다.
 
 ### 6.2 에러 응답 (ErrorResponse)
 
 ```json
 {
   "success": false,
-  "message": "에러 메시지",
+  "message": "Error message",
   "errorCode": "ERROR_CODE",
   "timestamp": "2026-01-16T14:30:00",
   "errors": [...]  // 유효성 검증 에러 시에만 존재
@@ -899,10 +906,12 @@ Content-Type: application/json
 | `TOKEN_EXPIRED` | 401 | SecurityConfig / RefreshController | Access/Refresh Token 만료 |
 | `TOKEN_REQUIRED` | 401 | RefreshController | Refresh Token 헤더 없음 |
 | `TOKEN_DISCARDED` | 401 | RefreshController | 폐기된 토큰 (로그아웃됨) |
+| `INVALID_TOKEN` | 401 | SecurityConfig | 토큰이 유효하지 않음(서명 위조/형식 오류 등) |
 | `NOT_FOUND` | 404 | GlobalExceptionHandler | 리소스 없음 |
 | `ACCESS_DENIED` | 403 | GlobalExceptionHandler | 권한 없음 (본인 아님) |
 | `BUSINESS_RULE_VIOLATION` | 400 | GlobalExceptionHandler | 비즈니스 규칙 위반 |
 | `DUPLICATE_RESOURCE` | 409 | GlobalExceptionHandler | 중복/이미 처리됨 |
+| `INVALID_STATE` | 409 | GlobalExceptionHandler | 잘못된 상태(IllegalStateException, 예: 이미 삭제된 리소스) |
 | `VALIDATION_ERROR` | 400 | GlobalExceptionHandler | 유효성 검증 실패 (@Valid) |
 | `INVALID_JSON` | 400 | GlobalExceptionHandler | JSON 파싱 실패 |
 | `MISSING_PARAMETER` | 400 | GlobalExceptionHandler | 필수 파라미터 누락 |

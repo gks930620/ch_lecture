@@ -4,7 +4,7 @@ public class P6연산식자동타입변환 {
     public static void main(String[] args) {
         byte x=10;
         byte y=20;
-        byte z= (byte)(x+y);    //  or   (byte)x+byte(y)
+        byte z= (byte)(x+y);
         System.out.println(z);
 
         int a=3;

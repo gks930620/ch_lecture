@@ -1,8 +1,3 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 public class P2Null과NullpointerException {
     public static void main(String[] args) {
         //아직 번지(주소값)를 저장하고 있지 않다는 뜻으로 null'값'을 가질수 있다.

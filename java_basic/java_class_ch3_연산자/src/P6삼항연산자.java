@@ -5,7 +5,9 @@ public class P6삼항연산자 {
 
         int a= 3<5 ? 3 : 5;
         int b= true ? 100 : 200;
-        System.out.println( 5<3 ? "3이 보다 크냐?" : "3은 5보다 작잖아");
+        System.out.println("a = " + a);
+        System.out.println("b = " + b);
+        System.out.println( 5<3 ? "5가 3보다 작냐?" : "5는 3보다 크잖아");
 
     }
 

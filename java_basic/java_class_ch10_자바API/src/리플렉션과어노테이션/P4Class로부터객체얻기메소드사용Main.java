@@ -11,7 +11,8 @@ public class P4Class로부터객체얻기메소드사용Main {
         Method methodGetArea= clazz.getDeclaredMethod("getArea");
         Method methodStaticGetArea=clazz.getDeclaredMethod("staticGetArea",int.class,int.class);
         // 이런식으로 메소드 얻으면 된다. 파라미터 쓰는 방법만 유의깊게 보자.
-        Square square= (Square)clazz.newInstance();
+        //clazz.newInstance()는 자바9부터 deprecated. 생성자를 얻어서 만드는 게 표준 방식
+        Square square= clazz.getDeclaredConstructor().newInstance();
         square.setBottomLine(5); square.setHeight(20);
         System.out.println("square 객체의 넓이 : "+methodGetArea.invoke(square));
         System.out.println("static메소드 넓이 구하기 : "+methodStaticGetArea.invoke(null,10,20));

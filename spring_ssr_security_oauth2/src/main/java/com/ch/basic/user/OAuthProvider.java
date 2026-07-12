@@ -54,7 +54,9 @@ public enum OAuthProvider {
         public UserEntity toUserEntity(Map<String, Object> attributes) {
             Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
             Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-            Long id = (Long) attributes.get("id");  // 카카오는 id가 Long
+            // 카카오 id는 큰 숫자라 보통 Long으로 오지만, JSON 숫자 크기에 따라 Integer로 올 수도 있음
+            // → username은 어차피 문자열로 이어붙이므로 Number로 받아 String.valueOf로 안전하게 처리 (ClassCastException 방지)
+            String id = String.valueOf(attributes.get("id"));
 
             // email, nickname은 동의항목에 따라 null일 수 있음 → null-safe 처리
             String email = (kakaoAccount != null) ? (String) kakaoAccount.get("email") : null;

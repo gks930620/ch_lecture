@@ -6,11 +6,11 @@ public class 예외처리기본Main2 {
     public static void main(String[] args) {
         Scanner scanner=new Scanner(System.in);
         String str= scanner.nextLine();
-        findClassAndPrinInfo(str);
+        findClassAndPrintInfo(str);
     }
 
     //일반 예외가 발생하는 코드는 try-catch가 없으면 컴파일 에러.
-    public static void findClassAndPrinInfo(String str){
+    public static void findClassAndPrintInfo(String str){
         try{
             Class<?> clazz = Class.forName(str);
             System.out.println(clazz.getSimpleName());

@@ -1,18 +1,15 @@
 ﻿---
 layout: default
 title: ch4_제어문과반복문
-description: ch4_제어문과반복문 통합 문서
+description: if, switch, for, while 제어 흐름과 반복 설계 패턴
 ---
 
 # ch4_제어문과반복문
 
-통합 문서입니다.
 
 ---
 
-## 1. 제어문과 반복문
 
-# 제어문과 반복문
 
 ## 학습 목표
 - `if`, `switch`, `for`, `while`, `do-while`의 선택 기준을 설명할 수 있다.
@@ -35,7 +32,7 @@ description: ch4_제어문과반복문 통합 문서
 - 분기 기준이 읽기 쉽다.
 - 중첩 깊이가 과도하지 않다.
 
-![제어문 선택 지도]({{ '/assets/images/java_basic/ch4/control-flow-map.svg' | relative_url }})
+![제어문 선택 지도]({{ '/java_basic/java_basic_images/ch4/control-flow-map.svg' | relative_url }})
 
 분기/반복 요구사항에 따라 어떤 제어문을 선택할지 빠르게 판단할 수 있는 지도다.
 
@@ -43,7 +40,7 @@ description: ch4_제어문과반복문 통합 문서
 
 ## 2. 조건문 `if / else if / else`
 
-## 2.1 기본 형태
+### 2.1 기본 형태
 
 ```java
 if (score >= 90) {
@@ -83,7 +80,7 @@ process(user);
 
 ## 3. `switch` 문과 `switch` 식
 
-## 3.1 전통적인 switch 문
+### 3.1 전통적인 switch 문
 
 ```java
 switch (month) {
@@ -104,7 +101,11 @@ switch (month) {
 
 `break` 누락 시 fall-through가 발생한다.
 
+![switch fall-through 동작]({{ '/java_basic/java_basic_images/ch4/switch-fallthrough.svg' | relative_url }})
+
 ### 3.2 switch expression (최신 문법)
+
+switch expression(`->` 화살표 문법)은 **Java 14부터 정식 지원**된다. 본 강의는 Java 17 기준이므로 그대로 사용하면 된다.
 
 ```java
 String season = switch (month) {
@@ -125,7 +126,7 @@ String season = switch (month) {
 
 ## 4. 반복문 `for`
 
-## 4.1 기본 for
+### 4.1 기본 for
 
 ```java
 for (int i = 0; i < 10; i++) {
@@ -135,7 +136,7 @@ for (int i = 0; i < 10; i++) {
 
 반복 횟수가 명확할 때 가장 적합하다.
 
-![for 루프 생명주기]({{ '/assets/images/java_basic/ch4/for-loop-lifecycle.svg' | relative_url }})
+![for 루프 생명주기]({{ '/java_basic/java_basic_images/ch4/for-loop-lifecycle.svg' | relative_url }})
 
 `for` 문의 실행 순서(초기화 -> 조건 -> 본문 -> 증감 -> 조건 재평가)를 흐름도로 나타낸 그림이다.
 
@@ -154,7 +155,7 @@ for (int n : nums) {
 
 ## 5. `while`과 `do-while`
 
-## 5.1 while
+### 5.1 while
 
 ```java
 while (condition) {
@@ -174,11 +175,15 @@ do {
 
 사용자 입력을 최소 한 번은 받아야 하는 로직에서 유용하다.
 
+![while vs do-while 흐름 비교]({{ '/java_basic/java_basic_images/ch4/while-vs-dowhile.svg' | relative_url }})
+
+`while`은 조건을 먼저 검사해서 본문이 0번 실행될 수 있고, `do-while`은 본문을 먼저 실행한 뒤 검사하므로 최소 1회 실행이 보장된다.
+
 ---
 
 ## 6. `break`, `continue`, 라벨 제어
 
-## 6.1 break
+### 6.1 break
 
 반복문 또는 switch를 즉시 종료한다.
 
@@ -218,7 +223,7 @@ for (int i = 0; i < 5; i++) {
 
 ## 7. 반복문 설계 패턴
 
-## 7.1 누적 패턴
+### 7.1 누적 패턴
 
 ```java
 int sum = 0;
@@ -256,7 +261,7 @@ for (String name : names) {
 
 ## 8. 무한 루프와 경계값 오류
 
-## 8.1 무한 루프 예시
+### 8.1 무한 루프 예시
 
 ```java
 int i = 0;
@@ -314,11 +319,16 @@ for (int i = 0; i <= arr.length; i++) { // 마지막 인덱스 초과
 
 ---
 
-## 2. 문제
 
 # 문제
 
 `ch4` 범위(조건문, switch, 반복문, 흐름 제어) 문제입니다.
+
+> 정답 예시: [ch4 문제 답안](문제답안/ch4_문제답안.md)
+
+> 아직 배우지 않은 내용이 필요한 문제 안내
+> - E1, F2~F3, G1~G4, H: 배열(`int[]` 등)을 사용합니다. 배열은 ch5에서 배우므로, ch5 학습 후 복습 문제로 풀어도 됩니다.
+> - C4: 문자열의 i번째 문자는 `s.charAt(i)`, 길이는 `s.length()`로 구합니다(문자열 API는 ch10에서 자세히 다룸).
 
 ---
 
@@ -372,6 +382,7 @@ for (int i = 0; i <= arr.length; i++) { // 마지막 인덱스 초과
 1. 별 피라미드(정삼각형)를 출력하시오.
 2. 2차원 배열의 대각선 합을 구하시오.
 3. 로또 번호(중복 없는 6개)를 생성하시오.
+- 힌트: `(int)(Math.random() * 45) + 1`로 1~45 난수를 만들고, 이미 뽑은 번호인지 배열을 반복문으로 검사한다.
 4. 숫자 야구 게임의 입력 검증 루프를 구현하시오.
 
 ---

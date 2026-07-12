@@ -33,6 +33,8 @@ public class Q4 {
             } catch (SQLException e) {
                 conn.rollback();
                 System.out.println("트랜잭션 롤백: " + e.getMessage());
+            } finally {
+                conn.setAutoCommit(true);   //커넥션 풀 환경이라면 반환 전 auto-commit 복원
             }
         } catch (SQLException e) {
             System.out.println("연결 실패: " + e.getMessage());

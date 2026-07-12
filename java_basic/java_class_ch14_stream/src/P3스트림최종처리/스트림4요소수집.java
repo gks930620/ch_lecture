@@ -1,7 +1,5 @@
 package P3스트림최종처리;
 
-import P2스트림중간처리.Person;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +30,7 @@ public class 스트림4요소수집 {
         //그룹핑
         Map<String, List<Person>> collect = list.stream().collect(Collectors.groupingBy(person -> person.name));
         //이름별로 그룹핑
+        System.out.println(collect);
 
 
 

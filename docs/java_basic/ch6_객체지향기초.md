@@ -1,18 +1,15 @@
 ﻿---
 layout: default
 title: ch6_객체지향기초
-description: ch6_객체지향기초 통합 문서
+description: 클래스와 객체, 필드/메소드/생성자, 캡슐화, equals/hashCode
 ---
 
 # ch6_객체지향기초
 
-통합 문서입니다.
 
 ---
 
-## 1. 클래스와 객체
 
-# 객체지향 프로그래밍 기초
 
 ## 학습 목표
 - 클래스/객체/인스턴스의 차이를 정확히 설명할 수 있다.
@@ -49,13 +46,13 @@ User u2 = new User();
 
 `u1`, `u2`는 같은 클래스 타입이지만 서로 다른 상태를 갖는다.
 
-![클래스 인스턴스 static 관계]({{ '/assets/images/java_basic/ch6/class-instance-static.svg' | relative_url }})
+![클래스 인스턴스 static 관계]({{ '/java_basic/java_basic_images/ch6/class-instance-static.svg' | relative_url }})
 
 ---
 
 ## 3. 클래스 구성 요소
 
-## 3.1 필드(field)
+### 3.1 필드(field)
 
 객체의 상태를 저장한다.
 
@@ -94,7 +91,7 @@ public void deposit(long amount) {
 
 접근제어자:
 - `private`: 클래스 내부만
-- `default`: 같은 패키지
+- (생략 시) `default`(package-private): 같은 패키지 — `default`라는 키워드를 붙이는 것이 아니라, 아무 접근제어자도 안 붙인 상태를 말한다
 - `protected`: 같은 패키지 + 상속 관계
 - `public`: 어디서나
 
@@ -110,13 +107,21 @@ public void withdraw(long amount) {
 
 필드 직접 노출 대신, 검증 로직이 포함된 메소드로 상태를 변경해야 한다.
 
+값을 읽을 때는 getter 메소드로 공개한다:
+
+```java
+public long getBalance() {
+    return balance;
+}
+```
+
 ---
 
 ## 5. 생성자 설계 포인트
 
 1. 객체가 유효한 상태로만 생성되게 만들 것
 2. 필수값 누락을 방지할 것
-3. 생성자 오버로딩이 많아지면 빌더 패턴 검토
+3. 생성자 오버로딩이 많아지면 빌더 패턴 검토 (빌더 패턴은 심화 주제이므로 지금 다 이해할 필요 없다. "생성자가 복잡해지면 대안이 있다" 정도만 기억하자.)
 
 예:
 
@@ -170,13 +175,31 @@ public User rename(String name) {
 기본 `==`는 참조 동일성 비교다.  
 도메인에서 "같은 사용자" 같은 의미 비교가 필요하면 `equals/hashCode` 재정의가 필요하다.
 
-```java
-@Override
-public boolean equals(Object o) { ... }
+`Objects.equals`/`Objects.hash`를 사용한 완성 예제:
 
-@Override
-public int hashCode() { ... }
+```java
+import java.util.Objects;
+
+class User {
+    private String name;
+    private int age;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return age == user.age && Objects.equals(name, user.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, age);
+    }
+}
 ```
+
+![== 는 참조 비교, equals는 값 비교]({{ '/java_basic/java_basic_images/ch6/equals-vs-reference.svg' | relative_url }})
 
 컬렉션(`HashSet`, `HashMap`) 사용 시 특히 중요하다.
 
@@ -196,6 +219,14 @@ public int hashCode() { ... }
 2. setter 제거
 3. 생성자에서 완전 초기화
 
+참고로 Java 16+의 `record`를 쓰면 이 패턴(final 필드, 생성자, equals/hashCode/toString)이 자동 적용된다.
+
+```java
+record Money(long amount, String currency) {}
+```
+
+자세한 활용은 ch16에서 다룬다.
+
 ---
 
 ## 10. 객체 책임 분리
@@ -210,6 +241,8 @@ public int hashCode() { ... }
 
 한 클래스에 너무 많은 책임이 모이면 유지보수가 급격히 어려워진다.
 
+Repository/Service 같은 용어는 지금 다 이해할 필요 없다. "한 클래스가 모든 일을 하지 않게 나눈다" 정도만 기억하면 된다.
+
 ---
 
 ## 11. 실무에서 자주 하는 실수
@@ -217,7 +250,7 @@ public int hashCode() { ... }
 1. 모든 필드를 `public`으로 공개
 2. 생성자 검증 누락으로 불완전 객체 생성
 3. static 가변 상태 남용
-4. getter/setter만 있는 빈약한 모델(Anemic Domain Model)
+4. getter/setter만 있는 빈약한 모델(Anemic Domain Model) — 용어 자체는 심화 개념이니 "객체가 데이터만 들고 행동이 없으면 좋지 않다" 정도만 기억하자
 5. 클래스가 비대해져 단일 책임 원칙 위반
 
 ---
@@ -230,11 +263,12 @@ public int hashCode() { ... }
 
 ---
 
-## 2. 문제
 
 # 문제
 
 `ch6` 범위(클래스/객체/생성자/캡슐화/static) 문제입니다.
+
+> 정답 예시: [ch6 문제 답안](문제답안/ch6_문제답안.md)
 
 ---
 

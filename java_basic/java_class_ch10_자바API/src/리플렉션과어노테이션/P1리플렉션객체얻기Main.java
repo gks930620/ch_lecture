@@ -2,7 +2,6 @@ package 리플렉션과어노테이션;
 
 public class P1리플렉션객체얻기Main {
     public static void main(String[] args) throws ClassNotFoundException {
-        //제네릭 하고나서 하자.  블로그 제네릭 글 살짝 고치자. raw타입 쓴거 안됨
 //        class: 우리가 객체와클래스 배울 때 배우던 그거.
 //        Class: 자바의 여러 class 중 하나
 //       헷갈리니까 Class는 그대로 Class로,    class는  한글로 클래스 라고 하겠다

@@ -25,9 +25,9 @@ public class Array리스트메인 {
 
         System.out.println("리스트 크기 : " + list.size());
 
-        System.out.println("혜인과 해린을 삭제합니다.");
-        list.remove(4);  //혜인삭제
-        list.remove("강해린"); //해린삭제
+        System.out.println("이혜인과 강해린을 삭제합니다.");
+        list.remove(4);  //인덱스로 삭제 - 4번 인덱스의 "이혜인" 삭제
+        list.remove("강해린"); //값으로 삭제 - "강해린" 삭제
 
 
         if(list.contains("민지")){

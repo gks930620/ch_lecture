@@ -15,7 +15,7 @@ public class MemberDAO {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
         } catch (ClassNotFoundException e) {
-            new RuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -79,7 +79,7 @@ public class MemberDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@nextit.or.kr:1521:xe", "std225", "oracle21c");  //2.연결
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@DB주소:1521:xe", "DB유저ID", "DB비밀번호");  //2.연결 (DB주소·유저ID·비밀번호는 본인 환경에 맞게 변경)
             String sql = """
                      INSERT INTO MEMBER (
                           mem_id     ,     mem_pass     ,    mem_name 
@@ -88,10 +88,10 @@ public class MemberDAO {
                         , mem_job    ,     mem_hobby    ,    mem_del_yn
                         ) 
                      VALUES (
-                               ?     ,     ?            ,    ? 
-                        ,      ?     ,     ?            ,    ? 
-                        ,      ?     ,     ?            ,    ? 
-                        ,      ?     ,     ?            ,    'N' 
+                               ?     ,     ?            ,    ?
+                        ,      TO_DATE(?, 'YYYY-MM-DD') ,     ?            ,    ?
+                        ,      ?     ,     ?            ,    ?
+                        ,      ?     ,     ?            ,    'N'
                        )
                     """;
             pstmt = conn.prepareStatement(sql);
@@ -110,7 +110,7 @@ public class MemberDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@nextit.or.kr:1521:xe", "std225", "oracle21c");  //2.연결
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@DB주소:1521:xe", "DB유저ID", "DB비밀번호");  //2.연결 (DB주소·유저ID·비밀번호는 본인 환경에 맞게 변경)
             String sql = """
                     SELECT 
                      MEM_ID   , MEM_PASS  , MEM_NAME   ,
@@ -140,7 +140,7 @@ public class MemberDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@nextit.or.kr:1521:xe", "std225", "oracle21c");  //2.연결
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@DB주소:1521:xe", "DB유저ID", "DB비밀번호");  //2.연결 (DB주소·유저ID·비밀번호는 본인 환경에 맞게 변경)
             String sql = """
                     SELECT 
                      MEM_ID   , MEM_PASS  , MEM_NAME   ,
@@ -171,10 +171,10 @@ public class MemberDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@nextit.or.kr:1521:xe", "std225", "oracle21c");  //2.연결
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@DB주소:1521:xe", "DB유저ID", "DB비밀번호");  //2.연결 (DB주소·유저ID·비밀번호는 본인 환경에 맞게 변경)
             String sql= """
                     UPDATE MEMBER SET
-                    MEM_PASS=?  , MEM_NAME=?   , MEM_BIR=?  ,
+                    MEM_PASS=?  , MEM_NAME=?   , MEM_BIR=TO_DATE(?, 'YYYY-MM-DD')  ,
                     MEM_ZIP=?   , MEM_ADD1=?   , MEM_ADD2=? , 
                     MEM_HP=?    , MEM_MAIL=?   , MEM_JOB=?  , 
                     MEM_HOBBY=? 
@@ -196,7 +196,7 @@ public class MemberDAO {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@nextit.or.kr:1521:xe", "std225", "oracle21c");  //2.연결
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@DB주소:1521:xe", "DB유저ID", "DB비밀번호");  //2.연결 (DB주소·유저ID·비밀번호는 본인 환경에 맞게 변경)
             String sql= """
                     UPDATE member SET 
                     mem_del_yn='Y'    

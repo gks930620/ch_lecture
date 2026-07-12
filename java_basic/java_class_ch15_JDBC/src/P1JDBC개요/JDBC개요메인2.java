@@ -27,7 +27,7 @@ public class JDBC개요메인2 {
             // select 쿼리문이라면 rs에 select쿼리 결과들이 저장되어있음
 
         } catch (SQLException e) {
-            //SQLExcetpion은  그냥 익셉션(checkedException) 인데 체크해서 뭐 할게 없어서.
+            //SQLException은  그냥 익셉션(checkedException) 인데 체크해서 뭐 할게 없어서.
             // 새로운 런타임exception으로 변환해서 던지는게 일반적.
             throw new RuntimeException(e);
         } finally {

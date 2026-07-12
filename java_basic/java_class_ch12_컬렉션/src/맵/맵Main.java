@@ -17,8 +17,9 @@ public class 맵Main {
 
         Member 민지 = map.get("민지");
         System.out.println(민지);
-        //getOrDefault도 쓰면 좋음
+        //getOrDefault도 쓰면 좋음. 키가 없으면 뒤에 넘긴 기본값을 반환함
         Member 희진 = map.getOrDefault("희진", new Member("민희진", 45));
+        System.out.println(희진);  //맵에 "희진" 키가 없으니 기본값 민희진이 출력됨
 
         System.out.println(map.keySet());
         System.out.println(map.values());

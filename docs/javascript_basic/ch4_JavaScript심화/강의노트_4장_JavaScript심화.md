@@ -153,6 +153,8 @@ const sayHi = function() {
 
 ## 📚 4.3 클로저 (Closure)
 
+![스코프 체인과 클로저]({{ '/javascript_basic/javascript_basic_images/ch4/scope-closure.svg' | relative_url }})
+
 ### 강의 포인트
 - 클로저는 JavaScript의 핵심 개념
 - "함수 + 렉시컬 환경"
@@ -288,7 +290,8 @@ for (var i = 0; i < 3; i++) {
 
 #### 1. 전역 컨텍스트
 ```javascript
-console.log(this);  // window (브라우저) / global (Node.js)
+console.log(this);  // 브라우저: window / 환경에 따라 다름
+// (참고) Node.js는 모듈 최상위 this가 module.exports(빈 객체 {})이고, REPL에서만 global입니다.
 ```
 
 #### 2. 함수 호출
@@ -299,6 +302,10 @@ function test() {
 
 test();  // window (strict mode에서는 undefined)
 ```
+
+> ⚠️ 이 장의 `this = window`·`this.name = ""` 같은 결과는 **클래식 스크립트(비-strict)** 기준입니다.
+> ES 모듈(`<script type="module">`)이나 strict mode에서는 분리 호출 시 `this`가 `undefined`라
+> `this.name` 접근이 **TypeError**가 됩니다. (오류가 아니라 환경 차이)
 
 #### 3. 메소드 호출
 ```javascript
@@ -345,12 +352,12 @@ const person = {
         console.log(this.name);  // "홍길동"
     },
     arrowFunc: () => {
-        console.log(this.name);  // undefined (this = 외부 스코프)
+        console.log(this.name);  // "" (this=바깥 스코프=window, window.name은 빈 문자열)
     }
 };
 
 person.regularFunc();  // "홍길동"
-person.arrowFunc();    // undefined
+person.arrowFunc();    // "" (undefined가 아니라 빈 문자열 — window.name의 기본값)
 ```
 
 ### this 실전 문제
@@ -366,7 +373,7 @@ const user = {
 user.greet();  // "안녕, 홍길동" ✅
 
 const greet = user.greet;
-greet();  // "안녕, undefined" ❌ (this = window)
+greet();  // "안녕, " ❌ (this=window, window.name은 빈 문자열이라 undefined가 아님)
 
 // 해결 방법 1: bind
 const boundGreet = user.greet.bind(user);
@@ -499,6 +506,9 @@ console.log(person1.greet === person2.greet);  // true
 ```
 
 ### 프로토타입 체인
+
+![프로토타입 체인]({{ '/javascript_basic/javascript_basic_images/ch4/prototype-chain.svg' | relative_url }})
+
 ```javascript
 const arr = [1, 2, 3];
 
@@ -508,7 +518,7 @@ arr
     → Object.prototype (toString, hasOwnProperty 등)
       → null
 
-console.log(arr.toString());  // "1,2,3" (Object.prototype에서 상속)
+console.log(arr.toString());  // "1,2,3" (Array.prototype.toString이 오버라이드, 내부적으로 join 호출)
 ```
 
 ### __proto__ vs prototype

@@ -69,13 +69,8 @@
             border-radius: 5px;
             margin: 10px 0;
         }
-        .method-external {
-            background: #2196f3;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
+        /* .method-external 규칙은 외부 파일(part01_external.css)에서 로드됩니다.
+           "외부 스타일시트 적용" 데모가 실제 외부 CSS로 동작하도록 여기서 정의하지 않습니다. */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -97,7 +92,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎨 27.1-27.2: CSS란? & CSS 적용 방법</h1>
+        <h1>🎨 2.1-2.2: CSS란? & CSS 적용 방법</h1>
 
         <div class="section">
             <h2>1. CSS란?</h2>
@@ -215,25 +210,31 @@ p { line-height: 1.6; }<br><br>
                 <tr>
                     <td><strong>인라인</strong></td>
                     <td>HTML 태그 내</td>
-                    <td>⭐⭐⭐ (가장 높음)</td>
+                    <td>가장 높음 (style 속성)</td>
                     <td>❌ (불가)</td>
                     <td>❌</td>
                 </tr>
                 <tr>
                     <td><strong>내부</strong></td>
                     <td>&lt;head&gt; 내 &lt;style&gt;</td>
-                    <td>⭐⭐ (중간)</td>
+                    <td>내부·외부 동일*</td>
                     <td>△ (같은 페이지만)</td>
                     <td>△</td>
                 </tr>
                 <tr>
                     <td><strong>외부</strong></td>
                     <td>별도 .css 파일</td>
-                    <td>⭐ (낮음)</td>
+                    <td>내부·외부 동일*</td>
                     <td>✅ (여러 페이지)</td>
                     <td>✅ (추천)</td>
                 </tr>
             </table>
+            <p style="background:#e7f3ff; padding:12px; border-left:5px solid #2196f3; border-radius:5px;">
+                <strong>* 흔한 오해 정정:</strong> 내부 <code>&lt;style&gt;</code>와 외부 <code>&lt;link&gt;</code>는
+                우선순위(가중치)가 <strong>동일</strong>합니다. "내부가 외부보다 높다"는 틀린 말이며,
+                선택자 명시도(specificity)가 같으면 <strong>HTML에서 나중에 선언된 것</strong>이 이깁니다.
+                인라인 <code>style</code> 속성만 이들보다 높습니다.
+            </p>
         </div>
 
         <div class="section">
@@ -253,12 +254,12 @@ p { line-height: 1.6; }<br><br>
             </div>
 
             <div class="code">
-/* 우선순위 예시 */<br>
-p { color: black; }           /* 1순위 */<br>
-.text { color: blue; }        /* 2순위 - 클래스가 태그보다 우선 */<br>
-#title { color: green; }      /* 3순위 - ID가 클래스보다 우선 */<br>
-&lt;p style="color: red;"&gt;     /* 4순위 - 인라인이 가장 우선 */<br>
-p { color: yellow !important; } /* 5순위 - !important가 최우선 */
+/* 우선순위 예시 (아래로 갈수록 강함) */<br>
+p { color: black; }           /* 태그 선택자 - 가장 약함 */<br>
+.text { color: blue; }        /* 클래스가 태그보다 우선 */<br>
+#title { color: green; }      /* ID가 클래스보다 우선 */<br>
+&lt;p style="color: red;"&gt;     /* 인라인이 위 선택자들보다 우선 */<br>
+p { color: yellow !important; } /* !important가 최우선 */
             </div>
         </div>
 

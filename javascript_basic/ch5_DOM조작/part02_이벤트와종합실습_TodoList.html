@@ -220,14 +220,14 @@
         // 추가 버튼 클릭
         addBtn.addEventListener('click', addTodo);
 
-        // Enter 키로 추가
-        todoInput.addEventListener('keypress', (e) => {
+        // Enter 키로 추가 (keypress는 deprecated이므로 keydown 사용)
+        todoInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 addTodo();
             }
         });
 
-        // 필터 버튼 (이벤트 위임)
+        // 필터 버튼 (각 버튼에 개별 리스너 등록)
         filterBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 currentFilter = e.target.dataset.filter;
@@ -373,5 +373,3 @@
     </script>
 </body>
 </html>
-```
-

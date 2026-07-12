@@ -1,13 +1,5 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-
 public class P5배열 {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         //Array
         //같은 타입의 값만 관리한다.  배열의 길이는 정해져있다.
         // 걸그룹 전부 변수로 선언하기엔 너무 많다. 비슷한 데이터를 한 곳에 모아 관리할 수 있게...

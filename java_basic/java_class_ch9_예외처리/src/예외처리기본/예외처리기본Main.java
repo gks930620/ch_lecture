@@ -8,10 +8,12 @@ public class 예외처리기본Main {
 
         // 에러와 예외는 서로 다르지만 자바개발에서는
         // 일반적으로 느끼는 에러상황=예외,  그래서 그냥 에러처리한다고함
-        // try-catch 문으로 처리 가능
+        // 이 예제는 예외 처리를 하지 않아서 숫자가 아닌 입력이 들어오면
+        // NumberFormatException이 발생하며 프로그램이 종료된다.
+        // try-catch 문으로 처리하는 방법은 Main2, Main3에서 다룬다.
         Scanner scanner=new Scanner(System.in);
         String str= scanner.nextLine();
-        printEachNumberSum(str);  
+        printEachNumberSum(str);
     }
     public static void printEachNumberSum(String str){
         int sum=0;

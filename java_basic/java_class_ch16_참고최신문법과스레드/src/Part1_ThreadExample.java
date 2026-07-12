@@ -35,7 +35,10 @@ public class Part1_ThreadExample {
         t2.start();
 
         try {
-            Thread.sleep(600);
+            //sleep(600)으로 어림잡아 기다리면 타이밍에 따라 출력이 섞일 수 있다.
+            //join()은 해당 스레드가 끝날 때까지 확실하게 기다린다.
+            t1.join();
+            t2.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -47,7 +50,8 @@ public class Part1_ThreadExample {
         t4.start();
 
         try {
-            Thread.sleep(600);
+            t3.join();
+            t4.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -64,6 +68,12 @@ public class Part1_ThreadExample {
             }
         });
         t5.start();
+
+        try {
+            t5.join();   //t5가 끝나기를 기다리지 않으면 "메인 스레드 종료"가 먼저 출력된다.
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("\n메인 스레드 종료");
     }

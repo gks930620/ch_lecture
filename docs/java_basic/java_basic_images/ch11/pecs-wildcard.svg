@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="600" viewBox="0 0 1100 600">
+  <defs>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/></marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#16a34a"/></marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+  </defs>
+
+  <rect width="1100" height="600" fill="#f8fafc"/>
+  <text x="550" y="42" text-anchor="middle" font-family="Arial" font-size="30" fill="#0f172a" font-weight="bold">PECS: extends = read, super = write</text>
+
+  <!-- Left: type hierarchy -->
+  <text x="170" y="165" text-anchor="middle" font-family="Arial" font-size="16" fill="#64748b" font-weight="bold">Type Hierarchy</text>
+  <rect x="90" y="190" width="160" height="45" rx="10" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+  <text x="170" y="219" text-anchor="middle" font-family="Consolas, monospace" font-size="16" fill="#334155" font-weight="bold">Object</text>
+  <line x1="170" y1="290" x2="170" y2="239" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <rect x="90" y="290" width="160" height="45" rx="10" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+  <text x="170" y="319" text-anchor="middle" font-family="Consolas, monospace" font-size="16" fill="#334155" font-weight="bold">Number</text>
+  <line x1="170" y1="390" x2="170" y2="339" stroke="#64748b" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <rect x="90" y="390" width="160" height="45" rx="10" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+  <text x="170" y="419" text-anchor="middle" font-family="Consolas, monospace" font-size="16" fill="#334155" font-weight="bold">Integer</text>
+  <text x="170" y="470" text-anchor="middle" font-family="Arial" font-size="13" fill="#64748b" font-style="italic">arrow = extends</text>
+
+  <!-- Center panel: extends -->
+  <rect x="320" y="100" width="360" height="460" rx="14" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="500" y="135" text-anchor="middle" font-family="Consolas, monospace" font-size="17" fill="#166534" font-weight="bold">List&lt;? extends Number&gt;</text>
+  <text x="500" y="160" text-anchor="middle" font-family="Arial" font-size="14" fill="#166534">Producer — read from it</text>
+
+  <rect x="425" y="190" width="150" height="245" rx="10" fill="#bbf7d0" stroke="#16a34a" stroke-width="2"/>
+  <text x="500" y="232" text-anchor="middle" font-family="Consolas, monospace" font-size="15" fill="#166534" font-weight="bold">Number</text>
+  <text x="500" y="297" text-anchor="middle" font-family="Consolas, monospace" font-size="15" fill="#166534">Integer</text>
+  <text x="500" y="362" text-anchor="middle" font-family="Consolas, monospace" font-size="15" fill="#166534">Double</text>
+  <text x="500" y="410" text-anchor="middle" font-family="Arial" font-size="15" fill="#166534">...</text>
+  <line x1="600" y1="205" x2="600" y2="420" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+  <text x="500" y="463" text-anchor="middle" font-family="Arial" font-size="13" fill="#166534" font-style="italic">Number and its subtypes</text>
+
+  <text x="500" y="497" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#166534" font-weight="bold">get(): OK — returns Number</text>
+  <text x="500" y="525" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#dc2626" font-weight="bold">add(): compile error</text>
+
+  <!-- Right panel: super -->
+  <rect x="700" y="100" width="360" height="460" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="880" y="135" text-anchor="middle" font-family="Consolas, monospace" font-size="17" fill="#1e3a8a" font-weight="bold">List&lt;? super Integer&gt;</text>
+  <text x="880" y="160" text-anchor="middle" font-family="Arial" font-size="14" fill="#1e3a8a">Consumer — write into it</text>
+
+  <rect x="805" y="190" width="150" height="245" rx="10" fill="#bfdbfe" stroke="#2563eb" stroke-width="2"/>
+  <text x="880" y="240" text-anchor="middle" font-family="Consolas, monospace" font-size="15" fill="#1e3a8a">Object</text>
+  <text x="880" y="315" text-anchor="middle" font-family="Consolas, monospace" font-size="15" fill="#1e3a8a">Number</text>
+  <text x="880" y="395" text-anchor="middle" font-family="Consolas, monospace" font-size="15" fill="#1e3a8a" font-weight="bold">Integer</text>
+  <line x1="980" y1="420" x2="980" y2="205" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <text x="880" y="463" text-anchor="middle" font-family="Arial" font-size="13" fill="#1e3a8a" font-style="italic">Integer and its supertypes</text>
+
+  <text x="880" y="497" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#166534" font-weight="bold">add(Integer): OK</text>
+  <text x="880" y="525" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#64748b" font-weight="bold">get(): returns Object</text>
+</svg>

@@ -31,7 +31,9 @@ http://localhost:8080/swagger-ui.html
 #### 3. 인증 필요 API 테스트
 1. 먼저 로그인 API (`/api/login`) 호출하여 토큰 획득
 2. 우측 상단 "Authorize" 버튼 클릭
-3. `Bearer {access_token}` 형식으로 입력
+3. **토큰 값만 입력** (예: `eyJhbGciOi...`)
+   - 이 프로젝트의 SecurityScheme는 `scheme = bearer`라 Swagger UI가 `Bearer `를 자동으로 붙여줍니다.
+   - `Bearer eyJ...`처럼 직접 `Bearer `를 붙이면 접두어가 두 번 들어가 인증이 실패합니다.
 4. 이후 인증 필요 API 테스트 가능
 
 ### 컨트롤러에 설명 추가 (선택)
@@ -64,7 +66,11 @@ http://localhost:8080/actuator
 | **health** | `/actuator/health` | 서버 상태 (UP/DOWN) |
 | **info** | `/actuator/info` | 앱 정보 |
 | **metrics** | `/actuator/metrics` | 메트릭 목록 |
-| **loggers** | `/actuator/loggers` | 로그 레벨 확인/변경 |
+| **loggers** | `/actuator/loggers` | 로그 레벨 확인/변경 (⚠️ 기본 미노출 — 아래 참고) |
+
+> ⚠️ **loggers는 현재 노출 대상이 아닙니다.** `application.yml`의 `management.endpoints.web.exposure.include`가
+> `health, info, metrics`로 되어 있어 `/actuator/loggers` 호출 시 404가 납니다.
+> 사용하려면 include에 `loggers`를 추가해야 합니다: `include: health, info, metrics, loggers`
 
 ### 사용 예시
 
@@ -88,6 +94,7 @@ curl http://localhost:8080/actuator/metrics/http.server.requests
 ```
 
 #### 4. 런타임 로그 레벨 변경
+> ⚠️ 아래 예시는 `loggers` 엔드포인트를 `exposure.include`에 추가한 뒤에만 동작합니다(기본 설정에서는 404).
 ```bash
 # 현재 로그 레벨 확인
 curl http://localhost:8080/actuator/loggers/com.test.test

@@ -8,6 +8,7 @@ public class Q2 {
             sum += score;
         }
         double avg = (double) sum / scores.length;
+        System.out.println("합계: " + sum);
         System.out.println("평균: " + avg);
     }
 }

@@ -33,7 +33,9 @@ JWT라는 거는 **JSON Web Token**의 약자로서 토큰의 하나의 형식 �
 
 API서버와 클라이언트가 분리된 환경(React, Vue 등)에서 인증을 적용할 때  
 세션방식보다 토큰방식이 적합함.  
-(JWT 방식은 헤더방식이기 때문에 브라우저의 CORS 쿠키정책 영향을 받지 않는 등)
+(JWT는 토큰을 HTTP 헤더에 담아 보내므로, 쿠키 기반 인증에서 겪는 SameSite·자격증명(withCredentials) 같은 제약에서 자유롭다.  
+ 단, 출처(origin)가 다르면 CORS 정책 자체는 그대로 적용되고, 커스텀 `Authorization` 헤더는 오히려 preflight 요청을 유발할 수 있다.  
+ 즉 "CORS를 안 받는다"가 아니라 "쿠키 정책에 얽매이지 않는다"가 정확한 표현이다.)
 
 또 API 서버가 분리되었기 때문에 웹 뿐만 아니라 모바일 앱, 외부API 서비스 등  
 여러 클라이언트에서도 인증을 쉽게 할 수 있음.
@@ -47,8 +49,12 @@ API서버와 클라이언트가 분리된 환경(React, Vue 등)에서 인증을
 
 - **access token** : username을 포함하고 있는 토큰.  
   클라이언트는 매 요청마다 access token을 서버에 보내 인증된 사용자라는 걸 알린다.  
-  (서버는 매 요청마다 검사. username으로 매번 DB 조회)  
+  (이 프로젝트는 매 요청마다 토큰의 username으로 DB를 조회해 사용자 정보를 구성한다.)  
   기본적으로 **30분**의 만료기간을 갖는다.
+
+  > 참고: "매 요청마다 DB 조회"는 JWT의 필수 규칙이 아니라 **구현 선택**이다.  
+  > 토큰 클레임(username, roles 등)만으로 인증 정보를 구성해 DB 조회를 생략하는 방식도 흔하다.  
+  > 이 프로젝트는 항상 최신 사용자 정보를 쓰기 위해 매 요청 DB 조회 방식을 택했다.
 
 - **refresh token** : access token을 재발급하는 용도로만 쓰이며 보통 **7일 or 30일**의 만료기간을 갖는다.  
   refresh token조차 만료된다면 클라이언트는 다시 로그인을 해야한다.
@@ -69,27 +75,27 @@ access token이 만료되었을 때
 ## 4. 동작방식
 
 ### 로그인 시도
-![로그인 시도](1.session방식과jwt방식차이설명이미지/img.png)
+![로그인 시도](spring_csr_jwt_access_refresh_images/동작방식설명/img.png)
 
 ### 로그인 시도 후 인증된 사용자 요청
-![인증된 사용자 요청](1.session방식과jwt방식차이설명이미지/img_1.png)
+![인증된 사용자 요청](spring_csr_jwt_access_refresh_images/동작방식설명/img_1.png)
 
 클라이언트는 로그인 필요한 곳에 access token을 포함해 요청하게 된다.
 
 ### access token 만료 후 요청
-![access token 만료 후 요청](1.session방식과jwt방식차이설명이미지/img_2.png)
+![access token 만료 후 요청](spring_csr_jwt_access_refresh_images/동작방식설명/img_2.png)
 
 클라이언트는 access token이 만료된 줄 모르고 access token을 가지고 요청한다.  
 서버는 access token 검사 후 만료됐다는 사실을 클라이언트에 전달한다.
 
 ### refresh token으로 재발급
-![refresh token 전달](1.session방식과jwt방식차이설명이미지/img_3.png)
+![refresh token 전달](spring_csr_jwt_access_refresh_images/동작방식설명/img_3.png)
 
 이후 클라이언트는 기존의 access token은 버리고, 새롭게 받은 access token으로 다시  
 인증된 사용자 요청을 하게 된다.
 
 ### 만료된 refresh token 전달
-![만료된 refresh token 전달](1.session방식과jwt방식차이설명이미지/img_4.png)
+![만료된 refresh token 전달](spring_csr_jwt_access_refresh_images/동작방식설명/img_4.png)
 
 클라이언트는 refresh token가 만료된줄 모르고 access token 재발급을 시도한다.  
 서버는 클라이언트에게 refresh token이 만료됐다는 사실을 전달한다.  
@@ -111,6 +117,9 @@ Spring Data JDBC, H2 Database, Spring Data JPA, Spring Web, Thymeleaf,
 Spring Boot Devtools, Lombok, Spring Security 입니다.
 
 jwt, dotenv(.env 환경변수 설정) 라이브러리는 build.gradle에 직접 추가합니다.
+
+> 참고: 이 예제가 **실제로 쓰는 핵심**은 Spring Security · Spring Data JPA · Spring Web · JWT(jjwt) · dotenv, 그리고 개발용 H2 DB다.  
+> 위 목록의 Thymeleaf · Spring Data JDBC 등은 start.spring.io 기본 선택이 남은 것으로 **이 예제에서는 실제로 쓰이지 않는다**(CSR + API 서버라 뷰 템플릿 불필요). 있어도 동작에는 문제 없다.
 
 ```groovy
 implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
@@ -161,6 +170,11 @@ logging:
     org.springframework.security : DEBUG
 ```
 
+> 참고(보안 습관): `jwt.secret`은 `.env`의 `JWT_SECRET_KEY`에서 읽어온다.  
+> 이 프로젝트의 `.env`는 이미 레포 루트 `.gitignore`의 `.env` 규칙으로 저장소에서 제외되어 있다(git에 올라가지 않음).  
+> 이렇게 **비밀키가 담긴 `.env`는 저장소에 올리지 않는 것**이 실서비스에서도 지켜야 할 원칙이다.  
+> (참고로 HS256 서명은 키가 32바이트 이상이어야 하므로 키 길이는 충분히 길게 둔다.)
+
 ---
 
 ## 6. 회원가입 및 Security 기본 세팅
@@ -197,7 +211,10 @@ public class UserEntity {
 
     private String password;
 
-    private List<String> roles = new ArrayList<>();
+    // "USER" 처럼 한 개, 여러 개면 "USER,ADMIN" 처럼 콤마로 구분해 한 컬럼에 저장한다.
+    // (List<String>를 @Entity 필드에 그냥 두면 JPA가 컬럼 타입을 정하지 못해 앱이 시작조차 안 된다.
+    //  List로 쓰려면 @ElementCollection 등이 별도로 필요. 여기서는 간단히 String으로 저장 후 split한다.)
+    private String roles;
 }
 ```
 
@@ -226,28 +243,52 @@ public class RefreshEntity {
 
 ### CustomUserAccount (security에서 사용자정보로 사용할 객체)
 
+UserEntity는 roles를 `"USER,ADMIN"` 처럼 **문자열 한 개**로 저장하므로,  
+CustomUserAccount를 만들 때 콤마로 잘라(`split`) `List<String>`로 바꿔준다.  
+정적 팩토리 메서드 `from(UserEntity)`에서 이 변환을 처리한다.
+
 ```java
 @Getter
 public class CustomUserAccount implements UserDetails {
-    private UserEntity userEntity;
 
-    public CustomUserAccount(UserEntity userEntity) {
-        this.userEntity = userEntity;
+    private final String username;
+    private final String password;
+    private final List<String> roles;
+
+    private CustomUserAccount(String username, String password, List<String> roles) {
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+    }
+
+    // Entity → CustomUserAccount 변환. roles 문자열을 콤마로 split
+    public static CustomUserAccount from(UserEntity userEntity) {
+        List<String> roleList = (userEntity.getRoles() == null || userEntity.getRoles().isBlank())
+            ? Collections.emptyList()
+            : Arrays.stream(userEntity.getRoles().split(","))
+                .map(String::trim)
+                .toList();
+
+        return new CustomUserAccount(
+            userEntity.getUsername(),
+            userEntity.getPassword(),
+            roleList
+        );
     }
 
     @Override
     public String getUsername() {
-        return userEntity.getUsername();
+        return username;
     }
 
     @Override
     public String getPassword() {
-        return userEntity.getPassword();
+        return password;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return userEntity.getRoles().stream()
+        return roles.stream()
             .map(SimpleGrantedAuthority::new)
             .toList();
     }
@@ -288,8 +329,8 @@ public class JoinService {
         }
         UserEntity user = new UserEntity();
         user.setUsername(joinDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(joinDTO.getPassword()));
-        user.getRoles().add("USER");
+        user.setPassword(passwordEncoder.encode(joinDTO.getPassword()));  // 저장 시 반드시 encoding
+        user.setRoles("USER");   // 여러 개면 "USER,ADMIN" 형태의 문자열로 저장
         userRepository.save(user);
     }
 }
@@ -308,7 +349,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity userData = userRepository.findByUsername(username);
         if (userData != null) {
-            return new CustomUserAccount(userData);
+            return CustomUserAccount.from(userData);   // 정적 팩토리로 변환 (roles split)
         }
         throw new UsernameNotFoundException(username + "에 대한 회원정보가 없습니다.");
     }
@@ -333,22 +374,30 @@ public class JoinController {
 }
 ```
 
+CSR(프론트 분리) + API 서버 방식이므로 HTML이 아니라 **JSON**으로 응답한다.  
+조회만 하는 요청이라 `@GetMapping`을 쓴다.
+
 ```java
-@Controller
+@RestController
 @RequestMapping("/api")
 public class MainController {
 
-    @RequestMapping("/my/info")
-    @ResponseBody
-    public String myInfo(@AuthenticationPrincipal CustomUserAccount customUserAccount) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("권한 : " + customUserAccount.getAuthorities().iterator().next().getAuthority() + "<br>");
-        sb.append("password : " + customUserAccount.getPassword() + "<br>");
-        sb.append("username : " + customUserAccount.getUsername() + "<br>");
-        return sb.toString();
+    // 로그인 후
+    @GetMapping("/my/info")
+    public ResponseEntity<?> myInfo(@AuthenticationPrincipal CustomUserAccount customUserAccount) {
+        Map<String, Object> info = Map.of(
+            "username", customUserAccount.getUsername(),
+            "roles", customUserAccount.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).toList()
+        );
+        return ResponseEntity.ok(info);
     }
 }
 ```
+
+> 참고: 위 `JoinController`는 `@Controller` + `@ResponseBody`, `MainController`는 `@RestController`로 서로 달라 보이지만,  
+> **`@RestController`는 `@Controller` + `@ResponseBody`를 합쳐 놓은 것**이라 두 방식은 사실상 같다.  
+> (`@RestController`를 쓰면 클래스의 모든 메서드에 `@ResponseBody`가 자동 적용된다. 즉 메서드 반환값이 뷰 이름이 아니라 응답 본문(JSON 등)이 된다.)
 
 ---
 
@@ -430,9 +479,11 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload();
             return claims.get("token_type", String.class);
-        } catch (ExpiredJwtException e) {
+        } catch (ExpiredJwtException e) {   // 만료되었어도 token_type은 반환
             Claims claims = e.getClaims();
             return claims != null ? claims.get("token_type", String.class) : null;
+        } catch (JwtException | IllegalArgumentException e) {   // 변조·잘못된 형식 등은 null 반환
+            return null;
         }
     }
 }
@@ -536,7 +587,7 @@ public class SecurityConfig {
 
 ## 9. 로그인 - JwtLoginFilter
 
-![로그인시도](3refresh_token도%20있을%20때%20설명이미지/img.png)
+![로그인시도](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img.png)
 
 `/login`으로 요청이 오면 security는 기본적으로 `UsernamePasswordAuthenticationFilter`가 동작한다.  
 이 필터를 상속받아 JWT용으로 대체한 것이 `JwtLoginFilter`이다.
@@ -579,8 +630,8 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtUtil.createAccessToken(customUserAccount.getUsername());
         String refreshToken = jwtUtil.createRefreshToken(customUserAccount.getUsername());
 
-        // refresh token 저장은 Service를 통해 처리
-        refreshService.saveRefreshForLogin(refreshToken, customUserAccount.getUsername());
+        // refresh token 저장은 Service를 통해 처리 (토큰에서 username을 추출해 저장)
+        refreshService.saveRefresh(refreshToken);
 
         // 토큰을 응답에 포함
         response.setContentType("application/json");
@@ -604,7 +655,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
 ## 10. 매 요청마다 토큰 검증 - JwtAccessTokenCheckAndSaveUserInfoFilter
 
-![access token으로 인증된 요청](3refresh_token도%20있을%20때%20설명이미지/img_1.png)
+![access token으로 인증된 요청](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_1.png)
 
 로그인 후 클라이언트가 access token을 가지고 인증이 필요한 곳에 접근할 때,  
 **매 요청마다** access token을 검증하고 SecurityContext에 사용자 정보를 저장해야 한다.  
@@ -635,8 +686,9 @@ public class JwtAccessTokenCheckAndSaveUserInfoFilter extends OncePerRequestFilt
         }
 
         // refresh 토큰이면 이 필터에서는 검증하지 않고 통과
+        // getTokenType은 변조 토큰이면 null을 반환하므로, "refresh".equals(...)로 NPE를 방지한다.
         String tokenType = jwtUtil.getTokenType(token);
-        if (tokenType.equals("refresh")) {
+        if ("refresh".equals(tokenType)) {
             chain.doFilter(request, response);
             return;
         }
@@ -672,12 +724,13 @@ public class JwtAccessTokenCheckAndSaveUserInfoFilter extends OncePerRequestFilt
 
 ## 11. Refresh Token 재발급 - RefreshController
 
-![refresh token 재발급 흐름](3refresh_token도%20있을%20때%20설명이미지/img_2.png)
+![access token 만료 확인 (재발급 직전 단계)](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_2.png)
 
-클라이언트가 access token 만료 응답을 받으면, refresh token으로 토큰 재발급을 요청한다.
+위 그림은 재발급 자체가 아니라 그 **직전 단계**로, 클라이언트가 만료된 access token으로 요청했다가 "만료됨" 응답을 받는 장면이다.  
+이렇게 클라이언트가 access token 만료 응답을 받으면, refresh token으로 토큰 재발급을 요청한다.
 
-![/api/refresh/reissue 흐름 1](3refresh_token도%20있을%20때%20설명이미지/img_3.png)
-![/api/refresh/reissue 흐름 2](3refresh_token도%20있을%20때%20설명이미지/img_4.png)
+![/api/refresh/reissue 흐름 1](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_3.png)
+![/api/refresh/reissue 흐름 2](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_4.png)
 
 `/api/refresh/reissue`는 `permitAll()`이므로 필터에서 refresh 토큰을 감지하면 그냥 통과시킨다.  
 컨트롤러에서 refresh 토큰 검증을 수행한다.
@@ -698,16 +751,8 @@ public class RefreshService {
         return refreshRepository.findByToken(token) != null;
     }
 
-    // 로그인 시 refresh token 저장 (Filter에서 Repository 직접 사용 대신 Service 사용)
-    @Transactional
-    public void saveRefreshForLogin(String refreshToken, String username) {
-        RefreshEntity refreshEntity = new RefreshEntity();
-        refreshEntity.setUserEntity(userRepository.findByUsername(username));
-        refreshEntity.setToken(refreshToken);
-        refreshRepository.save(refreshEntity);
-    }
-
-    // 토큰 재발급 시 새 refresh token 저장
+    // Refresh Token 저장 (토큰에서 username 추출 → UserEntity 조회 → 저장)
+    // 로그인 시점과 재발급 시점 모두 이 메서드 하나로 저장한다.
     @Transactional
     public void saveRefresh(String token) {
         RefreshEntity refreshEntity = new RefreshEntity();
@@ -735,31 +780,33 @@ public class RefreshController {
     private final JwtUtil jwtUtil;
     private final RefreshService refreshService;
 
-    @RequestMapping("/reissue")
+    @PostMapping("/reissue")
     public ResponseEntity<?> refreshAccessToken(@RequestHeader("Authorization") String refreshToken) {
-        String token = refreshToken.replace("Bearer ", "");
+        String token = refreshToken.replace("Bearer ", "");   // refresh 토큰은 Authorization 헤더로
 
         // 1. 폐기된 토큰(로그아웃)인지 검증 = DB에 있냐 없냐
+        //    (탈취 등으로 이미 폐기된 토큰을 다시 쓰는 경우를 막는다)
         if (!refreshService.existsByToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 Map.of("error", "Refresh Token discarded"));
         }
 
-        // 2. 기존 refresh 토큰 삭제
-        refreshService.deleteRefresh(token);
-
-        // 3. Refresh Token 만료 검증
+        // 2. 만료 검증 (삭제보다 먼저 검증한다) — 만료됐으면 DB에서도 정리하고 리턴
         if (!jwtUtil.validateToken(token)) {
+            refreshService.deleteRefresh(token);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 Map.of("error", "Refresh Token expired"));
         }
+
+        // 3. 기존 refresh 토큰 삭제 (Rotation: 한 번 쓴 refresh는 폐기하고 새로 발급)
+        refreshService.deleteRefresh(token);
 
         // 4. 새 토큰 발급
         String username = jwtUtil.extractUsername(token);
         String newAccessToken = jwtUtil.createAccessToken(username);
         String newRefreshToken = jwtUtil.createRefreshToken(username);
 
-        refreshService.saveRefresh(newRefreshToken);
+        refreshService.saveRefresh(newRefreshToken);   // 새 refresh 토큰만 DB에 저장
         return ResponseEntity.ok(Map.of("access_token", newAccessToken, "refresh_token", newRefreshToken));
     }
 }
@@ -769,11 +816,16 @@ public class RefreshController {
 
 ## 12. 로그아웃 - LogoutController
 
-![로그아웃 흐름](3refresh_token도%20있을%20때%20설명이미지/img_5.png)
+![로그아웃 흐름](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_5.png)
 
 `/api/logout`은 `.authenticated()`이므로 access token을 가지고 요청해야 필터를 통과한다.  
 Authorization 헤더에 Bearer방식으로 access token을 보내고,  
 별도의 헤더(`RefreshToken`)로 refresh 토큰을 보내야 한다.
+
+> ⚠️ 헤더 형식 주의: `Authorization` 헤더의 access token은 `Bearer xxx` 형태로 보내지만,  
+> `RefreshToken` 헤더에는 **`Bearer ` 없이 순수 토큰 문자열만** 담아야 한다.  
+> 아래 코드가 받은 값을 그대로 `deleteRefresh(refreshToken)`에 넘기기 때문에(접두어 제거 안 함),  
+> `Bearer `를 붙이면 DB에 저장된 순수 토큰과 값이 달라 **에러 없이 조용히 삭제가 안 되어** 로그아웃이 실패한다.
 
 ```java
 @RestController
@@ -782,7 +834,7 @@ Authorization 헤더에 Bearer방식으로 access token을 보내고,
 public class LogoutController {
     private final RefreshService refreshService;
 
-    @RequestMapping("/logout")
+    @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("RefreshToken") String refreshToken) {
         refreshService.deleteRefresh(refreshToken);
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
@@ -800,34 +852,34 @@ public class LogoutController {
 ## 13. 실행결과
 
 ### 로그인전 /my/info
-![로그인전 /my/info](3refresh_token도%20있을%20때%20설명이미지/img_6.png)
+![로그인전 /my/info](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_6.png)
 
 ### 회원가입전 로그인시도
-![회원가입전 로그인시도](3refresh_token도%20있을%20때%20설명이미지/img_7.png)
+![회원가입전 로그인시도](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_7.png)
 
 ### 회원가입
-![회원가입](3refresh_token도%20있을%20때%20설명이미지/img_8.png)
+![회원가입](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_8.png)
 
 ### 회원가입 후 로그인시도 (access + refresh 토큰 발급)
-![회원가입 후 로그인시도](3refresh_token도%20있을%20때%20설명이미지/img_9.png)
+![회원가입 후 로그인시도](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_9.png)
 
 ### access token으로 /api/my/info 요청
-![access token으로 요청](3refresh_token도%20있을%20때%20설명이미지/img_10.png)
+![access token으로 요청](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_10.png)
 
 ### access token 만료시 /api/my/info
-![access token 만료시](3refresh_token도%20있을%20때%20설명이미지/img_11.png)
+![access token 만료시](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_11.png)
 
 ### refresh 토큰 재발급 /api/refresh/reissue
-![refresh 토큰 재발급](3refresh_token도%20있을%20때%20설명이미지/img_12.png)
+![refresh 토큰 재발급](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_12.png)
 
 ### 로그아웃 시도
 (Authorization Bearer에 access token, 별도 헤더에 refresh 토큰)
 
-![로그아웃 시도](3refresh_token도%20있을%20때%20설명이미지/img_13.png)
+![로그아웃 시도](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_13.png)
 
 ### 로그아웃 후 재발급 신청 → discarded
-![로그아웃 후 재발급 신청](3refresh_token도%20있을%20때%20설명이미지/img_14.png)
+![로그아웃 후 재발급 신청](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_14.png)
 
 ### refresh 토큰 만료 → expired
-![refresh 토큰 만료](3refresh_token도%20있을%20때%20설명이미지/img_15.png)
+![refresh 토큰 만료](spring_csr_jwt_access_refresh_images/refresh_token도있을때설명/img_15.png)
 

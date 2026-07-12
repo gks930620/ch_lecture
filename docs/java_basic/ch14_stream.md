@@ -1,18 +1,15 @@
 ﻿---
 layout: default
 title: ch14_stream
-description: ch14_stream 통합 문서
+description: Stream 파이프라인, 중간/최종 연산, Optional
 ---
 
 # ch14_stream
 
-통합 문서입니다.
 
 ---
 
-## 1. Stream API
 
-# Stream API
 
 ## 학습 목표
 - Stream의 지연 연산 모델과 파이프라인 구조를 이해할 수 있다.
@@ -30,7 +27,7 @@ Stream은 컬렉션 데이터를 선언적으로 처리하기 위한 API다.
 2. 내부 반복(Internal Iteration)
 3. 지연 평가(Lazy Evaluation)
 
-![스트림 파이프라인 생명주기]({{ '/assets/images/java_basic/ch14/stream-pipeline-lifecycle.svg' | relative_url }})
+![스트림 파이프라인 생명주기]({{ '/java_basic/java_basic_images/ch14/stream-pipeline-lifecycle.svg' | relative_url }})
 
 ---
 
@@ -69,6 +66,16 @@ long count = s.count(); // 여기서 실행
 1. `filter`: 조건 통과 요소만
 2. `map`: 타입/값 변환
 3. `flatMap`: 중첩 구조 평탄화
+
+```java
+List<List<String>> nested = List.of(List.of("a", "b"), List.of("c"));
+List<String> flat = nested.stream()
+        .flatMap(List::stream)
+        .toList(); // [a, b, c]
+```
+
+![map은 스트림의 스트림, flatMap은 평탄화]({{ '/java_basic/java_basic_images/ch14/map-vs-flatmap.svg' | relative_url }})
+
 4. `distinct`: 중복 제거
 5. `sorted`: 정렬
 6. `peek`: 디버깅 보조(실무 로직용 남용 금지)
@@ -79,6 +86,13 @@ long count = s.count(); // 여기서 실행
 
 1. `collect`: 컬렉션/맵 수집
 2. `reduce`: 누적 계산
+
+```java
+int product = List.of(1, 2, 3, 4).stream().reduce(1, (a, b) -> a * b); // 24
+```
+
+첫 인자(`1`)는 누적 계산의 초기값이다.
+
 3. `count`: 개수
 4. `anyMatch/allMatch/noneMatch`: 조건 검사
 5. `findFirst/findAny`: 탐색
@@ -89,8 +103,12 @@ long count = s.count(); // 여기서 실행
 
 ```java
 Map<String, Long> freq = words.stream()
-    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+    .collect(Collectors.groupingBy(
+        Function.identity(),      // 요소 자신을 그대로 그룹핑 키로 사용 (w -> w 와 같음)
+        Collectors.counting()));  // 각 그룹에 속한 요소 개수를 값으로 집계
 ```
+
+![Collectors.groupingBy 동작]({{ '/java_basic/java_basic_images/ch14/collectors-groupingby.svg' | relative_url }})
 
 자주 사용하는 collector:
 - `toList`, `toSet`, `toMap`
@@ -102,6 +120,10 @@ Map<String, Long> freq = words.stream()
 
 ## 7. Optional과 결합
 
+> 실습 소스: `src/P4옵셔널과병렬/옵셔널병렬Main.java` (병렬 스트림 포함)
+
+`Optional<T>`는 값이 있을 수도, 없을 수도 있음을 표현하는 컨테이너다.  
+null을 직접 다루는 대신 "없음"을 타입으로 표현해 NullPointerException 발생 가능성을 줄인다.  
 탐색 연산은 Optional을 반환할 수 있다.
 
 ```java
@@ -163,11 +185,12 @@ List<Integer> out = list.stream().filter(x -> x > 0).toList();
 
 ---
 
-## 2. 문제
 
 # 문제
 
 `ch14` 범위(Stream 생성/중간연산/최종연산/Collector/Optional) 문제입니다.
+
+> 정답 예시: [ch14 문제 답안](문제답안/ch14_문제답안.md)
 
 ---
 

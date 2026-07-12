@@ -14,7 +14,7 @@ public class 스트림2필터링메인 {
         list.add(new Person("혜인",17));
         list.add(new Person("해린",19));
         list.add(new Person("해린",19));
-        //해린이지만 equals정의안하면 다른객체로 distcinct안됨
+        //해린이지만 equals정의안하면 다른객체로 distinct안됨
 
         List<Person> distinctedList = list.stream().distinct().collect(Collectors.toList());
         //equals를 정의해야 중복제거됨

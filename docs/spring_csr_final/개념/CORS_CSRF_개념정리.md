@@ -158,6 +158,9 @@ public class CorsConfig {
     }
 }
 ```
+> 💡 위 코드는 개념 설명용 단순화 예시입니다. 실제 프로젝트의 `common/config/CorsConfig.java`는 허용 Origin이
+> `localhost:3000/5173/8080`(운영 도메인은 주석 예시)이며 `setExposedHeaders(...)`, `setMaxAge(3600)`도 함께 설정되어 있습니다.
+
 ### SecurityConfig에서 CORS 활성화
 ```java
 // CorsConfigurationSource Bean을 자동으로 찾아서 사용
@@ -230,8 +233,9 @@ http.csrf(csrf -> csrf.disable());  // CSRF 비활성화
   (악성 사이트에서 헤더를 조작할 수 없으므로)
 - **하지만 이 프로젝트는 HttpOnly 쿠키에 JWT를 저장**하므로, 쿠키는 자동 전송됨
 - 따라서 **SameSite=Lax** 설정으로 방어 (현재 적용됨)
-  - SameSite=Lax: GET 요청만 다른 사이트에서 쿠키 전송 허용
-  - POST/PUT/DELETE 같은 상태 변경 요청은 차단됨
+  - SameSite=Lax: 다른 사이트에서 **링크를 눌러 이동하는 최상위 내비게이션(top-level navigation) GET**일 때만 쿠키 전송
+  - 즉 크로스사이트라도 `<img>`·`<iframe>`·fetch/XHR 같은 하위 리소스 요청은 GET이어도 쿠키가 안 붙고,
+    POST/PUT/DELETE 같은 상태 변경 요청도 차단됨 (악성 폼 자동 제출 방어)
 - 결론: CSRF 토큰 없이도 SameSite 쿠키로 충분히 안전
 
 ---
@@ -240,7 +244,8 @@ http.csrf(csrf -> csrf.disable());  // CSRF 비활성화
 | 항목 | 상태 |
 |------|------|
 | CSRF 토큰 | ❌ 비활성화 |
-| JWT 사용 | ✅ 헤더/쿠키 |   위조요청 방어를 jwt 해결  
+| JWT 저장 위치 | 🍪 HttpOnly 쿠키 (헤더 아님) |
+| CSRF 방어 주체 | ✅ **SameSite=Lax** (쿠키 저장형이라 JWT만으로는 CSRF 방어 불가) |
 | SameSite 쿠키 | ✅ Lax 설정 |
 | **결론** | ✅ 안전함 |
 

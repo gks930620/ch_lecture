@@ -11,5 +11,6 @@ public class Q3 {
         System.out.println("2진수: " + Integer.toBinaryString(n));
         System.out.println("n << 1: " + (n << 1));
         System.out.println("n >> 1: " + (n >> 1));
+        System.out.println("n >>> 1: " + (n >>> 1));
     }
 }

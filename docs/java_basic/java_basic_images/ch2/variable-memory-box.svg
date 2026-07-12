@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="520" viewBox="0 0 1100 520">
+  <defs>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/></marker>
+  </defs>
+  <rect width="1100" height="520" fill="#f8fafc"/>
+  <text x="550" y="42" text-anchor="middle" font-family="Arial" font-size="30" fill="#0f172a" font-weight="bold">Variable = a Named Box in Memory</text>
+
+  <!-- Panel 1: declare (gray) -->
+  <rect x="30" y="90" width="320" height="330" rx="12" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+  <text x="190" y="125" text-anchor="middle" font-family="Arial" font-size="20" font-weight="bold" fill="#334155">1. DECLARE</text>
+  <rect x="70" y="142" width="240" height="40" rx="8" fill="#ffffff" stroke="#64748b"/>
+  <text x="190" y="168" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#334155">int age;</text>
+  <!-- memory box -->
+  <rect x="115" y="225" width="150" height="105" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="2.5"/>
+  <rect x="120" y="213" width="44" height="24" rx="6" fill="#cbd5e1" stroke="#64748b"/>
+  <text x="142" y="230" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#334155">int</text>
+  <text x="190" y="295" text-anchor="middle" font-family="Arial" font-size="40" fill="#94a3b8">?</text>
+  <text x="190" y="358" text-anchor="middle" font-family="Consolas, monospace" font-size="18" font-weight="bold" fill="#334155">age</text>
+  <text x="190" y="390" text-anchor="middle" font-family="Arial" font-size="14" fill="#475569">empty box, no value yet</text>
+
+  <!-- arrow 1 -->
+  <line x1="352" y1="255" x2="386" y2="255" stroke="#64748b" stroke-width="3" marker-end="url(#arrowGray)"/>
+
+  <!-- Panel 2: assign (blue) -->
+  <rect x="390" y="90" width="320" height="330" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="550" y="125" text-anchor="middle" font-family="Arial" font-size="20" font-weight="bold" fill="#1e3a8a">2. ASSIGN</text>
+  <rect x="430" y="142" width="240" height="40" rx="8" fill="#ffffff" stroke="#2563eb"/>
+  <text x="550" y="168" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#1e3a8a">age = 25;</text>
+  <rect x="475" y="225" width="150" height="105" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+  <rect x="480" y="213" width="44" height="24" rx="6" fill="#bfdbfe" stroke="#2563eb"/>
+  <text x="502" y="230" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#1e3a8a">int</text>
+  <text x="550" y="295" text-anchor="middle" font-family="Arial" font-size="40" font-weight="bold" fill="#1e3a8a">25</text>
+  <text x="550" y="358" text-anchor="middle" font-family="Consolas, monospace" font-size="18" font-weight="bold" fill="#1e3a8a">age</text>
+  <text x="550" y="390" text-anchor="middle" font-family="Arial" font-size="14" fill="#1e3a8a">value 25 goes into the box</text>
+
+  <!-- arrow 2 -->
+  <line x1="712" y1="255" x2="746" y2="255" stroke="#64748b" stroke-width="3" marker-end="url(#arrowGray)"/>
+
+  <!-- Panel 3: reassign (green) -->
+  <rect x="750" y="90" width="320" height="330" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="910" y="125" text-anchor="middle" font-family="Arial" font-size="20" font-weight="bold" fill="#166534">3. REASSIGN</text>
+  <rect x="790" y="142" width="240" height="40" rx="8" fill="#ffffff" stroke="#16a34a"/>
+  <text x="910" y="168" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#166534">age = 30;</text>
+  <rect x="835" y="225" width="150" height="105" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="2.5"/>
+  <rect x="840" y="213" width="44" height="24" rx="6" fill="#bbf7d0" stroke="#16a34a"/>
+  <text x="862" y="230" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#166534">int</text>
+  <text x="910" y="295" text-anchor="middle" font-family="Arial" font-size="40" font-weight="bold" fill="#166534">30</text>
+  <text x="910" y="358" text-anchor="middle" font-family="Consolas, monospace" font-size="18" font-weight="bold" fill="#166534">age</text>
+  <text x="910" y="390" text-anchor="middle" font-family="Arial" font-size="14" fill="#166534">old value 25 is replaced</text>
+
+  <!-- bottom note (amber) -->
+  <rect x="100" y="445" width="900" height="46" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="550" y="474" text-anchor="middle" font-family="Arial" font-size="17" fill="#92400e">type decides what can go in the box (int = whole numbers only)</text>
+</svg>

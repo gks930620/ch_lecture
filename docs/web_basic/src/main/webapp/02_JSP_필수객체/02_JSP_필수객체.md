@@ -48,8 +48,10 @@
 
 5) 실습 지침
 - `02_scope_demo.jsp`를 열고 request/session/application 속성 설정 후 EL로 출력.
-- 서블릿(`AttributeSetterServlet` 예제)을 작성해 request 속성을 설정하고 forward로 JSP를 호출해 보세요.
+- (연습 과제) `AttributeSetterServlet` **직접 작성**: 프로젝트에 없는 파일이며 직접 만들어 봅니다. request 속성을 설정하고 forward로 JSP를 호출해 request 스코프가 유지되는지 확인.
 - 연습 문제: 같은 이름의 속성을 여러 스코프에 설정했을 때 EL이 어떤 값을 우선 참조하는지 실험하라.
+
+> 참고 — EL 이스케이프 트릭: `02_scope_demo.jsp`에는 `${"$"}{msg}` 같은 표현이 나옵니다. 이는 `${"$"}`로 `$` 문자만 출력하고 뒤의 `{msg}`는 EL이 아닌 **리터럴 문자열**로 남겨, 화면에 `${msg}`라는 글자를 그대로 보여주기 위한 기법입니다(EL을 문서로 설명할 때 사용).
 
 6) 권장 코드 스타일
 - JSP에 비즈니스 로직(복잡한 자바 코드)을 직접 두지 마세요. 서블릿/서비스에서 처리하고 JSP는 뷰로만 사용.

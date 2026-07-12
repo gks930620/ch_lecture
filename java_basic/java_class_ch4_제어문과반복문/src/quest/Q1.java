@@ -7,10 +7,12 @@ public class Q1 {
         Scanner scanner = new Scanner(System.in);
         System.out.print("정수 입력: ");
         int n = scanner.nextInt();
-        if (n % 2 == 0) {
-            System.out.println("짝수");
+        if (n > 0) {
+            System.out.println("양수");
+        } else if (n < 0) {
+            System.out.println("음수");
         } else {
-            System.out.println("홀수");
+            System.out.println("0");
         }
     }
 }

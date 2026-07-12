@@ -17,9 +17,9 @@ public class JDBC기본2Insert {
         Statement stmt=null;
         ResultSet rs=null;
         try {
-            conn= DriverManager.getConnection("jdbc:oracle:thin:@nextit.or.kr:1521:xe","std225","oracle21c");  //2.연결
+            conn= DriverManager.getConnection("jdbc:oracle:thin:@DB주소:1521:xe","DB유저ID","DB비밀번호");  //2.연결 (DB주소·유저ID·비밀번호는 본인 환경에 맞게 변경)
             //3.쿼리실행및 데이터처리
-            stmt = conn.createStatement();  //이 stmt는 위의 주소에서 리 실행하는 객체
+            stmt = conn.createStatement();  //이 stmt는 위의 주소에서 쿼리 실행하는 객체
             String sql= """
                      INSERT INTO member (
                                         mem_id,mem_pass,mem_name,mem_bir
@@ -28,7 +28,7 @@ public class JDBC기본2Insert {
                                         ,mem_del_yn
                                 ) VALUES (
                                         'a00'||seq_member.nextval, '1004','김민지',sysdate
-                                        ,'34502','세종특별자치시 범지기마을','904-비밀','010-8033-3117'
+                                        ,'34502','서울특별시 예시로 1','101호','010-0000-0000'
                                         ,'macdonald@equalToLot.com','JB01','HB01'
                                         ,'N'
                                 )

@@ -21,8 +21,15 @@ public class Q3 {
         }
     }
 
+    static class Bird extends Animal {
+        @Override
+        void speak() {
+            System.out.println("짹짹");
+        }
+    }
+
     public static void main(String[] args) {
-        Animal[] animals = {new Cat(), new Dog(), new Cat()};
+        Animal[] animals = {new Cat(), new Dog(), new Bird()};
         for (Animal animal : animals) {
             animal.speak();
         }
