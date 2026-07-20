@@ -13,11 +13,11 @@ import lombok.*;
 @Builder
 public class CommunityCreateDTO {
 
-    @NotBlank(message = "제목은 필수입니다")
-    @Size(max = 200, message = "제목은 200자 이하여야 합니다")
+    @NotBlank(message = "Title is required")
+    @Size(max = 200, message = "Title must be at most 200 characters")
     private String title;
 
-    @NotBlank(message = "내용은 필수입니다")
+    @NotBlank(message = "Content is required")
     private String content;
 
     /**

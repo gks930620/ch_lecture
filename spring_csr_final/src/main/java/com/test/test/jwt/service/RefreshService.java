@@ -31,7 +31,7 @@ public class RefreshService {
 
         RefreshEntity refreshEntity = new RefreshEntity();
         UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> EntityNotFoundException.of("사용자", username));
+                .orElseThrow(() -> EntityNotFoundException.of("User", username));
         refreshEntity.setUserEntity(user);
         refreshEntity.setToken(token);
         refreshRepository.save(refreshEntity);

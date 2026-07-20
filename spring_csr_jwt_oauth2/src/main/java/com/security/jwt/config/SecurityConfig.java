@@ -6,6 +6,7 @@ import com.security.jwt.filter.JwtLoginFilter;
 import com.security.jwt.service.CustomOAuth2UserService;
 import com.security.jwt.service.CustomUserDetailsService;
 import com.security.jwt.service.RefreshService;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -64,9 +65,15 @@ public class SecurityConfig {
 
         http   //경로와 인증/인가 설정.
             .authorizeHttpRequests(auth -> auth
+                // 컨트롤러 예외(500 등)로 /error 포워드 시 ERROR 디스패치엔 JWT필터(OncePerRequest)가 재실행되지 않아
+                // SecurityContext가 비어있다. anyRequest().authenticated()가 이를 401로 가리지 않도록 ERROR 디스패치는 허용.
+                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(
                     "/login", "/api/join", "/api/refresh/reissue" , "/custom-oauth2/login/**") .permitAll() //  oauth2도 추가
                 .requestMatchers("/api/my/info","/api/logout").authenticated()  //security 기본 로그아웃 url인 /logout은 사용X
+                // 나열하지 않은 나머지 URL도 기본 인증 필요. 없으면(Security 6) 미정의 URL이 그냥 허용됨.
+                // OAuth2 콜백(/login/oauth2/code/*)은 OAuth2LoginAuthenticationFilter가 인가필터 이전에 처리·종료하므로 정상 동작.
+                .anyRequest().authenticated()
             );
 
         http.oauth2Login(oauth2 -> oauth2

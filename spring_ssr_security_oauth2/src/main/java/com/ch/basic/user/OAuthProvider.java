@@ -23,7 +23,7 @@ import java.util.Map;
  *
  * 카카오:
  * {
- *     "id": 1234567890,     ← Long 타입
+ *     "id": 1234567890,     ← 숫자(보통 Long, 값 크기에 따라 Integer로 올 수도 있음)
  *     "kakao_account": {
  *         "email": "user@example.com"
  *     },

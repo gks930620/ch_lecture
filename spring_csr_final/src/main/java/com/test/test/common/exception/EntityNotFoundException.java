@@ -13,11 +13,11 @@ public class EntityNotFoundException extends BusinessException {
     }
 
     public static EntityNotFoundException of(String entityName, Long id) {
-        return new EntityNotFoundException(entityName + "을(를) 찾을 수 없습니다: " + id);
+        return new EntityNotFoundException(entityName + " not found: " + id);
     }
 
     public static EntityNotFoundException of(String entityName, String identifier) {
-        return new EntityNotFoundException(entityName + "을(를) 찾을 수 없습니다: " + identifier);
+        return new EntityNotFoundException(entityName + " not found: " + identifier);
     }
 }
 

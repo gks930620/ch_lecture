@@ -51,10 +51,13 @@
                     <span class="material-icons">person</span>
                     마이페이지
                 </a>
-                <a href="/admin" class="nav-item">
-                    <span class="material-icons">admin_panel_settings</span>
-                    관리자
-                </a>
+                <!-- 관리자 링크는 ADMIN 권한일 때만 노출 (USER가 클릭 시 403 방지) -->
+                <th:block sec:authorize="hasAuthority('ADMIN')">
+                    <a href="/admin" class="nav-item">
+                        <span class="material-icons">admin_panel_settings</span>
+                        관리자
+                    </a>
+                </th:block>
             </div>
             <div class="header-right">
                 <!-- 로그인 상태: Security 인증 정보 사용 -->

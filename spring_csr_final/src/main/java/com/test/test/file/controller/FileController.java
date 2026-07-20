@@ -79,10 +79,10 @@ public class FileController {
 
         try {
             List<String> filePaths = fileService.getFilePaths(refId, refType, usage);
-            return ResponseEntity.ok(ApiResponse.success("파일 경로 조회 성공", filePaths));
+            return ResponseEntity.ok(ApiResponse.success("File paths fetched", filePaths));
         } catch (IllegalArgumentException e) {
             log.error("잘못된 파라미터: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(ApiResponse.fail("잘못된 파라미터입니다."));
+            return ResponseEntity.badRequest().body(ApiResponse.fail("Invalid parameter"));
         }
     }
 
@@ -115,7 +115,7 @@ public class FileController {
 
             log.info("파일 업로드 완료 - refId: {}, refType: {}, 파일 수: {}", refId, refType, savedPaths.size());
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("파일 업로드 성공", savedPaths));
+            return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Files uploaded", savedPaths));
 
         } catch (IllegalArgumentException e) {
             log.error("잘못된 파라미터: {}", e.getMessage());
@@ -140,7 +140,7 @@ public class FileController {
         @RequestParam(required = false) String usage) {
         try {
             List<FileDetailDTO> fileDetails = fileService.getFileDetails(refId, refType, usage);
-            return ResponseEntity.ok(ApiResponse.success("파일 조회 성공", fileDetails));
+            return ResponseEntity.ok(ApiResponse.success("File details fetched", fileDetails));
         } catch (IllegalArgumentException e) {
             log.error("잘못된 파라미터: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -214,7 +214,7 @@ public class FileController {
         try {
             log.info("파일 삭제 요청: fileId={}", fileId);
             fileService.deleteFile(fileId);
-            return ResponseEntity.ok(ApiResponse.success("파일이 삭제되었습니다."));
+            return ResponseEntity.ok(ApiResponse.success("File deleted"));
         } catch (IllegalArgumentException e) {
             log.error("파일 삭제 실패: {}", e.getMessage());
             return ResponseEntity.notFound().build();

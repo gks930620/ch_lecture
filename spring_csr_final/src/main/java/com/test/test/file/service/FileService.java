@@ -91,7 +91,7 @@ public class FileService {
     @Transactional
     public void deleteFile(Long fileId) {
         FileEntity fileEntity = fileRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다: " + fileId));
+                .orElseThrow(() -> new IllegalArgumentException("File not found: " + fileId));
 
         fileRepository.delete(fileEntity);
         log.info("파일 삭제 완료 - fileId: {}, 파일명: {}", fileId, fileEntity.getOriginalFileName());

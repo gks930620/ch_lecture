@@ -1,8 +1,5 @@
 package com.chat.stomp.config;
 
-import com.chat.stomp.model.ChatMessage;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -31,14 +28,15 @@ public class WebSocketEventListener {
         Object sessionRoomId = accessor.getSessionAttributes().get("roomId");
         String roomId=(String)sessionRoomId;
 
-        if (auth != null) {
+        if (auth != null && roomId != null) {
             String username = auth.getName();
             // roomId는 클라이언트에서 헤더로 보내거나, 세션에서 관리
+            // roomId가 null이면 "/sub/room/null"로 잘못 전송되므로 퇴장 리스너와 동일하게 null 체크
             messagingTemplate.convertAndSend("/sub/room/" + roomId, username + "님이 입장했습니다.");
 
             //여기에서 해당 방에만..
             // html에   stompClient.subscribe(`/sub/room/${roomId}`  주소랑 같아야함.)
-            // 실제 방을 나누는건 html에 stocmClient.subscribe를 통해   Stomp websocket이 방 나누는거고
+            // 실제 방을 나누는건 html에 stompClient.subscribe를 통해   Stomp websocket이 방 나누는거고
             // 내 코드는 그 방에 메세지 전달하는 것 뿐
 
             //ChatController는 sendMessage에서 메시지 보낼 때마다 실행되지만  연결될 때는 실행X

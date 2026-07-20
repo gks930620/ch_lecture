@@ -13,7 +13,7 @@ public class DuplicateResourceException extends BusinessException {
     }
 
     public static DuplicateResourceException alreadyDeleted(String entityName) {
-        return new DuplicateResourceException("이미 삭제된 " + entityName + "입니다.");
+        return new DuplicateResourceException(entityName + " is already deleted");
     }
 
     public static DuplicateResourceException alreadyExists(String message) {

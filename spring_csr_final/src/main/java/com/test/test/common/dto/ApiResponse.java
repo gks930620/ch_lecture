@@ -23,7 +23,7 @@ public class ApiResponse<T> {
 
     // 성공 응답 (데이터만)
     public static <T> ApiResponse<T> success(T data) {
-        return success("성공", data);
+        return success("Success", data);
     }
 
     // 성공 응답 (메시지만, 데이터 없음)

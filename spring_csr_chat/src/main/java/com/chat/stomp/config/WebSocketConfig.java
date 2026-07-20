@@ -13,7 +13,7 @@ import org.springframework.web.socket.config.annotation.*;
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-       // WebSocketMessageBrokerConfigurer   이 인터페이스를 구현하며너 STOMP를 사용하게 되는 것.
+       // WebSocketMessageBrokerConfigurer   이 인터페이스를 구현하면서 STOMP를 사용하게 되는 것.
 
     private  final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;

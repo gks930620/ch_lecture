@@ -34,7 +34,7 @@ public class SupabaseFileStorage implements FileStorageStrategy {
     @Override
     public FileUploadResult uploadFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("파일이 비어있습니다");
+            throw new IllegalArgumentException("File is empty");
         }
 
         try {
@@ -72,12 +72,12 @@ public class SupabaseFileStorage implements FileStorageStrategy {
                         .contentType(file.getContentType())
                         .build();
             } else {
-                throw new RuntimeException("Supabase 업로드 실패: " + response.getStatusCode());
+                throw new RuntimeException("Supabase upload failed: " + response.getStatusCode());
             }
 
         } catch (Exception e) {
             log.error("Supabase 업로드 실패: {}", e.getMessage(), e);
-            throw new RuntimeException("파일 업로드 실패: " + file.getOriginalFilename(), e);
+            throw new RuntimeException("Failed to upload file: " + file.getOriginalFilename(), e);
         }
     }
 

@@ -58,6 +58,14 @@ public class UserEntity {
         updatedAt = LocalDateTime.now();
     }
 
+    // 권한 목록.
+    // ⚠️ @ElementCollection/@Convert 없이 List<String>을 두면 JPA가 이 필드를 자바 직렬화(BLOB)로 저장한다.
+    //    (DB에는 0xACED... 바이너리로 들어가 SQL로 직접 조회/수정이 어렵다)
+    // 강의용으로 단순하게 두었으며, DB에서 사람이 읽고 쿼리하고 싶으면 아래처럼 별도 테이블 매핑을 쓰면 된다:
+    //    @ElementCollection(fetch = FetchType.EAGER)
+    //    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    //    @Column(name = "role")
+    //  (단, 이 경우 data-users.sql의 roles 시드 데이터도 함께 바꿔야 한다)
     @Builder.Default
     private List<String> roles=new ArrayList<>();
 }

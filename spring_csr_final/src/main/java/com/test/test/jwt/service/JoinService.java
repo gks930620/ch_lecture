@@ -20,12 +20,12 @@ public class JoinService {
     public void joinProcess(JoinDTO joinDTO) {
         // 중복 체크: 이미 존재하면 예외 발생
         if (userRepository.existsByUsername(joinDTO.getUsername())) {
-            throw new DuplicateResourceException("이미 사용 중인 아이디입니다: " + joinDTO.getUsername());
+            throw new DuplicateResourceException("Username already in use: " + joinDTO.getUsername());
         }
 
         // 이메일 중복 체크 (선택)
         if (joinDTO.getEmail() != null && userRepository.existsByEmail(joinDTO.getEmail())) {
-            throw new DuplicateResourceException("이미 사용 중인 이메일입니다: " + joinDTO.getEmail());
+            throw new DuplicateResourceException("Email already in use: " + joinDTO.getEmail());
         }
 
         UserEntity user = new UserEntity();

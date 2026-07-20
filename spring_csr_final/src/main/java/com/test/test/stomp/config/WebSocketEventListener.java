@@ -29,6 +29,8 @@ public class WebSocketEventListener {
 
         if (auth != null && roomId != null) {
             String username = auth.getName();
+            // 이 방송 문구는 채팅 화면에 그대로 노출되는 UI 텍스트라 (한국어 UI에 맞춰) 한국어로 유지한다.
+            // 참고: API 응답 message는 영어로 통일되어 있으나, 화면 표시용 문구는 별개다.
             messagingTemplate.convertAndSend("/sub/room/" + roomId, username + "님이 입장했습니다.");
         }
     }

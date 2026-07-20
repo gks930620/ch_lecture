@@ -42,10 +42,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll())
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
+        // H2 콘솔은 iframe으로 렌더링되므로 frameOptions 비활성화가 필요하다.
+        // (/h2-console/** 의 permitAll 은 아래 단일 authorizeHttpRequests 블록에 포함되어 있고,
+        //  CSRF도 바로 아래에서 전체 disable 되므로 h2-console 전용 csrf 설정은 불필요하다)
+        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         http.cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())

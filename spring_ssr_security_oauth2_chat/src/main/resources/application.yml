@@ -6,8 +6,10 @@
 # profiles(dev/prod), 환경변수 등으로 환경별 설정 분리 가능
 
 spring:
-  # ─── 파일 업로드 설정 ───
-  # MultipartFile 처리 시 허용할 최대 파일 크기
+  # ─── 파일 업로드 설정 (※ 이 프로젝트에서는 미사용) ───
+  # MultipartFile 처리 시 허용할 최대 파일 크기.
+  # 이 채팅 프로젝트에는 파일 업로드 기능이 없어 실제로 동작하지 않는다(공통 템플릿에서 온 설정).
+  # 업로드 기능이 있는 프로젝트에서 그대로 재사용할 수 있도록 남겨둔 참고 설정이다.
   servlet:
     multipart:
       max-file-size: 10MB       # 단일 파일 최대 크기 (이 이상이면 MaxUploadSizeExceededException)
@@ -110,12 +112,14 @@ spring:
           # google은 Security가 기본 제공하므로 provider 설정 불필요
 
 
-# ─── 커스텀 설정 ───
-# Spring Boot 기본 설정이 아닌, 프로젝트에서 직접 정의한 설정
-# @Value("${file.upload-dir}") 로 Java 코드에서 주입받아 사용
+# ─── 커스텀 설정 (※ 이 프로젝트에서는 미사용) ───
+# Spring Boot 기본 설정이 아닌, 프로젝트에서 직접 정의한 설정.
+# @Value("${file.upload-dir}") 로 주입받아 쓰는 값이지만, 이 채팅 프로젝트에는
+# 이 값을 읽는 코드가 없다(파일 업로드 기능 없음 — 공통 템플릿에서 온 설정).
 file:
   upload-dir: ./uploads   # 파일 업로드 저장 경로 (프로젝트 루트 기준 상대경로)
-                           # 서버 실행 시 ./uploads → C:/workspace/ch_lecture/spring_ssr/uploads/
+                           # 예: 이 프로젝트 루트에서 실행 시 ./uploads →
+                           #     C:/Users/gks93/workspace/ch_lecture/spring_ssr_security_oauth2_chat/uploads/
 
 
 

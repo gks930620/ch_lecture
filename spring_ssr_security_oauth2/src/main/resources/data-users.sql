@@ -18,7 +18,6 @@ CREATE TABLE users (
     nickname   VARCHAR(255),
     provider   VARCHAR(255),
     roles      VARCHAR(255) NOT NULL DEFAULT 'USER',
-    is_deleted BIT          NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY UK_users_username (username)
 ) ENGINE=InnoDB;

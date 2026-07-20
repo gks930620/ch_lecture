@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.toList());
 
         ErrorResponse response = ErrorResponse.of(
-                "입력값이 올바르지 않습니다.",
+                "Invalid input",
                 "VALIDATION_ERROR",
                 fieldErrors
         );
@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
         log.warn("JSON Parse Exception: {}", e.getMessage());
 
         ErrorResponse response = ErrorResponse.of(
-                "요청 본문을 읽을 수 없습니다. JSON 형식을 확인해주세요.",
+                "Malformed JSON request. Please check the JSON format.",
                 "INVALID_JSON"
         );
         return ResponseEntity.badRequest().body(response);
@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
         log.warn("Missing Parameter: {}", e.getParameterName());
 
         ErrorResponse response = ErrorResponse.of(
-                "필수 파라미터가 누락되었습니다: " + e.getParameterName(),
+                "Missing required parameter: " + e.getParameterName(),
                 "MISSING_PARAMETER"
         );
         return ResponseEntity.badRequest().body(response);
@@ -99,7 +99,7 @@ public class GlobalExceptionHandler {
         log.warn("Type Mismatch: {} - {}", e.getName(), e.getValue());
 
         ErrorResponse response = ErrorResponse.of(
-                "파라미터 타입이 올바르지 않습니다: " + e.getName(),
+                "Invalid parameter type: " + e.getName(),
                 "TYPE_MISMATCH"
         );
         return ResponseEntity.badRequest().body(response);
@@ -140,7 +140,7 @@ public class GlobalExceptionHandler {
         log.error("Unexpected Exception: ", e);
 
         ErrorResponse response = ErrorResponse.of(
-                "서버 내부 오류가 발생했습니다.",
+                "Internal server error",
                 "INTERNAL_SERVER_ERROR"
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -152,10 +152,11 @@ public class GlobalExceptionHandler {
     private HttpStatus determineStatusFromMessage(String message) {
         if (message == null) return HttpStatus.BAD_REQUEST;
 
-        if (message.contains("찾을 수 없습니다")) {
+        String lower = message.toLowerCase();
+        if (lower.contains("not found")) {
             return HttpStatus.NOT_FOUND;
         }
-        if (message.contains("본인의") || message.contains("권한이 없습니다")) {
+        if (lower.contains("permission") || lower.contains("forbidden")) {
             return HttpStatus.FORBIDDEN;
         }
         return HttpStatus.BAD_REQUEST;
@@ -167,10 +168,11 @@ public class GlobalExceptionHandler {
     private String determineErrorCodeFromMessage(String message) {
         if (message == null) return "BAD_REQUEST";
 
-        if (message.contains("찾을 수 없습니다")) {
+        String lower = message.toLowerCase();
+        if (lower.contains("not found")) {
             return "NOT_FOUND";
         }
-        if (message.contains("본인의") || message.contains("권한이 없습니다")) {
+        if (lower.contains("permission") || lower.contains("forbidden")) {
             return "ACCESS_DENIED";
         }
         return "BAD_REQUEST";

@@ -40,7 +40,9 @@ public enum OAuthProvider {
             return UserEntity.builder()
                     .provider(this.getRegistrationId())
                     .username(this.getRegistrationId() + attributes.get("sub"))   // google112233...
-                    .password("{noop}oauth2user")   // OAuth2 사용자는 비밀번호 불필요 — Security 형식 맞추기용
+                    .password("{noop}oauth2user")   // OAuth2 사용자는 폼 로그인 비밀번호 검증을 하지 않아 이 값은 사용되지 않음.
+                                                    // password 컬럼이 NOT NULL이라 채워두는 더미값일 뿐이다.
+                                                    // (참고: 이 프로젝트의 PasswordEncoder는 BCrypt 단독이라 {noop} 접두사는 특별한 의미가 없음)
                     .email((String) attributes.get("email"))
                     .nickname((String) attributes.get("name"))
                     .roles("USER")
@@ -70,7 +72,7 @@ public enum OAuthProvider {
             return UserEntity.builder()
                     .provider(this.getRegistrationId())
                     .username(this.getRegistrationId() + id)   // kakao1234567890
-                    .password("{noop}oauth2user")
+                    .password("{noop}oauth2user")   // GOOGLE 주석 참고: 사용되지 않는 NOT NULL 채우기용 더미값
                     .email(email)
                     .nickname(nickname != null ? nickname : "카카오사용자")  // 닉네임 없으면 기본값
                     .roles("USER")

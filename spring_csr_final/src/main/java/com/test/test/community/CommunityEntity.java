@@ -78,7 +78,7 @@ public class CommunityEntity {
      */
     public void softDelete() {
         if (this.isDeleted) {
-            throw DuplicateResourceException.alreadyDeleted("게시글");
+            throw DuplicateResourceException.alreadyDeleted("Community");
         }
         this.isDeleted = true;
     }

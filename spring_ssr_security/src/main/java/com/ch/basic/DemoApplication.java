@@ -2,7 +2,6 @@ package com.ch.basic;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Spring Boot 애플리케이션 진입점
@@ -12,7 +11,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  *   - @EnableAutoConfiguration: 의존성(build.gradle)에 맞춰 자동 설정 (예: JPA, Security 등)
  *   - @ComponentScan: 이 패키지(com.ch.basic) 하위의 @Component, @Controller, @Service 등을 자동 스캔하여 Bean 등록
  */
-@EnableScheduling
 @SpringBootApplication
 public class DemoApplication {
 

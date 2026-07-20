@@ -39,11 +39,21 @@
         </encoder>
     </appender>
 
-    <!-- 패키지별 로그 레벨 설정 -->
-    <logger name="com.test.test" level="DEBUG"/>
-    <logger name="org.springframework.security" level="DEBUG"/>
-    <logger name="org.hibernate.SQL" level="DEBUG"/>
-    <logger name="org.hibernate.type.descriptor.sql" level="TRACE"/>
+    <!-- 패키지별 로그 레벨 설정 (프로파일별 분리) -->
+    <!-- 로컬/개발(기본): 디버깅을 위한 상세 로그 -->
+    <springProfile name="!prod">
+        <logger name="com.test.test" level="DEBUG"/>
+        <logger name="org.springframework.security" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="org.hibernate.type.descriptor.sql" level="TRACE"/>
+    </springProfile>
+
+    <!-- 운영(prod): 로그 최소화 (application-prod.yml 의 INFO/WARN 의도와 일치) -->
+    <springProfile name="prod">
+        <logger name="com.test.test" level="INFO"/>
+        <logger name="org.springframework.security" level="WARN"/>
+        <logger name="org.hibernate.SQL" level="WARN"/>
+    </springProfile>
 
     <!-- 루트 로거 설정 -->
     <root level="INFO">

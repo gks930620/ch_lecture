@@ -13,11 +13,11 @@ public class AccessDeniedException extends BusinessException {
     }
 
     public static AccessDeniedException forUpdate(String entityName) {
-        return new AccessDeniedException("본인의 " + entityName + "만 수정할 수 있습니다.");
+        return new AccessDeniedException("You can only update your own " + entityName);
     }
 
     public static AccessDeniedException forDelete(String entityName) {
-        return new AccessDeniedException("본인의 " + entityName + "만 삭제할 수 있습니다.");
+        return new AccessDeniedException("You can only delete your own " + entityName);
     }
 }
 

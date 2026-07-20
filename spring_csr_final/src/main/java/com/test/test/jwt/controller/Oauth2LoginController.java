@@ -35,7 +35,7 @@ public class Oauth2LoginController {
         // 1. yml 설정 정보 로드 (google, kakao 등)
         ClientRegistration registration = clientRegistrationRepository.findByRegistrationId(provider);
         if (registration == null) {
-            throw new IllegalArgumentException("지원하지 않는 로그인 수단입니다: " + provider);
+            throw new IllegalArgumentException("Unsupported login provider: " + provider);
         }
 
         String state = UUID.randomUUID().toString();

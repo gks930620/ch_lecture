@@ -14,7 +14,7 @@ import lombok.Setter;
 @Builder
 public class CommentUpdateDTO {
 
-    @NotBlank(message = "댓글 내용은 필수입니다")
+    @NotBlank(message = "Comment content is required")
     private String content;
 }
 

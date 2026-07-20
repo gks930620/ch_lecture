@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record RoomCreateRequest(
-    @NotBlank(message = "채팅방 이름은 필수입니다.")
-    @Size(max = 50, message = "채팅방 이름은 50자 이하여야 합니다.")
+    @NotBlank(message = "Room name is required")
+    @Size(max = 50, message = "Room name must be at most 50 characters")
     String name
 ) {
 }

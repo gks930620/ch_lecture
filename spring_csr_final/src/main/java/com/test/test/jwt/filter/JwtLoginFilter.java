@@ -120,7 +120,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         // 직접 JSON 문자열 생성 (ObjectMapper의 JavaTimeModule 미등록 이슈 회피)
         String jsonResponse = String.format(
             "{\"success\":false,\"message\":\"%s\",\"errorCode\":\"%s\",\"timestamp\":\"%s\"}",
-            "아이디 또는 비밀번호가 일치하지 않습니다.",
+            "Invalid username or password",
             "AUTHENTICATION_FAILED",
             java.time.LocalDateTime.now()
         );

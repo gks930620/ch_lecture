@@ -28,7 +28,7 @@ public class LocalFileStorage implements FileStorageStrategy {
     @Override
     public FileUploadResult uploadFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("파일이 비어있습니다");
+            throw new IllegalArgumentException("File is empty");
         }
 
         ensureUploadDirectoryExists();
@@ -54,7 +54,7 @@ public class LocalFileStorage implements FileStorageStrategy {
 
         } catch (IOException e) {
             log.error("파일 저장 실패: {}", e.getMessage(), e);
-            throw new RuntimeException("파일 저장 실패: " + file.getOriginalFilename(), e);
+            throw new RuntimeException("Failed to save file: " + file.getOriginalFilename(), e);
         }
     }
 
@@ -79,7 +79,7 @@ public class LocalFileStorage implements FileStorageStrategy {
                 log.info("업로드 디렉토리 생성: {}", uploadPath);
             }
         } catch (IOException e) {
-            throw new RuntimeException("업로드 디렉토리 생성 실패", e);
+            throw new RuntimeException("Failed to create upload directory", e);
         }
     }
 

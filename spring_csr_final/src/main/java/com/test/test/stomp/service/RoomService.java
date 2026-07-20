@@ -1,5 +1,6 @@
 package com.test.test.stomp.service;
 
+import com.test.test.common.exception.EntityNotFoundException;
 import com.test.test.stomp.entity.RoomEntity;
 import com.test.test.stomp.model.RoomDTO;
 import com.test.test.stomp.repository.RoomRepository;
@@ -24,7 +25,7 @@ public class RoomService {
 
     public RoomDTO getRoom(Long roomId) {
         RoomEntity entity = roomRepository.findById(roomId)
-            .orElseThrow(() -> new RuntimeException("존재하지 않는 방입니다."));
+            .orElseThrow(() -> EntityNotFoundException.of("Room", roomId));
         return RoomDTO.from(entity);
     }
 
@@ -32,10 +33,10 @@ public class RoomService {
     public RoomDTO createRoom(String rawName) {
         String roomName = rawName == null ? "" : rawName.trim();
         if (roomName.isEmpty()) {
-            throw new IllegalArgumentException("채팅방 이름은 비어 있을 수 없습니다.");
+            throw new IllegalArgumentException("Room name cannot be empty");
         }
         if (roomRepository.existsByNameIgnoreCase(roomName)) {
-            throw new IllegalArgumentException("이미 존재하는 채팅방 이름입니다.");
+            throw new IllegalArgumentException("Room name already exists");
         }
 
         RoomEntity saved = roomRepository.save(new RoomEntity(null, roomName));

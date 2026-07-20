@@ -69,7 +69,7 @@ public class CommentEntity {
      */
     public void softDelete() {
         if (this.isDeleted) {
-            throw DuplicateResourceException.alreadyDeleted("댓글");
+            throw DuplicateResourceException.alreadyDeleted("Comment");
         }
         this.isDeleted = true;
     }
